@@ -20,17 +20,15 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    // Spawn 2D orthographic camera
     commands.spawn(Camera2d);
 
-    // Spawn ground
+    // Ground
     commands.spawn((
         Mesh2d(meshes.add(Rectangle::new(1200.0, 5.0))),
         MeshMaterial2d(materials.add(Color::srgb(0.0, 1.0, 0.5))),
         Transform::from_xyz(GROUND.x, GROUND.y, GROUND.z),
     ));
 
-    // Spawn player
     commands.spawn((
         Player,
         Mesh2d(meshes.add(Rectangle::new(PLAYER.x, PLAYER.y))),
