@@ -95,8 +95,7 @@ struct Move;
 #[action_output(bool)]
 struct Jump;
 
-// System to handle physics (gravity and landing)
-fn physics_system(time: Res<Time>, mut query: Query<(&mut Transform, &mut PlayerPhysics)>) {
+fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut PlayerPhysics)>) {
     for (mut transform, mut physics) in query.iter_mut() {
         // Apply gravity
         physics.velocity.y -= 500.0 * time.delta_secs();
