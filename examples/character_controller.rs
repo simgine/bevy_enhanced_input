@@ -26,7 +26,7 @@ fn setup(
     commands.spawn((
         Mesh2d(meshes.add(Rectangle::new(1200.0, 5.0))),
         MeshMaterial2d(materials.add(Color::srgb(0.0, 1.0, 0.5))),
-        Transform::from_xyz(GROUND.x, GROUND.y, GROUND.z),
+        Transform::from_translation(GROUND),
     ));
 
     commands.spawn((
