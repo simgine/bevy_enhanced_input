@@ -3,13 +3,16 @@ use bevy_enhanced_input::prelude::*;
 
 const GROUND: Vec3 = Vec3::new(0.0, -200.0, 0.0);
 const PLAYER: Vec2 = Vec2::new(50.0, 100.0);
+const JUMP_VELOCITY: f32 = 300.0;
+const GRAVITY: f32 = 900.0;
+const MAX_SPEED: f32 = 90.0;
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
         .add_systems(Startup, setup)
-        .add_systems(Update, physics_system)
+        .add_systems(Update, calculate_physics)
         .add_observer(apply_movement)
         .add_observer(apply_jump)
         .run();
@@ -63,7 +66,7 @@ fn apply_movement(
         return;
     };
     // Apply horizontal movement
-    physics.velocity.x = trigger.value.x * 90.0; // Max speed
+    physics.velocity.x = trigger.value.x * MAX_SPEED;
     transform.translation.x += physics.velocity.x * time.delta_secs();
     // Clamp to prevent moving off screen
     transform.translation.x = transform.translation.x.clamp(-600.0, 600.0);
@@ -71,9 +74,8 @@ fn apply_movement(
 
 fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
     let mut physics = query.get_mut(trigger.target()).unwrap();
-    // Only jump if grounded
     if physics.is_grounded {
-        physics.velocity.y = 170.0; // Jump velocity
+        physics.velocity.y = JUMP_VELOCITY;
         physics.is_grounded = false;
     }
 }
@@ -81,7 +83,7 @@ fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics
 #[derive(Component)]
 struct Player;
 
-#[derive(Component)]
+#[derive(Component, Default)]
 struct PlayerPhysics {
     velocity: Vec2,
     is_grounded: bool,
@@ -97,12 +99,10 @@ struct Jump;
 
 fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut PlayerPhysics)>) {
     for (mut transform, mut physics) in query.iter_mut() {
-        // Apply gravity
-        physics.velocity.y -= 500.0 * time.delta_secs();
+        physics.velocity.y -= GRAVITY * time.delta_secs();
         transform.translation.y += physics.velocity.y * time.delta_secs();
 
         let ground = GROUND.y + PLAYER.y / 2.0;
-        // Check for ground collision
         if transform.translation.y <= ground {
             transform.translation.y = ground;
             physics.velocity.y = 0.0;
