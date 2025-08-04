@@ -40,11 +40,12 @@ fn setup(
             velocity: Vec2::ZERO,
             is_grounded: true,
         },
-        actions!(
-            Player[(
+        actions!(Player[
+            (
                 Action::<Move>::new(),
                 DeadZone::default(),
                 Scale::splat(5.0),
+                SmoothNudge::default(),
                 Bindings::spawn((
                     Cardinal::wasd_keys(),
                     Axial::left_stick(),
@@ -52,9 +53,9 @@ fn setup(
             ),
             (
                 Action::<Jump>::new(),
-                bindings![ KeyCode::Space, GamepadButton::South ],
-            )]
-        ),
+                bindings![KeyCode::Space, GamepadButton::South],
+            )
+        ]),
     ));
 }
 
