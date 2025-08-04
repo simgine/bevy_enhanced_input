@@ -36,10 +36,7 @@ fn setup(
         Mesh2d(meshes.add(Rectangle::new(PLAYER.x, PLAYER.y))),
         MeshMaterial2d(materials.add(Color::srgb(1.0, 0.0, 0.5))),
         Transform::from_xyz(GROUND.x, GROUND.y + 100.0, GROUND.z),
-        PlayerPhysics {
-            velocity: Vec2::ZERO,
-            is_grounded: true,
-        },
+        PlayerPhysics::default(),
         actions!(Player[
             (
                 Action::<Move>::new(),
