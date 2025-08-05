@@ -95,7 +95,8 @@ fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut Pla
     for (mut transform, mut physics) in query.iter_mut() {
         physics.velocity.y -= GRAVITY * time.delta_secs();
         transform.translation.y += physics.velocity.y * time.delta_secs();
-        transform.translation.x += (physics.velocity.x * time.delta_secs()).clamp(-600.0, 600.0);
+        transform.translation.x += physics.velocity.x * time.delta_secs();
+        transform.translation.x = transform.translation.x.clamp(-600.0, 600.0); // Prevent moving off screen.
 
         let ground = GROUND.y + PLAYER.y / 2.0;
         if transform.translation.y <= ground {
