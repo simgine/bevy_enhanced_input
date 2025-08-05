@@ -45,7 +45,7 @@ fn setup(
                 Scale::splat(5.0),
                 SmoothNudge::default(),
                 Bindings::spawn((
-                    Cardinal::wasd_keys(),
+                    Bidirectional::<Binding, Binding> {positive: KeyCode::KeyD.into(), negative: KeyCode::KeyA.into()},
                     Axial::left_stick(),
                 )),
             ),
