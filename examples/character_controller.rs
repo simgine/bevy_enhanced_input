@@ -5,7 +5,6 @@ const GROUND: Vec3 = Vec3::new(0.0, -200.0, 0.0);
 const PLAYER: Vec2 = Vec2::new(50.0, 100.0);
 const JUMP_VELOCITY: f32 = 300.0;
 const GRAVITY: f32 = 900.0;
-const MAX_SPEED: f32 = 90.0;
 
 fn main() {
     App::new()
@@ -42,8 +41,8 @@ fn setup(
             (
                 Action::<Move>::new(),
                 DeadZone::default(),
-                Scale::splat(5.0),
                 SmoothNudge::default(),
+                Scale::splat(450.0),
                 Bindings::spawn((
                     Bidirectional::ad_keys(),
                     Bidirectional::arrow_keys(),
@@ -60,12 +59,13 @@ fn setup(
 
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
     let mut physics = query.get_mut(trigger.target()).unwrap();
-    physics.velocity.x = trigger.value * MAX_SPEED;
+    physics.velocity.x = trigger.value;
 }
 
 fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
     let mut physics = query.get_mut(trigger.target()).unwrap();
     if physics.is_grounded {
+        // Jump only if on the ground.
         physics.velocity.y = JUMP_VELOCITY;
         physics.is_grounded = false;
     }
