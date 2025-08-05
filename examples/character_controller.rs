@@ -71,6 +71,22 @@ fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics
     }
 }
 
+fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut PlayerPhysics)>) {
+    for (mut transform, mut physics) in query.iter_mut() {
+        physics.velocity.y -= GRAVITY * time.delta_secs();
+        transform.translation.y += physics.velocity.y * time.delta_secs();
+        transform.translation.x += physics.velocity.x * time.delta_secs();
+        transform.translation.x = transform.translation.x.clamp(-600.0, 600.0); // Prevent moving off screen.
+
+        let ground = GROUND.y + PLAYER.y / 2.0;
+        if transform.translation.y <= ground {
+            transform.translation.y = ground;
+            physics.velocity.y = 0.0;
+            physics.is_grounded = true;
+        }
+    }
+}
+
 #[derive(Component)]
 struct Player;
 
@@ -87,19 +103,3 @@ struct Move;
 #[derive(Debug, InputAction)]
 #[action_output(bool)]
 struct Jump;
-
-fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut PlayerPhysics)>) {
-    for (mut transform, mut physics) in query.iter_mut() {
-        physics.velocity.y -= GRAVITY * time.delta_secs();
-        transform.translation.y += physics.velocity.y * time.delta_secs();
-        transform.translation.x += physics.velocity.x * time.delta_secs();
-        transform.translation.x = transform.translation.x.clamp(-600.0, 600.0); // Prevent moving off screen.
-
-        let ground = GROUND.y + PLAYER.y / 2.0;
-        if transform.translation.y <= ground {
-            transform.translation.y = ground;
-            physics.velocity.y = 0.0;
-            physics.is_grounded = true;
-        }
-    }
-}
