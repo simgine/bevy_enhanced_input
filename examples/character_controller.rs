@@ -58,11 +58,8 @@ fn setup(
     ));
 }
 
-/// Apply horizontal movement
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
-    let Ok(mut physics) = query.get_mut(trigger.target()) else {
-        return;
-    };
+    let mut physics = query.get_mut(trigger.target()).unwrap();
     physics.velocity.x = trigger.value * MAX_SPEED;
 }
 
