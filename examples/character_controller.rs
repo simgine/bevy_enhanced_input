@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-const GROUND: Vec3 = Vec3::new(0.0, -200.0, 0.0);
+const GROUND_LEVEL: f32 = -200.0;
+const GROUND_WIDTH: f32 = 1200.0;
 const PLAYER: Vec2 = Vec2::new(50.0, 100.0);
 const JUMP_VELOCITY: f32 = 300.0;
 const GRAVITY: f32 = 900.0;
@@ -26,16 +27,16 @@ fn setup(
 
     // Ground
     commands.spawn((
-        Mesh2d(meshes.add(Rectangle::new(1200.0, 5.0))),
+        Mesh2d(meshes.add(Rectangle::new(GROUND_WIDTH, 5.0))),
         MeshMaterial2d(materials.add(Color::srgb(0.0, 1.0, 0.5))),
-        Transform::from_translation(GROUND),
+        Transform::from_translation(Vec3::Y * GROUND_LEVEL),
     ));
 
     commands.spawn((
         Player,
         Mesh2d(meshes.add(Rectangle::new(PLAYER.x, PLAYER.y))),
         MeshMaterial2d(materials.add(Color::srgb(1.0, 0.0, 0.5))),
-        Transform::from_xyz(GROUND.x, GROUND.y + 100.0, GROUND.z),
+        Transform::from_translation(Vec3::Y * (GROUND_LEVEL + 500.0)),
         PlayerPhysics::default(),
         actions!(Player[
             (
@@ -76,11 +77,15 @@ fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut Pla
         physics.velocity.y -= GRAVITY * time.delta_secs();
         transform.translation.y += physics.velocity.y * time.delta_secs();
         transform.translation.x += physics.velocity.x * time.delta_secs();
-        transform.translation.x = transform.translation.x.clamp(-600.0, 600.0); // Prevent moving off screen.
 
-        let ground = GROUND.y + PLAYER.y / 2.0;
-        if transform.translation.y <= ground {
-            transform.translation.y = ground;
+        // Prevent moving off screen.
+        const MAX_X: f32 = GROUND_WIDTH / 2.0 - PLAYER.x / 2.0;
+        transform.translation.x = transform.translation.x.clamp(-MAX_X, MAX_X);
+
+        // Check for ground collision.
+        const GROUDED_Y: f32 = GROUND_LEVEL + PLAYER.y / 2.0;
+        if transform.translation.y <= GROUDED_Y {
+            transform.translation.y = GROUDED_Y;
             physics.velocity.y = 0.0;
             physics.is_grounded = true;
         }
