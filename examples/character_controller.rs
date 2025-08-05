@@ -57,19 +57,12 @@ fn setup(
     ));
 }
 
-fn apply_movement(
-    trigger: Trigger<Fired<Move>>,
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut PlayerPhysics)>,
-) {
-    let Ok((mut transform, mut physics)) = query.get_mut(trigger.target()) else {
+/// Apply horizontal movement
+fn apply_movement(trigger: Trigger<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
+    let Ok(mut physics) = query.get_mut(trigger.target()) else {
         return;
     };
-    // Apply horizontal movement
-    physics.velocity.x = trigger.value.x * MAX_SPEED;
-    transform.translation.x += physics.velocity.x * time.delta_secs();
-    // Clamp to prevent moving off screen
-    transform.translation.x = transform.translation.x.clamp(-600.0, 600.0);
+    physics.velocity.x = trigger.value * MAX_SPEED;
 }
 
 fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
@@ -90,7 +83,7 @@ struct PlayerPhysics {
 }
 
 #[derive(Debug, InputAction)]
-#[action_output(Vec2)]
+#[action_output(f32)]
 struct Move;
 
 #[derive(Debug, InputAction)]
@@ -101,6 +94,7 @@ fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut Pla
     for (mut transform, mut physics) in query.iter_mut() {
         physics.velocity.y -= GRAVITY * time.delta_secs();
         transform.translation.y += physics.velocity.y * time.delta_secs();
+        transform.translation.x += (physics.velocity.x * time.delta_secs()).clamp(-600.0, 600.0);
 
         let ground = GROUND.y + PLAYER.y / 2.0;
         if transform.translation.y <= ground {
