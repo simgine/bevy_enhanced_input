@@ -32,7 +32,7 @@ impl<P: Bundle, N: Bundle> SpawnableList<BindingOf> for Bidirectional<P, N> {
 }
 
 impl Bidirectional<Binding, Binding> {
-    /// Maps WASD keys as 1-dimensional input.
+    /// Maps A and D keys as 1-dimensional input.
     #[must_use]
     pub fn ad_keys() -> Self {
         Self {
@@ -41,9 +41,27 @@ impl Bidirectional<Binding, Binding> {
         }
     }
 
-    /// Maps keyboard arrow keys as 1-dimensional input.
+    /// Maps W and S keys as 1-dimensional input.
     #[must_use]
-    pub fn arrow_keys() -> Self {
+    pub fn ws_keys() -> Self {
+        Self {
+            positive: KeyCode::KeyW.into(),
+            negative: KeyCode::KeyS.into(),
+        }
+    }
+
+    /// Maps left and right keyboard arrow keys as 1-dimensional input.
+    #[must_use]
+    pub fn horizontal_arrow_keys() -> Self {
+        Self {
+            positive: KeyCode::ArrowRight.into(),
+            negative: KeyCode::ArrowLeft.into(),
+        }
+    }
+
+    /// Maps up and down keyboard arrow keys as 1-dimensional input.
+    #[must_use]
+    pub fn vertical_arrow_keys() -> Self {
         Self {
             positive: KeyCode::ArrowRight.into(),
             negative: KeyCode::ArrowLeft.into(),

@@ -46,7 +46,7 @@ fn setup(
                 Scale::splat(450.0),
                 Bindings::spawn((
                     Bidirectional::ad_keys(),
-                    Bidirectional::arrow_keys(),
+                    Bidirectional::horizontal_arrow_keys(),
                     Axial::left_stick(),
                 )),
             ),
