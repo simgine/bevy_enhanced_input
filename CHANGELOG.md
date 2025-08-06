@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Helpers for wasd and arrow keys for `Bidirectional` preset.
+
 ## [0.15.2] - 2025-07-28
 
 ### Added
