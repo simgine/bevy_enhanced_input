@@ -45,10 +45,7 @@ fn open_inventory(trigger: Trigger<Started<OpenInventory>>, mut commands: Comman
                 ),
                 (
                     Action::<CloseInventory>::new(),
-                    ActionSettings {
-                        require_reset: true,
-                        ..Default::default()
-                    },
+                    ActionSettings::default().require_reset(true),
                     bindings![KeyCode::KeyI, GamepadButton::Select],
                 )
             ]),
@@ -85,10 +82,7 @@ fn player_bundle() -> impl Bundle {
                 Action::<OpenInventory>::new(),
                 // We set `require_reset` to `true` because `CloseInventory` action uses the same input,
                 // and we want it to be triggerable only after the button is released.
-                ActionSettings {
-                    require_reset: true,
-                    ..Default::default()
-                },
+                ActionSettings::default().require_reset(true),
                 bindings![KeyCode::KeyI, GamepadButton::Select],
             ),
         ]),

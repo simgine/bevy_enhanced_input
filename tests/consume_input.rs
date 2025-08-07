@@ -11,29 +11,11 @@ fn consume() {
 
     app.world_mut().spawn((
         TestContext,
-        actions!(
-            TestContext[(
-                Action::<First>::new(),
-                ActionSettings {
-                    consume_input: true,
-                    ..Default::default()
-                },
-                bindings![KEY],
-            )]
-        ),
+        actions!(TestContext[(Action::<First>::new(), bindings![KEY])]),
     ));
     app.world_mut().spawn((
         TestContext,
-        actions!(
-            TestContext[(
-                Action::<Second>::new(),
-                ActionSettings {
-                    consume_input: true,
-                    ..Default::default()
-                },
-                bindings![KEY],
-            )]
-        ),
+        actions!(TestContext[(Action::<Second>::new(), bindings![KEY])]),
     ));
 
     app.update();
@@ -75,10 +57,7 @@ fn passthrough() {
         actions!(
             TestContext[(
                 Action::<First>::new(),
-                ActionSettings {
-                    consume_input: false,
-                    ..Default::default()
-                },
+                ActionSettings::default().consume_input(false),
                 bindings![KEY],
             )]
         ),
@@ -88,10 +67,7 @@ fn passthrough() {
         actions!(
             TestContext[(
                 Action::<Second>::new(),
-                ActionSettings {
-                    consume_input: false,
-                    ..Default::default()
-                },
+                ActionSettings::default().consume_input(false),
                 bindings![KEY],
             )]
         ),
@@ -133,26 +109,14 @@ fn consume_then_passthrough() {
 
     app.world_mut().spawn((
         TestContext,
-        actions!(
-            TestContext[(
-                Action::<First>::new(),
-                ActionSettings {
-                    consume_input: true,
-                    ..Default::default()
-                },
-                bindings![KEY],
-            )]
-        ),
+        actions!(TestContext[(Action::<First>::new(), bindings![KEY])]),
     ));
     app.world_mut().spawn((
         TestContext,
         actions!(
             TestContext[(
                 Action::<Second>::new(),
-                ActionSettings {
-                    consume_input: false,
-                    ..Default::default()
-                },
+                ActionSettings::default().consume_input(false),
                 bindings![KEY],
             )]
         ),
@@ -194,18 +158,11 @@ fn passthrough_then_consume() {
             TestContext[
             (
                 Action::<First>::new(),
-                ActionSettings {
-                    consume_input: false,
-                    ..Default::default()
-                },
+                ActionSettings::default().consume_input(false),
                 bindings![KEY],
             ),
             (
                 Action::<Second>::new(),
-                ActionSettings {
-                    consume_input: true,
-                    ..Default::default()
-                },
                 bindings![KEY],
             ),
             ]

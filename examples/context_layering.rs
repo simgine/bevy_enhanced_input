@@ -61,12 +61,9 @@ fn enter_car(trigger: Trigger<Started<EnterCar>>, mut commands: Commands) {
             ),
             (
                 Action::<ExitCar>::new(),
-                ActionSettings {
-                    // We set `require_reset` to `true` because `EnterWater` action uses the same input,
-                    // and we want it to be triggerable only after the button is released.
-                    require_reset: true,
-                    ..Default::default()
-                },
+                // We set `require_reset` to `true` because `EnterWater` action uses the same input,
+                // and we want it to be triggerable only after the button is released.
+                ActionSettings::default().require_reset(true),
                 bindings![KeyCode::Enter, GamepadButton::North]
             ),
         ]),

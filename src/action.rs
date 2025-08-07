@@ -228,8 +228,15 @@ impl Default for ActionSettings {
 }
 
 impl ActionSettings {
-    pub fn require_reset(mut self) -> Self {
-        self.require_reset = true;
+    /// Sets [`Self::require_reset`] to the given value.
+    pub fn require_reset(mut self, value: bool) -> Self {
+        self.require_reset = value;
+        self
+    }
+
+    /// Sets [`Self::consume_input`] to the given value.
+    pub fn consume_input(mut self, value: bool) -> Self {
+        self.consume_input = value;
         self
     }
 }

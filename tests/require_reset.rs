@@ -39,10 +39,7 @@ fn layering() {
         actions!(
             First[(
                 Action::<OnFirst>::new(),
-                ActionSettings {
-                    require_reset: true,
-                    ..Default::default()
-                },
+                ActionSettings::default().require_reset(true),
                 bindings![KEY]
             )]
         ),
@@ -103,10 +100,7 @@ fn switching() {
             actions!(
                 First[(
                     Action::<OnFirst>::new(),
-                    ActionSettings {
-                        require_reset: true,
-                        ..Default::default()
-                    },
+                    ActionSettings::default().require_reset(true),
                     bindings![KEY]
                 )]
             ),

@@ -16,12 +16,11 @@ fn same_schedule() {
         actions!(First[
             (
                 Action::<FirstConsume>::new(),
-                ActionSettings { consume_input: true, ..Default::default() },
                 bindings![CONSUME_KEY]
             ),
             (
                 Action::<FirstPassthrough>::new(),
-                ActionSettings { consume_input: false, ..Default::default() },
+                ActionSettings::default().consume_input(false),
                 bindings![PASSTHROUGH_KEY]
             )
         ]),
@@ -29,12 +28,11 @@ fn same_schedule() {
         actions!(Second[
             (
                 Action::<SecondConsume>::new(),
-                ActionSettings { consume_input: true, ..Default::default() },
                 bindings![CONSUME_KEY]
             ),
             (
                 Action::<SecondPassthrough>::new(),
-                ActionSettings { consume_input: false, ..Default::default() },
+                ActionSettings::default().consume_input(false),
                 bindings![PASSTHROUGH_KEY]
             )
         ]),
@@ -101,12 +99,11 @@ fn different_schedules() {
         actions!(First[
             (
                 Action::<FirstConsume>::new(),
-                ActionSettings { consume_input: true, ..Default::default() },
                 bindings![CONSUME_KEY]
             ),
             (
                 Action::<FirstPassthrough>::new(),
-                ActionSettings { consume_input: false, ..Default::default() },
+                ActionSettings::default().consume_input(false),
                 bindings![PASSTHROUGH_KEY]
             )
         ]),
@@ -115,12 +112,11 @@ fn different_schedules() {
         actions!(Second[
             (
                 Action::<SecondConsume>::new(),
-                ActionSettings { consume_input: true, ..Default::default() },
                 bindings![CONSUME_KEY]
             ),
             (
                 Action::<SecondPassthrough>::new(),
-                ActionSettings { consume_input: false, ..Default::default() },
+                ActionSettings::default().consume_input(false),
                 bindings![PASSTHROUGH_KEY]
             )
         ]),
@@ -200,12 +196,11 @@ fn change() {
             actions!(First[
                 (
                     Action::<FirstConsume>::new(),
-                    ActionSettings { consume_input: true, ..Default::default() },
                     bindings![CONSUME_KEY]
                 ),
                 (
                     Action::<FirstPassthrough>::new(),
-                    ActionSettings { consume_input: false, ..Default::default() },
+                    ActionSettings::default().consume_input(false),
                     bindings![PASSTHROUGH_KEY]
                 )
             ]),
@@ -213,12 +208,11 @@ fn change() {
             actions!(Second[
                 (
                     Action::<SecondConsume>::new(),
-                    ActionSettings { consume_input: true, ..Default::default() },
                     bindings![CONSUME_KEY]
                 ),
                 (
                     Action::<SecondPassthrough>::new(),
-                    ActionSettings { consume_input: false, ..Default::default() },
+                    ActionSettings::default().consume_input(false),
                     bindings![PASSTHROUGH_KEY]
                 )
             ]),
