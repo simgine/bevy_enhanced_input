@@ -227,6 +227,16 @@ impl Default for ActionSettings {
     }
 }
 
+impl ActionSettings {
+    pub fn reset() -> Self {
+        Self {
+            accumulation: Default::default(),
+            require_reset: true,
+            consume_input: true,
+        }
+    }
+}
+
 /// Defines how [`ActionValue`] is calculated when multiple inputs are evaluated with the
 /// same most significant [`ActionState`] (excluding [`ActionState::None`]).
 ///
