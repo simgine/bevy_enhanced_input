@@ -228,12 +228,9 @@ impl Default for ActionSettings {
 }
 
 impl ActionSettings {
-    pub fn reset() -> Self {
-        Self {
-            accumulation: Default::default(),
-            require_reset: true,
-            consume_input: true,
-        }
+    pub fn require_reset(mut self) -> Self {
+        self.require_reset = true;
+        self
     }
 }
 
