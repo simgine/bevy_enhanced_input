@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
+- Split `Binding::MouseWheel` into `Binding::VertWheel` and `Binding::SideWheel`. Each captures input for a different axis as `Axis1D`.
 
 ### Removed
 

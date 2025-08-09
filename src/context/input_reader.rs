@@ -99,15 +99,25 @@ impl InputReader<'_, '_> {
 
                 self.mouse_motion.delta.into()
             }
-            Binding::MouseWheel { mod_keys } => {
-                if !self.action_sources.mouse_wheel
+            Binding::VertWheel { mod_keys } => {
+                if !self.action_sources.vert_wheel
                     || !self.mod_keys_pressed(mod_keys)
                     || self.ignored(binding)
                 {
-                    return Vec2::ZERO.into();
+                    return 0.0.into();
                 }
 
-                self.mouse_scroll.delta.into()
+                self.mouse_scroll.delta.y.into()
+            }
+            Binding::SideWheel { mod_keys } => {
+                if !self.action_sources.side_wheel
+                    || !self.mod_keys_pressed(mod_keys)
+                    || self.ignored(binding)
+                {
+                    return 0.0.into();
+                }
+
+                self.mouse_scroll.delta.x.into()
             }
             Binding::GamepadButton(button) => {
                 if !self.action_sources.gamepad_button || self.ignored(binding) {
@@ -185,8 +195,11 @@ impl InputReader<'_, '_> {
             Binding::MouseMotion { mod_keys } => {
                 iter.any(|inputs| inputs.mouse_motion || inputs.mod_keys.intersects(mod_keys))
             }
-            Binding::MouseWheel { mod_keys } => {
-                iter.any(|inputs| inputs.mouse_wheel || inputs.mod_keys.intersects(mod_keys))
+            Binding::VertWheel { mod_keys } => {
+                iter.any(|inputs| inputs.vert_wheel || inputs.mod_keys.intersects(mod_keys))
+            }
+            Binding::SideWheel { mod_keys } => {
+                iter.any(|inputs| inputs.side_wheel || inputs.mod_keys.intersects(mod_keys))
             }
             Binding::GamepadButton(button) => {
                 let input = GamepadInput {
@@ -243,7 +256,8 @@ impl InputReader<'_, '_> {
 /// ) {
 ///     let mouse_unused = interactions.iter().all(|&interaction| interaction == Interaction::None);
 ///     action_sources.mouse_buttons = mouse_unused;
-///     action_sources.mouse_wheel = mouse_unused;
+///     action_sources.vert_wheel = mouse_unused;
+///     action_sources.side_wheel = mouse_unused;
 /// }
 /// ```
 #[derive(Resource, Reflect)]
@@ -251,7 +265,8 @@ pub struct ActionSources {
     pub keyboard: bool,
     pub mouse_buttons: bool,
     pub mouse_motion: bool,
-    pub mouse_wheel: bool,
+    pub vert_wheel: bool,
+    pub side_wheel: bool,
     pub gamepad_button: bool,
     pub gamepad_axis: bool,
 }
@@ -262,7 +277,8 @@ impl Default for ActionSources {
             keyboard: true,
             mouse_buttons: true,
             mouse_motion: true,
-            mouse_wheel: true,
+            vert_wheel: true,
+            side_wheel: true,
             gamepad_button: true,
             gamepad_axis: true,
         }
@@ -305,7 +321,8 @@ pub(crate) struct IgnoredInputs {
     mod_keys: ModKeys,
     mouse_buttons: HashSet<MouseButton>,
     mouse_motion: bool,
-    mouse_wheel: bool,
+    vert_wheel: bool,
+    side_wheel: bool,
     gamepad_buttons: HashSet<GamepadInput<GamepadButton>>,
     gamepad_axes: HashSet<GamepadInput<GamepadAxis>>,
 }
@@ -325,8 +342,12 @@ impl IgnoredInputs {
                 self.mouse_motion = true;
                 self.mod_keys.insert(mod_keys);
             }
-            Binding::MouseWheel { mod_keys } => {
-                self.mouse_wheel = true;
+            Binding::VertWheel { mod_keys } => {
+                self.vert_wheel = true;
+                self.mod_keys.insert(mod_keys);
+            }
+            Binding::SideWheel { mod_keys } => {
+                self.side_wheel = true;
                 self.mod_keys.insert(mod_keys);
             }
             Binding::GamepadButton(button) => {
@@ -354,7 +375,8 @@ impl IgnoredInputs {
         self.mod_keys = ModKeys::empty();
         self.mouse_buttons.clear();
         self.mouse_motion = false;
-        self.mouse_wheel = false;
+        self.vert_wheel = false;
+        self.side_wheel = false;
         self.gamepad_buttons.clear();
         self.gamepad_axes.clear();
     }
@@ -434,26 +456,49 @@ mod tests {
     }
 
     #[test]
-    fn mouse_wheel() {
+    fn vert_wheel() {
         let (mut world, mut state) = init_world();
 
-        let value = Vec2::ONE;
+        let value = Vec2::Y;
         world.insert_resource(AccumulatedMouseScroll {
             unit: MouseScrollUnit::Line,
             delta: value,
         });
 
-        let binding = Binding::mouse_wheel();
+        let binding = Binding::vert_wheel();
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
-        assert_eq!(reader.value(binding), value.into());
+        assert_eq!(reader.value(binding), value.y.into());
         assert_eq!(
             reader.value(binding.with_mod_keys(ModKeys::SUPER)),
-            Vec2::ZERO.into()
+            0.0.into()
         );
 
         reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), Vec2::ZERO.into());
+        assert_eq!(reader.value(binding), 0.0.into());
+    }
+
+    #[test]
+    fn side_wheel() {
+        let (mut world, mut state) = init_world();
+
+        let value = Vec2::X;
+        world.insert_resource(AccumulatedMouseScroll {
+            unit: MouseScrollUnit::Line,
+            delta: value,
+        });
+
+        let binding = Binding::side_wheel();
+        let mut reader = state.get_mut(&mut world);
+        reader.clear_consumed::<PreUpdate>();
+        assert_eq!(reader.value(binding), value.x.into());
+        assert_eq!(
+            reader.value(binding.with_mod_keys(ModKeys::SUPER)),
+            0.0.into()
+        );
+
+        reader.consume::<PreUpdate>(binding);
+        assert_eq!(reader.value(binding), 0.0.into());
     }
 
     #[test]
@@ -700,10 +745,10 @@ mod tests {
     }
 
     #[test]
-    fn mouse_wheel_with_modifier() {
+    fn vert_wheel_with_modifier() {
         let (mut world, mut state) = init_world();
 
-        let value = Vec2::ONE;
+        let value = Vec2::Y;
         let modifier = KeyCode::SuperLeft;
         world.resource_mut::<ButtonInput<KeyCode>>().press(modifier);
         world.insert_resource(AccumulatedMouseScroll {
@@ -711,22 +756,52 @@ mod tests {
             delta: value,
         });
 
-        let binding = Binding::mouse_wheel().with_mod_keys(modifier.into());
+        let binding = Binding::vert_wheel().with_mod_keys(modifier.into());
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
-        assert_eq!(reader.value(binding), value.into());
-        assert_eq!(reader.value(binding.without_mod_keys()), value.into());
+        assert_eq!(reader.value(binding), value.y.into());
+        assert_eq!(reader.value(binding.without_mod_keys()), value.y.into());
         assert_eq!(
             reader.value(binding.with_mod_keys(ModKeys::SHIFT)),
-            Vec2::ZERO.into()
+            0.0.into()
         );
         assert_eq!(
             reader.value(binding.with_mod_keys(ModKeys::SHIFT | ModKeys::SUPER)),
-            Vec2::ZERO.into()
+            0.0.into()
         );
 
         reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), Vec2::ZERO.into());
+        assert_eq!(reader.value(binding), 0.0.into());
+    }
+
+    #[test]
+    fn side_wheel_with_modifier() {
+        let (mut world, mut state) = init_world();
+
+        let value = Vec2::X;
+        let modifier = KeyCode::SuperLeft;
+        world.resource_mut::<ButtonInput<KeyCode>>().press(modifier);
+        world.insert_resource(AccumulatedMouseScroll {
+            unit: MouseScrollUnit::Line,
+            delta: value,
+        });
+
+        let binding = Binding::side_wheel().with_mod_keys(modifier.into());
+        let mut reader = state.get_mut(&mut world);
+        reader.clear_consumed::<PreUpdate>();
+        assert_eq!(reader.value(binding), value.x.into());
+        assert_eq!(reader.value(binding.without_mod_keys()), value.x.into());
+        assert_eq!(
+            reader.value(binding.with_mod_keys(ModKeys::SHIFT)),
+            0.0.into()
+        );
+        assert_eq!(
+            reader.value(binding.with_mod_keys(ModKeys::SHIFT | ModKeys::SUPER)),
+            0.0.into()
+        );
+
+        reader.consume::<PreUpdate>(binding);
+        assert_eq!(reader.value(binding), 0.0.into());
     }
 
     #[test]
@@ -758,7 +833,8 @@ mod tests {
         action_sources.keyboard = false;
         action_sources.mouse_buttons = false;
         action_sources.mouse_motion = false;
-        action_sources.mouse_wheel = false;
+        action_sources.vert_wheel = false;
+        action_sources.side_wheel = false;
         action_sources.gamepad_button = false;
         action_sources.gamepad_axis = false;
 
@@ -768,7 +844,8 @@ mod tests {
         assert_eq!(reader.value(key), false.into());
         assert_eq!(reader.value(mouse_button), false.into());
         assert_eq!(reader.value(Binding::mouse_motion()), Vec2::ZERO.into());
-        assert_eq!(reader.value(Binding::mouse_wheel()), Vec2::ZERO.into());
+        assert_eq!(reader.value(Binding::vert_wheel()), 0.0.into());
+        assert_eq!(reader.value(Binding::side_wheel()), 0.0.into());
         assert_eq!(reader.value(gamepad_button), 0.0.into());
         assert_eq!(reader.value(axis), 0.0.into());
     }
