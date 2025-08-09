@@ -33,11 +33,10 @@ pub enum Binding {
     },
     /// Mouse movement, captured as [`ActionValue::Axis2D`].
     MouseMotion { mod_keys: ModKeys },
-    /// Mouse wheel, captured as [`ActionValue::Axis2D`].
-    ///
-    /// In Bevy vertical scroll maps to the Y axis. If you want to bind vertical scroll
-    /// to an action with [`ActionValue::Axis1D`], apply [`SwizzleAxis::YXZ`] modifier.
-    MouseWheel { mod_keys: ModKeys },
+    /// Vertical mouse wheel, captured as [`ActionValue::Axis1D`].
+    VertWheel { mod_keys: ModKeys },
+    /// Horizontal mouse wheel, captured as [`ActionValue::Axis1D`].
+    SideWheel { mod_keys: ModKeys },
     /// Gamepad button, captured as [`ActionValue::Axis1D`].
     GamepadButton(GamepadButton),
     /// Gamepad stick axis, captured as [`ActionValue::Axis1D`].
@@ -57,10 +56,18 @@ impl Binding {
         }
     }
 
-    /// Returns [`Self::MouseWheel`] without keyboard modifiers.
+    /// Returns [`Self::VertWheel`] without keyboard modifiers.
     #[must_use]
-    pub const fn mouse_wheel() -> Self {
-        Self::MouseWheel {
+    pub const fn vert_wheel() -> Self {
+        Self::VertWheel {
+            mod_keys: ModKeys::empty(),
+        }
+    }
+
+    /// Returns [`Self::SideWheel`] without keyboard modifiers.
+    #[must_use]
+    pub const fn side_wheel() -> Self {
+        Self::SideWheel {
             mod_keys: ModKeys::empty(),
         }
     }
@@ -78,7 +85,8 @@ impl Binding {
             Binding::Keyboard { mod_keys, .. }
             | Binding::MouseButton { mod_keys, .. }
             | Binding::MouseMotion { mod_keys }
-            | Binding::MouseWheel { mod_keys } => mod_keys,
+            | Binding::VertWheel { mod_keys }
+            | Binding::SideWheel { mod_keys } => mod_keys,
             Binding::GamepadButton(_) | Binding::GamepadAxis(_) | Binding::None => ModKeys::empty(),
         }
     }
@@ -105,7 +113,8 @@ impl Display for Binding {
             Binding::Keyboard { key, .. } => write!(f, "{key:?}"),
             Binding::MouseButton { button, .. } => write!(f, "Mouse {button:?}"),
             Binding::MouseMotion { .. } => write!(f, "Mouse Motion"),
-            Binding::MouseWheel { .. } => write!(f, "Scroll Wheel"),
+            Binding::VertWheel { .. } => write!(f, "Vertical Wheel"),
+            Binding::SideWheel { .. } => write!(f, "Side Wheel"),
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
             Binding::None => write!(f, "None"),
@@ -161,7 +170,8 @@ impl<I: Into<Binding>> InputModKeys for I {
             Binding::Keyboard { key, .. } => Binding::Keyboard { key, mod_keys },
             Binding::MouseButton { button, .. } => Binding::MouseButton { button, mod_keys },
             Binding::MouseMotion { .. } => Binding::MouseMotion { mod_keys },
-            Binding::MouseWheel { .. } => Binding::MouseWheel { mod_keys },
+            Binding::VertWheel { .. } => Binding::VertWheel { mod_keys },
+            Binding::SideWheel { .. } => Binding::SideWheel { mod_keys },
             Binding::GamepadButton { .. } | Binding::GamepadAxis { .. } | Binding::None => {
                 panic!("keyboard modifiers can be applied only to mouse and keyboard")
             }
@@ -215,20 +225,9 @@ mod tests {
             .to_string(),
             "Mouse Left"
         );
-        assert_eq!(
-            Binding::MouseMotion {
-                mod_keys: ModKeys::empty()
-            }
-            .to_string(),
-            "Mouse Motion"
-        );
-        assert_eq!(
-            Binding::MouseWheel {
-                mod_keys: ModKeys::empty()
-            }
-            .to_string(),
-            "Scroll Wheel"
-        );
+        assert_eq!(Binding::mouse_motion().to_string(), "Mouse Motion");
+        assert_eq!(Binding::vert_wheel().to_string(), "Vertical Wheel");
+        assert_eq!(Binding::side_wheel().to_string(), "Side Wheel");
         assert_eq!(
             Binding::GamepadAxis(GamepadAxis::LeftStickX).to_string(),
             "LeftStickX"
