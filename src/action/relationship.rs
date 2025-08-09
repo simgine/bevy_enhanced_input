@@ -68,24 +68,18 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 ///
 /// # Examples
 ///
-/// List of single elements. You usually spawn actions with at least [`Bindings`](crate::prelude::Bindings),
+/// A List of context actions with a component. You usually spawn actions with at least [`Bindings`](crate::prelude::Bindings),
 /// but actions alone could be used for networking or for later mocking.
 ///
 /// ```
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
-/// # use core::any;
-/// let from_macro = actions!(Player[
+/// # let mut world = World::new();
+/// world.spawn(actions!(Player[
 ///     Action::<Fire>::new(),
 ///     Action::<Jump>::new()
-/// ]);
-/// // Expands to the following:
-/// let manual = Actions::<Player>::spawn((
-///     Spawn(Action::<Fire>::new()),
-///     Spawn(Action::<Jump>::new()),
-/// ));
-///
-/// assert_eq!(any::type_name_of_val(&from_macro), any::type_name_of_val(&manual));
+/// ]));
+/// # assert_eq!(world.entities().len(), 3);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
@@ -96,26 +90,41 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # struct Jump;
 /// ```
 ///
-/// With tuples.
+/// A single context action with components.
 ///
 /// ```
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
-/// # use core::any;
-/// let from_macro = actions!(Player[
+/// # let mut world = World::new();
+/// world.spawn(actions!(Player[(
+///     Action::<Fire>::new(),
+///     bindings![MouseButton::Left],
+/// )]));
+/// # assert_eq!(world.entities().len(), 3);
+/// # #[derive(Component)]
+/// # struct Player;
+/// # #[derive(InputAction)]
+/// # #[action_output(bool)]
+/// # struct Fire;
+/// ```
+///
+/// A List of context actions with multiple components.
+///
+/// ```
+/// # use bevy::prelude::*;
+/// # use bevy_enhanced_input::prelude::*;
+/// # let mut world = World::new();
+/// world.spawn(actions!(Player[
 ///     (
 ///         Action::<Move>::new(),
-///         Bindings::spawn(Cardinal::wasd_keys())
+///         Bindings::spawn(Cardinal::wasd_keys()),
 ///     ),
-///     Action::<Jump>::new(), // Unlike with `bindings!`, single values could be mixed with tuples.
-/// ]);
-/// // Expands to the following:
-/// let manual = Actions::<Player>::spawn((
-///     Spawn((Action::<Move>::new(), Bindings::spawn(Cardinal::wasd_keys()))),
-///     Spawn(Action::<Jump>::new()),
-/// ));
-///
-/// assert_eq!(any::type_name_of_val(&from_macro), any::type_name_of_val(&manual));
+///     (
+///         Action::<Jump>::new(),
+///         bindings![KeyCode::Space],
+///     ),
+/// ]));
+/// # assert_eq!(world.entities().len(), 8);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
@@ -128,6 +137,6 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 #[macro_export]
 macro_rules! actions {
     ($context:ty [$($action:expr),*$(,)?]) => {
-       $crate::prelude::Actions::<$context>::spawn(($(::bevy::prelude::Spawn($action)),*))
+        ::bevy::prelude::related!($crate::prelude::Actions<$context>[$($action),*])
     };
 }

@@ -7,6 +7,8 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::prelude::*;
+
 /// Action entity associated with this binding entity.
 ///
 /// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
@@ -46,62 +48,82 @@ pub type BindingSpawnerCommands<'w> = RelatedSpawnerCommands<'w, BindingOf>;
 /// The macro accepts either individual elements that implement [`Into<Binding>`], or tuples where the first element implements
 /// [`Into<Binding>`] and the remaining elements are bundles.
 ///
-/// Due to `macro_rules!` limitations, you can't mix tuples and individual elements. However, you can wrap individual elements in braces
-/// to use them alongside tuples.
-///
 /// The macro can't be used to spawn [presets](crate::preset). See the module documentation for more details.
 ///
 /// See also [`actions!`](crate::prelude::actions).
 ///
 /// # Examples
 ///
-/// List of single elements.
+/// A list of action bindings with components constructed from values that implement [`Into<Binding>`].
 ///
 /// ```
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
-/// # use core::any;
-/// let from_macro = bindings![KeyCode::Space, GamepadButton::South];
-/// // Expands to the following:
-/// let manual = Bindings::spawn((
-///     Spawn(Binding::from(KeyCode::Space)),
-///     Spawn(Binding::from(GamepadButton::South)),
-/// ));
-///
-/// assert_eq!(any::type_name_of_val(&from_macro), any::type_name_of_val(&manual));
+/// # let mut world = World::new();
+/// world.spawn(bindings![KeyCode::Space, GamepadButton::South]);
+/// # assert_eq!(world.entities().len(), 3);
 /// ```
 ///
-/// List of tuples.
+/// A single action binding with the first component constructed from a value implementing [`Into<Binding>`],
+/// and the rest as regular components.
 ///
 /// ```
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
-/// # use core::any;
-/// let from_macro = bindings![
+/// # let mut world = World::new();
+/// world.spawn(bindings![(
+///     GamepadButton::RightTrigger2,
+///     Down::new(0.3),
+/// )]);
+/// # assert_eq!(world.entities().len(), 2);
+/// ```
+///
+/// A list of action bindings with the first component constructed from a value implementing [`Into<Binding>`],
+/// and the rest as regular components.
+///
+/// ```
+/// # use bevy::prelude::*;
+/// # use bevy_enhanced_input::prelude::*;
+/// # let mut world = World::new();
+/// world.spawn(bindings![
 ///     (GamepadButton::RightTrigger2, Down::new(0.3)),
-///     (MouseButton::Left), // Necessary to wrap in braces since we use a tuple above.
-/// ];
-/// // Expands to the following:
-/// let manual = Bindings::spawn((
-///     Spawn((Binding::from(GamepadButton::RightTrigger2), Down::new(0.3))),
-///     Spawn((Binding::from(MouseButton::Left),)), // Extra braces could be omitted here, but necessary for the check below.
-/// ));
-///
-/// assert_eq!(any::type_name_of_val(&from_macro), any::type_name_of_val(&manual));
+///     MouseButton::Left,
+/// ]);
+/// # assert_eq!(world.entities().len(), 3);
 /// ```
 ///
 /// [`SpawnableList`]: bevy::ecs::spawn::SpawnableList
 #[macro_export]
 macro_rules! bindings {
-    [ $( ( $first:expr $(, $rest:expr )* ) ),* $(,)? ] => {
-        $crate::prelude::Bindings::spawn((
-            $( ::bevy::prelude::Spawn(($crate::prelude::Binding::from($first), $($rest),*)) ),*
-        ))
-    };
-
-    [ $( $binding:expr ),* $(,)? ] => {
-        $crate::prelude::Bindings::spawn((
-            $( ::bevy::prelude::Spawn($crate::prelude::Binding::from($binding)) ),*
-        ))
+    [$($binding:expr),*$(,)?] => {
+        ::bevy::prelude::related!($crate::prelude::Bindings[$($crate::prelude::IntoBindingBundle::into_binding_bundle($binding)),*])
     };
 }
+
+/// Types that can be converted into a bundle whose first element can be converted into a [`Binding`].
+///
+/// Used to avoid writing [`Binding::from`] inside [`bindings!`].
+pub trait IntoBindingBundle {
+    /// Returns a bundle for a binding.
+    fn into_binding_bundle(self) -> impl Bundle;
+}
+
+impl<B: Into<Binding>> IntoBindingBundle for B {
+    fn into_binding_bundle(self) -> impl Bundle {
+        self.into()
+    }
+}
+
+macro_rules! impl_into_binding_bundle {
+    ($($C:ident),*) => {
+        impl<B: Into<Binding>, $($C: Bundle,)*> IntoBindingBundle for (B, $($C),*) {
+            #[allow(non_snake_case, reason = "tuple unpack")]
+            fn into_binding_bundle(self) -> impl Bundle {
+                let (b, $($C),* ) = self;
+                (b.into(), $($C),*)
+            }
+        }
+    }
+}
+
+variadics_please::all_tuples!(impl_into_binding_bundle, 0, 14, C);

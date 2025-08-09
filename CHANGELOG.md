@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
+
 ### Removed
 
 - `DeadZone::with_lower_threshold` and `DeadZone::with_upper_threshold`. All fields are public, just use struct initialization syntax.
