@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
-- `Clone` and `PartialEq` are implemented for `ActionOf<C>` even if `C` doesn't implement them.
+- `Clone`, `PartialEq`, `Eq` and `Debug` are implemented for `ActionOf<C>` even if `C` doesn't implement them.
 
 ### Removed
 
