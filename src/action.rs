@@ -31,7 +31,7 @@ pub(crate) fn remove_action(
     let Ok((action_bindings, settings, fns, mut value, mut state, mut events, mut time)) =
         actions.get_mut(trigger.target())
     else {
-        trace!("ignoring removal on `{}`", trigger.target());
+        trace!("ignoring reset for `{}`", trigger.target());
         return;
     };
 
