@@ -100,11 +100,11 @@ macro_rules! bindings {
     };
 }
 
-/// Types that can be converted into a bundle with a [`Binding`].
+/// Types that can be converted into a bundle whose first element can be converted into a [`Binding`].
 ///
 /// Used to avoid writing [`Binding::from`] inside [`bindings!`].
 pub trait IntoBindingBundle {
-    /// Returns a bundle.
+    /// Returns a bundle with a binding.
     fn into_binding_bundle(self) -> impl Bundle;
 }
 
