@@ -20,6 +20,16 @@ pub struct ActionOf<C: Component> {
     marker: PhantomData<C>,
 }
 
+impl<C: Component> ActionOf<C> {
+    #[must_use]
+    pub const fn new(entity: Entity) -> Self {
+        Self {
+            entity,
+            marker: PhantomData,
+        }
+    }
+}
+
 impl<C: Component> Clone for ActionOf<C> {
     fn clone(&self) -> Self {
         Self {
@@ -32,16 +42,6 @@ impl<C: Component> Clone for ActionOf<C> {
 impl<C: Component> PartialEq for ActionOf<C> {
     fn eq(&self, other: &Self) -> bool {
         self.entity == other.entity
-    }
-}
-
-impl<C: Component> ActionOf<C> {
-    #[must_use]
-    pub const fn new(entity: Entity) -> Self {
-        Self {
-            entity,
-            marker: PhantomData,
-        }
     }
 }
 
