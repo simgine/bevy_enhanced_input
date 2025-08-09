@@ -29,7 +29,7 @@ impl<C: Component> Clone for ActionOf<C> {
     }
 }
 
-impl<C: Component>  PartialEq for ActionOf<C> {
+impl<C: Component> PartialEq for ActionOf<C> {
     fn eq(&self, other: &Self) -> bool {
         self.entity == other.entity
     }
