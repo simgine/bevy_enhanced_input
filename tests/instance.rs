@@ -98,7 +98,7 @@ fn disabled() {
 }
 
 #[test]
-fn enabling_back() {
+fn reenabling() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()

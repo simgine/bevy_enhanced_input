@@ -190,7 +190,7 @@ pub struct ActionSettings {
     pub accumulation: Accumulation,
 
     /// Require inputs to be inactive before the first activation and continue to consume them
-    /// even after context removal until inputs become inactive again.
+    /// even after context removal or deactivation until inputs become inactive again.
     ///
     /// This way new instances won't react to currently held inputs until they are released.
     /// This prevents unintended behavior where switching or layering contexts using the same key

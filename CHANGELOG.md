@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ContextActivity<C>` component to activate or deactivate context `C`.
+
 ## [0.15.3] - 2025-08-07
 
 ### Added
