@@ -126,10 +126,10 @@ world.spawn((
                 (KeyCode::KeyW, SwizzleAxis::YXZ),
                 (KeyCode::KeyA, Negate::all()),
                 (KeyCode::KeyS, Negate::all(), SwizzleAxis::YXZ),
-                (KeyCode::KeyD),
+                KeyCode::KeyD,
                 // In Bevy sticks split by axes and captured as 1-dimensional inputs,
                 // so Y stick needs to be sweezled into Y axis.
-                (GamepadAxis::LeftStickX),
+                GamepadAxis::LeftStickX,
                 (GamepadAxis::LeftStickY, SwizzleAxis::YXZ),
             ]
         ),
@@ -211,7 +211,7 @@ world.spawn((
             Pulse::new(0.5), // The action will trigger every 0.5 seconds while held.
             bindings![
                 (GamepadButton::RightTrigger2, Down::new(0.3)), // Additionally the right trigger only counts if its value is greater than 0.3.
-                (MouseButton::Left),
+                MouseButton::Left,
             ]
         ),
     ])
@@ -399,7 +399,9 @@ pub mod prelude {
         binding::{
             Binding, InputModKeys,
             mod_keys::ModKeys,
-            relationship::{BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings},
+            relationship::{
+                BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings, IntoBindingBundle,
+            },
         },
         bindings,
         condition::{
