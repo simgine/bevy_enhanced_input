@@ -562,6 +562,7 @@ fn apply<S: ScheduleLabel>(
 pub struct ContextPriority<C> {
     #[deref]
     value: usize,
+    #[reflect(ignore)]
     marker: PhantomData<C>,
 }
 
