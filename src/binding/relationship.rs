@@ -7,6 +7,8 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::prelude::*;
+
 /// Action entity associated with this binding entity.
 ///
 /// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
@@ -97,8 +99,6 @@ macro_rules! bindings {
         ::bevy::prelude::related!($crate::prelude::Bindings[$($crate::prelude::IntoBindingBundle::into_binding_bundle($binding)),*])
     };
 }
-
-use crate::prelude::*;
 
 /// Types that can be converted into a bundle with a [`Binding`].
 ///
