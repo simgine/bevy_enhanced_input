@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// Context entity associated with this action entity.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Component, Deref, Reflect, Debug, Serialize, Deserialize, Eq)]
 #[relationship(relationship_target = Actions<C>)]
 pub struct ActionOf<C: Component> {
     #[deref]
@@ -18,6 +18,21 @@ pub struct ActionOf<C: Component> {
     entity: Entity,
     #[reflect(ignore)]
     marker: PhantomData<C>,
+}
+
+impl<C: Component> Clone for ActionOf<C> {
+    fn clone(&self) -> Self {
+        Self {
+            entity: self.entity,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<C: Component>  PartialEq for ActionOf<C> {
+    fn eq(&self, other: &Self) -> bool {
+        self.entity == other.entity
+    }
 }
 
 impl<C: Component> ActionOf<C> {
