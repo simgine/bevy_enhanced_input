@@ -28,7 +28,7 @@ use crate::{
     action::fns::ActionFns,
     binding::FirstActivation,
     condition::fns::{ConditionFns, ConditionRegistry},
-    context::trigger_tracker::TriggerTracker,
+    context::{input_reader::PendingBindings, trigger_tracker::TriggerTracker},
     modifier::fns::{ModifierFns, ModifierRegistry},
     prelude::*,
 };
@@ -80,6 +80,7 @@ impl InputContextAppExt for App {
         );
 
         let actions_id = self.world_mut().register_component::<Actions<C>>();
+        let activity_id = self.world_mut().register_component::<ContextActivity<C>>();
         let mut registry = self.world_mut().resource_mut::<ContextRegistry>();
         if let Some(contexts) = registry
             .iter_mut()
@@ -91,15 +92,19 @@ impl InputContextAppExt for App {
                 any::type_name::<C>()
             );
             contexts.actions_ids.push(actions_id);
+            contexts.activity_ids.push(activity_id);
         } else {
             let mut contexts = ScheduleContexts::new::<S>();
             contexts.actions_ids.push(actions_id);
+            contexts.activity_ids.push(activity_id);
             registry.push(contexts);
         }
 
         self.register_required_components::<C, ContextPriority<C>>()
+            .register_required_components::<C, ContextActivity<C>>()
             .add_observer(register::<C, S>)
-            .add_observer(unregister::<C, S>);
+            .add_observer(unregister::<C, S>)
+            .add_observer(deactivate::<C>);
 
         self
     }
@@ -124,6 +129,9 @@ pub(crate) struct ScheduleContexts {
     /// IDs of [`Actions<C>`].
     actions_ids: Vec<ComponentId>,
 
+    /// IDs of [`ContextActivity<C>`].
+    activity_ids: Vec<ComponentId>,
+
     /// Configures the app for this schedule.
     setup: fn(&Self, &mut App, &ConditionRegistry, &ModifierRegistry),
 }
@@ -137,6 +145,7 @@ impl ScheduleContexts {
         Self {
             schedule_id: TypeId::of::<S>(),
             actions_ids: Default::default(),
+            activity_ids: Default::default(),
             // Since the type is not present in the function signature, we can store
             // functions for specific type without making the struct generic.
             setup: Self::setup_typed::<S>,
@@ -171,6 +180,9 @@ impl ScheduleContexts {
                 builder
                     .data::<Option<&GamepadDevice>>()
                     .optional(|builder| {
+                        for &id in &self.activity_ids {
+                            builder.mut_id(id);
+                        }
                         for &id in &self.actions_ids {
                             builder.mut_id(id);
                         }
@@ -198,6 +210,9 @@ impl ScheduleContexts {
             ParamBuilder,
             QueryParamBuilder::new(|builder| {
                 builder.optional(|builder| {
+                    for &id in &self.activity_ids {
+                        builder.mut_id(id);
+                    }
                     for &id in &self.actions_ids {
                         builder.ref_id(id);
                     }
@@ -252,6 +267,32 @@ fn unregister<C: Component, S: ScheduleLabel>(
     instances.remove::<C>(trigger.target());
 }
 
+fn deactivate<C: Component>(
+    trigger: Trigger<OnInsert, ContextActivity<C>>,
+    mut pending: ResMut<PendingBindings>,
+    contexts: Query<(&ContextActivity<C>, &Actions<C>)>,
+    actions: Query<(&ActionSettings, &Bindings)>,
+    bindings: Query<&Binding>,
+) {
+    let Ok((&active, context_actions)) = contexts.get(trigger.target()) else {
+        return;
+    };
+
+    debug!(
+        "setting activity of `{}` to `{}`",
+        any::type_name::<C>(),
+        *active,
+    );
+
+    if !*active {
+        for (settings, action_bindings) in actions.iter_many(context_actions) {
+            if settings.require_reset {
+                pending.extend(bindings.iter_many(action_bindings).copied());
+            }
+        }
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn update<S: ScheduleLabel>(
     mut consume_buffer: Local<Vec<Binding>>, // Consumed inputs during state evaluation.
@@ -298,6 +339,7 @@ fn update<S: ScheduleLabel>(
         };
 
         let gamepad = context.get::<GamepadDevice>().copied().unwrap_or_default();
+        let context_active = instance.is_active(&context.as_readonly());
         let Some(context_actions) = instance.actions_mut(&mut context) else {
             continue;
         };
@@ -335,7 +377,11 @@ fn update<S: ScheduleLabel>(
             mock,
         )) = actions_iter.fetch_next()
         {
-            let (new_state, new_value) = if let Some(mut mock) = mock
+            let (new_state, new_value) = if !context_active {
+                trace!("skipping updating `{action_name}` due to inactive context");
+                let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
+                (ActionState::None, ActionValue::zero(dim))
+            } else if let Some(mut mock) = mock
                 && mock.enabled
             {
                 trace!("updating `{action_name}` from `{mock:?}`");
@@ -518,6 +564,70 @@ fn apply<S: ScheduleLabel>(
     }
 }
 
+/// Enables or disables all context action updates from inputs and mocks.
+///
+/// By default, all contexts are active.
+///
+/// Inserting [`Self::INACTIVE`] is similar to removing the context. It transitions all context action states
+/// to [`ActionState::None`] with [`ActionValue::zero`], triggering the corresponding events.
+/// For each action where [`ActionSettings::require_reset`] is set, it will require inputs for its bindings
+/// to be inactive before they will be visible to actions from other contexts.
+///
+/// This is analogous to hiding an entity instead of despawning.
+/// Disable when you want to toggle quickly, preserve bindings, or keep entity IDs.
+/// Remove when the context is truly going away and you don't need it back soon.
+///
+/// Marked as required for `C` on context registration.
+#[derive(Component, Reflect, Deref)]
+#[component(immutable)]
+pub struct ContextActivity<C> {
+    #[deref]
+    value: bool,
+    #[reflect(ignore)]
+    marker: PhantomData<C>,
+}
+
+impl<C> ContextActivity<C> {
+    /// Active context.
+    pub const ACTIVE: Self = Self::new(true);
+
+    /// Inactive context.
+    pub const INACTIVE: Self = Self::new(false);
+
+    /// Creates a new instance with the given value.
+    #[must_use]
+    pub const fn new(value: bool) -> Self {
+        Self {
+            value,
+            marker: PhantomData,
+        }
+    }
+
+    /// Returns a new instance with the value inverted.
+    #[must_use]
+    pub const fn toggled(self) -> Self {
+        if self.value {
+            Self::INACTIVE
+        } else {
+            Self::ACTIVE
+        }
+    }
+}
+
+impl<C> Default for ContextActivity<C> {
+    fn default() -> Self {
+        Self::ACTIVE
+    }
+}
+
+impl<C> Clone for ContextActivity<C> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<C> Copy for ContextActivity<C> {}
+
 /// Determines the evaluation order of the input context `C` on the entity.
 ///
 /// Used to control how contexts are layered, as some [`Action<C>`]s may consume inputs.
@@ -529,6 +639,8 @@ fn apply<S: ScheduleLabel>(
 /// until the context that consumed them is evaluated again. This allows contexts layering, where
 /// some actions take priority over others. This behavior can be customized per-action by setting
 /// [`ActionSettings::consume_input`] to `false`.
+///
+/// Marked as required for `C` on context registration.
 ///
 /// # Examples
 ///

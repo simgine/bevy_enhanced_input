@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ContextActivity<C>` component to activate or deactivate context `C`.
+
 ### Changed
 
 - `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
