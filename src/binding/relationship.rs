@@ -104,7 +104,7 @@ macro_rules! bindings {
 ///
 /// Used to avoid writing [`Binding::from`] inside [`bindings!`].
 pub trait IntoBindingBundle {
-    /// Returns a bundle with a binding.
+    /// Returns a bundle for a binding.
     fn into_binding_bundle(self) -> impl Bundle;
 }
 
