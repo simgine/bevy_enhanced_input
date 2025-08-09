@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// Context entity associated with this action entity.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, Serialize, Deserialize, Eq)]
+#[derive(Component, Deref, Reflect, Debug, Serialize, Deserialize)]
 #[relationship(relationship_target = Actions<C>)]
 pub struct ActionOf<C: Component> {
     #[deref]
@@ -44,6 +44,8 @@ impl<C: Component> PartialEq for ActionOf<C> {
         self.entity == other.entity
     }
 }
+
+impl<C: Component> Eq for ActionOf<C> {}
 
 /// Action entities associated with context `C`.
 ///
