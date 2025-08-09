@@ -1,5 +1,9 @@
 use alloc::slice;
-use core::{iter::Copied, marker::PhantomData};
+use core::{
+    fmt::{self, Debug, Formatter},
+    iter::Copied,
+    marker::PhantomData,
+};
 
 use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},
@@ -10,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// Context entity associated with this action entity.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Component, Deref, Reflect, Serialize, Deserialize)]
 #[relationship(relationship_target = Actions<C>)]
 pub struct ActionOf<C: Component> {
     #[deref]
@@ -29,6 +33,31 @@ impl<C: Component> ActionOf<C> {
         }
     }
 }
+
+impl<C: Component> Debug for ActionOf<C> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        f.debug_struct("ActionOf")
+            .field("entity", &self.entity)
+            .finish()
+    }
+}
+
+impl<C: Component> Clone for ActionOf<C> {
+    fn clone(&self) -> Self {
+        Self {
+            entity: self.entity,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<C: Component> PartialEq for ActionOf<C> {
+    fn eq(&self, other: &Self) -> bool {
+        self.entity == other.entity
+    }
+}
+
+impl<C: Component> Eq for ActionOf<C> {}
 
 /// Action entities associated with context `C`.
 ///
