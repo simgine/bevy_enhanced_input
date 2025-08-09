@@ -76,8 +76,8 @@ impl ContextInstance {
     }
 
     /// Returns a reference to entities from [`Actions<C>`], for which this instance was created.
-    pub(super) fn actions<'a>(&self, contexts: &'a FilteredEntityRef) -> Option<&'a [Entity]> {
-        (self.actions)(self, contexts)
+    pub(super) fn actions<'a>(&self, context: &'a FilteredEntityRef) -> Option<&'a [Entity]> {
+        (self.actions)(self, context)
     }
 
     /// Returns a mutable reference to entities from [`Actions<C>`], for which this instance was created.
@@ -85,23 +85,23 @@ impl ContextInstance {
     /// Used only to sort entities.
     pub(super) fn actions_mut<'a>(
         &self,
-        contexts: &'a mut FilteredEntityMut,
+        context: &'a mut FilteredEntityMut,
     ) -> Option<&'a mut [Entity]> {
-        (self.actions_mut)(self, contexts)
+        (self.actions_mut)(self, context)
     }
 
     fn actions_typed<'a, C: Component>(
         &self,
-        entity: &'a FilteredEntityRef,
+        context: &'a FilteredEntityRef,
     ) -> Option<&'a [Entity]> {
-        entity.get::<Actions<C>>().map(|actions| &***actions)
+        context.get::<Actions<C>>().map(|actions| &***actions)
     }
 
     fn actions_mut_typed<'a, C: Component>(
         &self,
-        entity: &'a mut FilteredEntityMut,
+        context: &'a mut FilteredEntityMut,
     ) -> Option<&'a mut [Entity]> {
-        entity
+        context
             .get_mut::<Actions<C>>()
             .map(|actions| &mut **actions.into_inner().collection_mut_risky())
     }
