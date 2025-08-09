@@ -31,28 +31,10 @@ fn attack(_trigger: Trigger<Fired<Attack>>) {
 
 fn open_inventory(trigger: Trigger<Started<OpenInventory>>, mut commands: Commands) {
     info!("opening inventory");
-    commands
-        .entity(trigger.target())
-        .remove_with_requires::<Player>() // Necessary to fully remove the context.
-        .despawn_related::<Actions<Player>>()
-        .insert((
-            Inventory,
-            actions!(Inventory[
-                (
-                    Action::<NavigateInventory>::new(),
-                    Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-                    Pulse::new(0.2), // Avoid triggering every frame on hold for UI.
-                ),
-                (
-                    Action::<CloseInventory>::new(),
-                    ActionSettings {
-                        require_reset: true,
-                        ..Default::default()
-                    },
-                    bindings![KeyCode::KeyI, GamepadButton::Select],
-                )
-            ]),
-        ));
+    commands.entity(trigger.target()).insert((
+        ContextActivity::<Player>::INACTIVE,
+        ContextActivity::<Inventory>::ACTIVE,
+    ));
 }
 
 fn navigate_inventory(_trigger: Trigger<Fired<NavigateInventory>>) {
@@ -61,11 +43,10 @@ fn navigate_inventory(_trigger: Trigger<Fired<NavigateInventory>>) {
 
 fn close_inventory(trigger: Trigger<Started<CloseInventory>>, mut commands: Commands) {
     info!("closing inventory");
-    commands
-        .entity(trigger.target())
-        .remove_with_requires::<Inventory>()
-        .despawn_related::<Actions<Inventory>>()
-        .insert(player_bundle());
+    commands.entity(trigger.target()).insert((
+        ContextActivity::<Player>::ACTIVE,
+        ContextActivity::<Inventory>::INACTIVE,
+    ));
 }
 
 fn player_bundle() -> impl Bundle {
@@ -91,6 +72,22 @@ fn player_bundle() -> impl Bundle {
                 },
                 bindings![KeyCode::KeyI, GamepadButton::Select],
             ),
+        ]),
+        Inventory,
+        actions!(Inventory[
+            (
+                Action::<NavigateInventory>::new(),
+                Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
+                Pulse::new(0.2), // Avoid triggering every frame on hold for UI.
+            ),
+            (
+                Action::<CloseInventory>::new(),
+                ActionSettings {
+                    require_reset: true,
+                    ..Default::default()
+                },
+                bindings![KeyCode::KeyI, GamepadButton::Select],
+            )
         ]),
     )
 }
