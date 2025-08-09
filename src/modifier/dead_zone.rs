@@ -39,18 +39,6 @@ impl DeadZone {
         }
     }
 
-    #[must_use]
-    pub const fn with_lower_threshold(mut self, lower_threshold: f32) -> Self {
-        self.lower_threshold = lower_threshold;
-        self
-    }
-
-    #[must_use]
-    pub const fn with_upper_threshold(mut self, upper_threshold: f32) -> Self {
-        self.upper_threshold = upper_threshold;
-        self
-    }
-
     fn dead_zone(self, axis_value: f32) -> f32 {
         // Translate and scale the input to the +/- 1 range after removing the dead zone.
         let lower_bound = (axis_value.abs() - self.lower_threshold).max(0.0);

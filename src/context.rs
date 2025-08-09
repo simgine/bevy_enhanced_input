@@ -291,7 +291,7 @@ fn update<S: ScheduleLabel>(
     for instance in &**instances {
         let Ok(mut context) = contexts.get_mut(instance.entity) else {
             trace!(
-                "skipping updating `{}` on `{}`",
+                "skipping updating `{}` on disabled `{}`",
                 instance.name, instance.entity
             );
             continue;
@@ -490,7 +490,7 @@ fn apply<S: ScheduleLabel>(
     for instance in &**instances {
         let Ok(context_entity) = contexts.get(instance.entity) else {
             trace!(
-                "skipping triggering for `{}` on `{}`",
+                "skipping triggering for `{}` on disabled `{}`",
                 instance.name, instance.entity,
             );
             continue;
@@ -562,6 +562,7 @@ fn apply<S: ScheduleLabel>(
 pub struct ContextPriority<C> {
     #[deref]
     value: usize,
+    #[reflect(ignore)]
     marker: PhantomData<C>,
 }
 
