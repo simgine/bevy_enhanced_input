@@ -137,6 +137,6 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 #[macro_export]
 macro_rules! actions {
     ($context:ty [$($action:expr),*$(,)?]) => {
-       $crate::prelude::Actions::<$context>::spawn(($(::bevy::prelude::Spawn($action)),*))
+        ::bevy::prelude::related!($crate::prelude::Actions<$context>[$($action),*])
     };
 }

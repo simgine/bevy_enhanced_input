@@ -94,7 +94,7 @@ pub type BindingSpawnerCommands<'w> = RelatedSpawnerCommands<'w, BindingOf>;
 #[macro_export]
 macro_rules! bindings {
     [$($binding:expr),*$(,)?] => {
-        $crate::prelude::Bindings::spawn(($(::bevy::prelude::Spawn($crate::prelude::IntoBindingBundle::into_binding_bundle($binding))),*))
+        ::bevy::prelude::related!($crate::prelude::Bindings[$($crate::prelude::IntoBindingBundle::into_binding_bundle($binding)),*])
     };
 }
 
