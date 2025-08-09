@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `DeadZone::with_lower_threshold` and `DeadZone::with_upper_threshold`. All fields are public, just use struct initialization syntax.
+
 ## [0.15.3] - 2025-08-07
 
 ### Added
