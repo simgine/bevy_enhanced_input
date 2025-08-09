@@ -573,7 +573,9 @@ fn apply<S: ScheduleLabel>(
 /// For each action where [`ActionSettings::require_reset`] is set, it will require inputs for its bindings
 /// to be inactive before they will be visible to actions from other contexts.
 ///
-/// Use this component instead of removing contexts if you need to frequently activate or deactivate a context.
+/// This is analogous to hiding an entity instead of despawning.
+/// Disable when you want to toggle quickly, preserve bindings, or keep entity IDs.
+/// Remove when the context is truly going away and you don't need it back soon.
 ///
 /// Marked as required for `C` on context registration.
 #[derive(Component, Reflect, Deref)]
