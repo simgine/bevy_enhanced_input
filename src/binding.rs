@@ -35,8 +35,37 @@ pub enum Binding {
     MouseMotion { mod_keys: ModKeys },
     /// Mouse wheel, captured as [`ActionValue::Axis2D`].
     ///
-    /// In Bevy vertical scroll maps to the Y axis. If you want to bind vertical scroll
-    /// to an action with [`ActionValue::Axis1D`], apply [`SwizzleAxis::YXZ`] modifier.
+    /// <div class="warning">
+    ///
+    /// In Bevy, vertical scrolling maps to the Y axis. If your action output
+    /// is [`f32`], you will get only horizontal scrolling by default.
+    ///
+    /// </div>
+    ///
+    /// # Examples
+    ///
+    /// Apply [`SwizzleAxis::YXZ`] modifier to get vertical scrolling for an
+    /// action with an [`f32`] output.
+    ///
+    /// ```
+    /// use bevy::prelude::*;
+    /// use bevy_enhanced_input::prelude::*;
+    ///
+    /// actions!(PlayerCam[
+    ///     (
+    ///         Action::<Zoom>::new(),
+    ///         // Without this modifier, it will use horizontal mouse scrolling.
+    ///         bindings![(Binding::mouse_wheel(), SwizzleAxis::YXZ)],
+    ///     )
+    /// ]);
+    ///
+    /// #[derive(InputAction)]
+    /// #[action_output(f32)]
+    /// struct Zoom;
+    ///
+    /// #[derive(Component)]
+    /// struct PlayerCam;
+    /// ```
     MouseWheel { mod_keys: ModKeys },
     /// Gamepad button, captured as [`ActionValue::Axis1D`].
     GamepadButton(GamepadButton),
