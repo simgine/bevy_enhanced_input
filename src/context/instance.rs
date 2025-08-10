@@ -12,7 +12,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::prelude::*;
+use crate::{context::ContextActivity, prelude::*};
 
 /// Stores information about instantiated contexts for a schedule `S`.
 ///
@@ -57,6 +57,7 @@ pub(crate) struct ContextInstance {
     pub(super) name: &'static str,
     type_id: TypeId,
     priority: usize,
+    is_active: fn(&Self, &FilteredEntityRef) -> bool,
     actions: for<'a> fn(&Self, &'a FilteredEntityRef) -> Option<&'a [Entity]>,
     actions_mut: for<'a> fn(&Self, &'a mut FilteredEntityMut) -> Option<Mut<'a, [Entity]>>,
 }
@@ -70,9 +71,15 @@ impl ContextInstance {
             name: any::type_name::<C>(),
             type_id: TypeId::of::<C>(),
             priority,
+            is_active: Self::is_active_typed::<C>,
             actions: Self::actions_typed::<C>,
             actions_mut: Self::actions_mut_typed::<C>,
         }
+    }
+
+    /// Returns the value from [`ContextActivity<C>`].
+    pub(super) fn is_active(&self, context: &FilteredEntityRef) -> bool {
+        (self.is_active)(self, context)
     }
 
     /// Returns a reference to entities from [`Actions<C>`], for which this instance was created.
@@ -88,6 +95,12 @@ impl ContextInstance {
         context: &'a mut FilteredEntityMut,
     ) -> Option<Mut<'a, [Entity]>> {
         (self.actions_mut)(self, context)
+    }
+
+    pub(super) fn is_active_typed<C: Component>(&self, context: &FilteredEntityRef) -> bool {
+        context
+            .get::<ContextActivity<C>>()
+            .is_some_and(|&active| *active)
     }
 
     fn actions_typed<'a, C: Component>(

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `ContextActivity<C>` component to activate or deactivate context `C`.
 - `Bidirectional::dpad_x_buttons` and `Bidirectional::dpad_y_buttons`.
 
 ### Changed
