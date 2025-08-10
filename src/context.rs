@@ -302,10 +302,8 @@ fn update<S: ScheduleLabel>(
             continue;
         };
 
-        // We only sort actions, without actually modifying elements the collection.
-        let context_actions = context_actions.bypass_change_detection();
-        context_actions.sort_by_cached_key(|&action| {
-            let Ok((.., action_bindings, _, _, _)) = actions.get(action) else {
+        let mods_count = |action: &Entity| {
+            let Ok((.., action_bindings, _, _, _)) = actions.get(*action) else {
                 // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
                 warn!(
                     "`{action}` from `{}` missing action components",
@@ -320,7 +318,11 @@ fn update<S: ScheduleLabel>(
                 .max()
                 .unwrap_or(0);
             Reverse(value)
-        });
+        };
+
+        if !context_actions.is_sorted_by_key(mods_count) {
+            context_actions.sort_by_cached_key(mods_count);
+        }
 
         trace!("updating `{}` on `{}`", instance.name, instance.entity);
 
