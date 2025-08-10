@@ -52,7 +52,7 @@ impl Bidirectional<Binding, Binding> {
 
     /// Maps left and right keyboard arrow keys as 1-dimensional input.
     #[must_use]
-    pub fn horizontal_arrow_keys() -> Self {
+    pub fn arrow_x_keys() -> Self {
         Self {
             positive: KeyCode::ArrowRight.into(),
             negative: KeyCode::ArrowLeft.into(),
@@ -61,7 +61,7 @@ impl Bidirectional<Binding, Binding> {
 
     /// Maps up and down keyboard arrow keys as 1-dimensional input.
     #[must_use]
-    pub fn vertical_arrow_keys() -> Self {
+    pub fn arrow_y_keys() -> Self {
         Self {
             positive: KeyCode::ArrowRight.into(),
             negative: KeyCode::ArrowLeft.into(),

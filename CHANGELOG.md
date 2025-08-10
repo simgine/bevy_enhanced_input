@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
 - `Clone`, `PartialEq`, `Eq` and `Debug` are implemented for `ActionOf<C>` even if `C` doesn't implement them.
+- Rename `Bidirectional::horizontal_arrow_keys` into `Bidirectional::arrow_x_keys`.
+- Rename `Bidirectional::vertical_arrow_keys` into `Bidirectional::arrow_y_keys`.
 
 ### Removed
 
