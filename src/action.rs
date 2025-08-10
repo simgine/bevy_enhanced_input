@@ -91,6 +91,12 @@ impl<A: InputAction> Default for Action<A> {
     }
 }
 
+impl<A: InputAction> PartialEq for Action<A> {
+    fn eq(&self, other: &Self) -> bool {
+        **self == **other
+    }
+}
+
 impl<A: InputAction> Action<A> {
     pub fn new() -> Self {
         Self::default()
@@ -121,7 +127,9 @@ pub trait InputAction: 'static {
 }
 
 /// Type which can be used as [`InputAction::Output`].
-pub trait ActionOutput: Into<ActionValue> + Default + Send + Sync + Debug + Clone + Copy {
+pub trait ActionOutput:
+    Into<ActionValue> + Default + Send + Sync + Debug + Clone + Copy + PartialEq
+{
     /// Dimension of this output.
     ///
     /// Used for [`ActionValue`] initialization.
