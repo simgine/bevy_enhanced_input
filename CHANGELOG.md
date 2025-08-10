@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Bidirectional::dpad_x_buttons` and `Bidirectional::dpad_y_buttons`.
+
 ### Changed
 
 - `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
