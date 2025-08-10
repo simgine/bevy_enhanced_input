@@ -91,6 +91,12 @@ impl<A: InputAction> Default for Action<A> {
     }
 }
 
+impl<A: InputAction> PartialEq for Action<A> {
+    fn eq(&self, other: &Self) -> bool {
+        **self == **other
+    }
+}
+
 impl<A: InputAction> Action<A> {
     pub fn new() -> Self {
         Self::default()
@@ -121,7 +127,9 @@ pub trait InputAction: 'static {
 }
 
 /// Type which can be used as [`InputAction::Output`].
-pub trait ActionOutput: Into<ActionValue> + Default + Send + Sync + Debug + Clone + Copy {
+pub trait ActionOutput:
+    Into<ActionValue> + Default + Send + Sync + Debug + Clone + Copy + PartialEq
+{
     /// Dimension of this output.
     ///
     /// Used for [`ActionValue`] initialization.
@@ -190,7 +198,7 @@ pub struct ActionSettings {
     pub accumulation: Accumulation,
 
     /// Require inputs to be inactive before the first activation and continue to consume them
-    /// even after context removal until inputs become inactive again.
+    /// even after context removal or deactivation until inputs become inactive again.
     ///
     /// This way new instances won't react to currently held inputs until they are released.
     /// This prevents unintended behavior where switching or layering contexts using the same key

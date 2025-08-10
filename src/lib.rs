@@ -84,6 +84,7 @@ context entity.
 
 Context actions will be evaluated in the schedule associated at context registration. Contexts registered in the same
 schedule will be evaluated in their spawning order, but you can override it by adding the [`ContextPriority`] component.
+You can also activate or deactivate contexts by inserting [`ContextActivity`] component.
 
 Actions also have [`ActionSettings`] component that customizes their behavior.
 
@@ -349,6 +350,9 @@ Actions aren't despawned automatically via [`EntityWorldMut::remove_with_require
 despawn related entities when their relationship targets (like [`Actions<C>`]) are removed. For this reason, [`Actions<C>`]
 is not a required component for `C`. See [this issue](https://github.com/bevyengine/bevy/issues/20252) for more details.
 
+When an action is despawned, it automatically transitions its state to [`ActionState::None`] with [`ActionValue::zero`],
+triggering the corresponding events. Depending on your use case, using [`ContextActivity`] might be more convenient than removal.
+
 ## Input and UI
 
 Currently, we don't integrate `bevy_input_focus` directly. But we provide [`ActionSources`] resource
@@ -410,7 +414,7 @@ pub mod prelude {
             release::*, tap::*,
         },
         context::{
-            ActionsQuery, ContextPriority, GamepadDevice, InputContextAppExt,
+            ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
             input_reader::ActionSources,
             time::{ContextTime, TimeKind},
         },

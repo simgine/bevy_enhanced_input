@@ -82,7 +82,7 @@ fn layering() {
 }
 
 #[test]
-fn switching() {
+fn switching_by_removal() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<First>()
@@ -151,6 +151,87 @@ fn switching() {
 
     let second_state = *actions.single(app.world()).unwrap();
     assert_eq!(second_state, ActionState::Fired);
+}
+
+#[test]
+fn switching_by_activation() {
+    let mut app = App::new();
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
+        .add_input_context::<First>()
+        .add_input_context::<Second>()
+        .finish();
+
+    let contexts = app
+        .world_mut()
+        .spawn((
+            First,
+            actions!(First[(Action::<OnFirst>::new(), bindings![KEY])]),
+            Second,
+            ContextActivity::<Second>::INACTIVE,
+            actions!(
+                Second[(
+                    Action::<OnSecond>::new(),
+                    ActionSettings {
+                        require_reset: true,
+                        ..Default::default()
+                    },
+                    bindings![KEY]
+                )]
+            ),
+        ))
+        .id();
+
+    app.update();
+
+    app.world_mut()
+        .resource_mut::<ButtonInput<KeyCode>>()
+        .press(KEY);
+
+    app.update();
+
+    let mut first_actions = app.world_mut().query::<&Action<OnFirst>>();
+
+    let on_first = *first_actions.single(app.world()).unwrap();
+    assert!(*on_first);
+
+    app.world_mut().entity_mut(contexts).insert((
+        ContextActivity::<First>::INACTIVE,
+        ContextActivity::<Second>::ACTIVE,
+    ));
+
+    app.update();
+
+    let on_first = *first_actions.single(app.world()).unwrap();
+    assert!(
+        !*on_first,
+        "shouldn't fire because consumed by the second action"
+    );
+
+    let mut second_actions = app.world_mut().query::<&Action<OnSecond>>();
+
+    let on_second = *second_actions.single(app.world()).unwrap();
+    assert!(
+        !*on_second,
+        "shouldn't fire because the input should stop actuating first"
+    );
+
+    app.world_mut()
+        .resource_mut::<ButtonInput<KeyCode>>()
+        .release(KEY);
+
+    app.update();
+
+    app.world_mut()
+        .resource_mut::<ButtonInput<KeyCode>>()
+        .press(KEY);
+
+    app.update();
+
+    let on_first = *first_actions.single(app.world()).unwrap();
+    assert!(!*on_first);
+
+    let on_second = *second_actions.single(app.world()).unwrap();
+    assert!(*on_second);
 }
 
 #[derive(Component)]
