@@ -564,7 +564,7 @@ fn apply<S: ScheduleLabel>(
     }
 }
 
-/// Enables or disables all context action updates from inputs and mocks.
+/// Enables or disables all action updates from inputs and mocks for context `C`.
 ///
 /// By default, all contexts are active.
 ///
@@ -574,8 +574,8 @@ fn apply<S: ScheduleLabel>(
 /// to be inactive before they will be visible to actions from other contexts.
 ///
 /// This is analogous to hiding an entity instead of despawning.
-/// Disable when you want to toggle quickly, preserve bindings, or keep entity IDs.
-/// Remove when the context is truly going away and you don't need it back soon.
+/// Use this component when you want to toggle quickly, preserve bindings, or keep entity IDs.
+/// Use removal when the context is truly going away and you don't need it back soon.
 ///
 /// Marked as required for `C` on context registration.
 #[derive(Component, Reflect, Deref)]
