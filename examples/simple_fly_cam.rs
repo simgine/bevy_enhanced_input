@@ -1,5 +1,7 @@
 //! Simple fly camera with a single context.
 
+use core::f32::consts::{FRAC_PI_2, FRAC_PI_8};
+
 use bevy::{prelude::*, window::CursorGrabMode};
 use bevy_enhanced_input::prelude::*;
 
@@ -8,9 +10,10 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<FlyCam>() // All contexts should be registered.
         .add_observer(apply_movement)
+        .add_observer(rotate)
+        .add_observer(zoom)
         .add_observer(capture_cursor)
         .add_observer(release_cursor)
-        .add_observer(rotate)
         .add_systems(Startup, setup)
         .run();
 }
@@ -43,15 +46,26 @@ fn setup(
                     // Bindings like WASD or sticks are very common,
                     // so we provide built-in `SpawnableList`s to assign all keys/axes at once.
                     Cardinal::wasd_keys(),
-                    Axial::left_stick()
+                    Axial::left_stick(),
                 )),
             ),
             (
                 Action::<Rotate>::new(),
                 Bindings::spawn((
+                    // Bevy requires single entities to be wrapped in `Spawn`.
                     // You can attach modifiers to individual bindings as well.
                     Spawn((Binding::mouse_motion(), Scale::splat(0.1), Negate::all())),
                     Axial::right_stick().with((Scale::splat(2.0), Negate::x())),
+                )),
+            ),
+            (
+                Action::<Zoom>::new(),
+                Scale::splat(0.1),
+                Bindings::spawn((
+                    // In Bevy, vertical scrolling maps to the Y axis,
+                    // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
+                    Spawn((Binding::mouse_wheel(), SwizzleAxis::YXZ)),
+                    Bidirectional::dpad_y_buttons(),
                 )),
             ),
             // For bindings we also have a macro similar to `children!`.
@@ -96,20 +110,28 @@ fn apply_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Tran
 
 fn rotate(
     trigger: Trigger<Fired<Rotate>>,
-    mut players: Query<&mut Transform>,
+    mut transforms: Query<&mut Transform>,
     window: Single<&Window>,
 ) {
     if window.cursor_options.visible {
         return;
     }
 
-    let mut transform = players.get_mut(trigger.target()).unwrap();
+    let mut transform = transforms.get_mut(trigger.target()).unwrap();
     let (mut yaw, mut pitch, _) = transform.rotation.to_euler(EulerRot::YXZ);
 
     yaw += trigger.value.x.to_radians();
     pitch += trigger.value.y.to_radians();
 
     transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, 0.0);
+}
+
+fn zoom(trigger: Trigger<Fired<Zoom>>, mut projections: Query<&mut Projection>) {
+    let mut projection = projections.get_mut(trigger.target()).unwrap();
+    let Projection::Perspective(projection) = &mut *projection else {
+        panic!("camera should be perspective");
+    };
+    projection.fov = (projection.fov + trigger.value).clamp(FRAC_PI_8, FRAC_PI_2);
 }
 
 fn capture_cursor(_trigger: Trigger<Completed<CaptureCursor>>, mut window: Single<&mut Window>) {
@@ -142,13 +164,17 @@ struct FlyCam;
 struct Move;
 
 #[derive(InputAction)]
+#[action_output(Vec2)]
+struct Rotate;
+
+#[derive(InputAction)]
+#[action_output(f32)]
+struct Zoom;
+
+#[derive(InputAction)]
 #[action_output(bool)]
 struct CaptureCursor;
 
 #[derive(InputAction)]
 #[action_output(bool)]
 struct ReleaseCursor;
-
-#[derive(InputAction)]
-#[action_output(Vec2)]
-struct Rotate;

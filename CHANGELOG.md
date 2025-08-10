@@ -10,11 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `ContextActivity<C>` component to activate or deactivate context `C`.
+- `Bidirectional::dpad_x_buttons` and `Bidirectional::dpad_y_buttons`.
 
 ### Changed
 
 - `bindings!` now properly works with trailing commas and no longer requires wrapping single elements in braces when mixed with tuples.
 - `Clone`, `PartialEq`, `Eq` and `Debug` are implemented for `ActionOf<C>` even if `C` doesn't implement them.
+- Don't trigger change detection on `Actions<C>` on sorting if it's already sorted.
+- `InputAction` now requires `PartialEq`, and `Action<A>` implements `PartialEq`.
 
 ### Removed
 
