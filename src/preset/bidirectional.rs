@@ -52,7 +52,7 @@ impl Bidirectional<Binding, Binding> {
 
     /// Maps left and right keyboard arrow keys as 1-dimensional input.
     #[must_use]
-    pub fn arrow_x_keys() -> Self {
+    pub fn left_right_arrow() -> Self {
         Self {
             positive: KeyCode::ArrowRight.into(),
             negative: KeyCode::ArrowLeft.into(),
@@ -61,7 +61,7 @@ impl Bidirectional<Binding, Binding> {
 
     /// Maps up and down keyboard arrow keys as 1-dimensional input.
     #[must_use]
-    pub fn arrow_y_keys() -> Self {
+    pub fn up_down_arrow() -> Self {
         Self {
             positive: KeyCode::ArrowRight.into(),
             negative: KeyCode::ArrowLeft.into(),
@@ -70,7 +70,7 @@ impl Bidirectional<Binding, Binding> {
 
     /// Maps up and down D-pad buttons as 1-dimensional horizontal input.
     #[must_use]
-    pub fn dpad_x_buttons() -> Self {
+    pub fn left_right_dpad() -> Self {
         Self {
             positive: GamepadButton::DPadRight.into(),
             negative: GamepadButton::DPadLeft.into(),
@@ -79,7 +79,7 @@ impl Bidirectional<Binding, Binding> {
 
     /// Maps left and right D-pad buttons as 1-dimensional horizontal input.
     #[must_use]
-    pub fn dpad_y_buttons() -> Self {
+    pub fn up_down_dpad() -> Self {
         Self {
             positive: GamepadButton::DPadUp.into(),
             negative: GamepadButton::DPadDown.into(),

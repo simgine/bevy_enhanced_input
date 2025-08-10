@@ -115,7 +115,7 @@ fn player_bundle(
     // Assign different bindings based on the player index.
     let move_bindings = match player {
         Player::First => Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-        Player::Second => Bindings::spawn((Cardinal::arrow_keys(), Axial::left_stick())),
+        Player::Second => Bindings::spawn((Cardinal::arrows(), Axial::left_stick())),
     };
 
     (

@@ -16,7 +16,7 @@ fn keys() {
                 Action::<Test>::new(),
                 Bindings::spawn((
                     Cardinal::wasd_keys(),
-                    Cardinal::arrow_keys(),
+                    Cardinal::arrows(),
                     Bidirectional {
                         positive: Binding::from(KeyCode::NumpadAdd),
                         negative: Binding::from(KeyCode::NumpadSubtract),
@@ -30,7 +30,7 @@ fn keys() {
                         down: Binding::from(KeyCode::Digit5),
                     },
                     Ordinal::hjklyubn_keys(),
-                    Ordinal::numpad_keys(),
+                    Ordinal::numpad(),
                 ))
             )]
         ),
@@ -101,12 +101,7 @@ fn dpad() {
     app.world_mut().spawn((
         TestContext,
         GamepadDevice::Single(gamepad_entity),
-        actions!(
-            TestContext[(
-                Action::<Test>::new(),
-                Bindings::spawn(Cardinal::dpad_buttons())
-            )]
-        ),
+        actions!(TestContext[(Action::<Test>::new(), Bindings::spawn(Cardinal::dpad()))]),
     ));
 
     app.update();
