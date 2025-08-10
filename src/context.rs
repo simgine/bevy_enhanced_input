@@ -298,10 +298,12 @@ fn update<S: ScheduleLabel>(
         };
 
         let gamepad = context.get::<GamepadDevice>().copied().unwrap_or_default();
-        let Some(context_actions) = instance.actions_mut(&mut context) else {
+        let Some(mut context_actions) = instance.actions_mut(&mut context) else {
             continue;
         };
 
+        // We only sort actions, without actually modifying the collection.
+        let context_actions = context_actions.bypass_change_detection();
         context_actions.sort_by_cached_key(|&action| {
             let Ok((.., action_bindings, _, _, _)) = actions.get(action) else {
                 // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
@@ -324,7 +326,7 @@ fn update<S: ScheduleLabel>(
 
         reader.set_gamepad(gamepad);
 
-        let mut actions_iter = actions.iter_many_mut(context_actions);
+        let mut actions_iter = actions.iter_many_mut(&*context_actions);
         while let Some((
             action,
             action_name,

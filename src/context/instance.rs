@@ -58,7 +58,7 @@ pub(crate) struct ContextInstance {
     type_id: TypeId,
     priority: usize,
     actions: for<'a> fn(&Self, &'a FilteredEntityRef) -> Option<&'a [Entity]>,
-    actions_mut: for<'a> fn(&Self, &'a mut FilteredEntityMut) -> Option<&'a mut [Entity]>,
+    actions_mut: for<'a> fn(&Self, &'a mut FilteredEntityMut) -> Option<Mut<'a, [Entity]>>,
 }
 
 impl ContextInstance {
@@ -86,7 +86,7 @@ impl ContextInstance {
     pub(super) fn actions_mut<'a>(
         &self,
         context: &'a mut FilteredEntityMut,
-    ) -> Option<&'a mut [Entity]> {
+    ) -> Option<Mut<'a, [Entity]>> {
         (self.actions_mut)(self, context)
     }
 
@@ -100,9 +100,9 @@ impl ContextInstance {
     fn actions_mut_typed<'a, C: Component>(
         &self,
         context: &'a mut FilteredEntityMut,
-    ) -> Option<&'a mut [Entity]> {
+    ) -> Option<Mut<'a, [Entity]>> {
         context
             .get_mut::<Actions<C>>()
-            .map(|actions| &mut **actions.into_inner().collection_mut_risky())
+            .map(|a| a.map_unchanged(|a| &mut **a.collection_mut_risky()))
     }
 }
