@@ -79,27 +79,27 @@ impl InputContextAppExt for App {
             any::type_name::<S>(),
         );
 
-        let id = self.world_mut().register_component::<Actions<C>>();
+        let actions_id = self.world_mut().register_component::<Actions<C>>();
         let mut registry = self.world_mut().resource_mut::<ContextRegistry>();
         if let Some(contexts) = registry
             .iter_mut()
             .find(|c| c.schedule_id == TypeId::of::<S>())
         {
             debug_assert!(
-                !contexts.actions_ids.contains(&id),
+                !contexts.actions_ids.contains(&actions_id),
                 "context `{}` shouldn't be added more then once",
                 any::type_name::<C>()
             );
-            contexts.actions_ids.push(id);
+            contexts.actions_ids.push(actions_id);
         } else {
             let mut contexts = ScheduleContexts::new::<S>();
-            contexts.actions_ids.push(id);
+            contexts.actions_ids.push(actions_id);
             registry.push(contexts);
         }
 
         self.register_required_components::<C, ContextPriority<C>>()
-            .add_observer(register_instance::<C, S>)
-            .add_observer(remove_context::<C, S>);
+            .add_observer(register::<C, S>)
+            .add_observer(unregister::<C, S>);
 
         self
     }
@@ -223,7 +223,7 @@ impl ScheduleContexts {
     }
 }
 
-fn register_instance<C: Component, S: ScheduleLabel>(
+fn register<C: Component, S: ScheduleLabel>(
     trigger: Trigger<OnInsert, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
     // TODO Bevy 0.17: Use `Allows` filter instead of `Has`.
@@ -239,7 +239,7 @@ fn register_instance<C: Component, S: ScheduleLabel>(
     instances.add::<C>(trigger.target(), *priority);
 }
 
-fn remove_context<C: Component, S: ScheduleLabel>(
+fn unregister<C: Component, S: ScheduleLabel>(
     trigger: Trigger<OnReplace, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
 ) {
@@ -488,14 +488,14 @@ fn apply<S: ScheduleLabel>(
     mut actions: Query<EntityMut, With<ActionFns>>,
 ) {
     for instance in &**instances {
-        let Ok(context_entity) = contexts.get(instance.entity) else {
+        let Ok(context) = contexts.get(instance.entity) else {
             trace!(
                 "skipping triggering for `{}` on disabled `{}`",
                 instance.name, instance.entity,
             );
             continue;
         };
-        let Some(context_actions) = instance.actions(&context_entity) else {
+        let Some(context_actions) = instance.actions(&context) else {
             continue;
         };
 
@@ -505,22 +505,15 @@ fn apply<S: ScheduleLabel>(
         );
 
         let mut actions_iter = actions.iter_many_mut(context_actions);
-        while let Some(mut action_entity) = actions_iter.fetch_next() {
-            let fns = *action_entity.get::<ActionFns>().unwrap();
-            let value = *action_entity.get::<ActionValue>().unwrap();
-            fns.store_value(&mut action_entity, value);
+        while let Some(mut action) = actions_iter.fetch_next() {
+            let fns = *action.get::<ActionFns>().unwrap();
+            let value = *action.get::<ActionValue>().unwrap();
+            fns.store_value(&mut action, value);
 
-            let state = *action_entity.get::<ActionState>().unwrap();
-            let events = *action_entity.get::<ActionEvents>().unwrap();
-            let time = *action_entity.get::<ActionTime>().unwrap();
-            fns.trigger(
-                &mut commands,
-                context_entity.id(),
-                state,
-                events,
-                value,
-                time,
-            );
+            let state = *action.get::<ActionState>().unwrap();
+            let events = *action.get::<ActionEvents>().unwrap();
+            let time = *action.get::<ActionTime>().unwrap();
+            fns.trigger(&mut commands, context.id(), state, events, value, time);
         }
     }
 }

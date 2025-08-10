@@ -25,26 +25,26 @@ impl ActionFns {
     }
 
     /// Stores the given value in the entity's [`Action<A>`] component for which this instance was created.
-    pub(crate) fn store_value(&self, entity: &mut EntityMut, value: ActionValue) {
-        (self.store_value)(entity, value);
+    pub(crate) fn store_value(&self, action: &mut EntityMut, value: ActionValue) {
+        (self.store_value)(action, value);
     }
 
     /// Triggers events based on [`ActionEvents`] for the action marker `A` for which this instance was created.
     pub(crate) fn trigger(
         &self,
         commands: &mut Commands,
-        entity: Entity,
+        action: Entity,
         state: ActionState,
         events: ActionEvents,
         value: ActionValue,
         time: ActionTime,
     ) {
-        (self.trigger)(commands, entity, state, events, value, time);
+        (self.trigger)(commands, action, state, events, value, time);
     }
 }
 
-fn store_value<A: InputAction>(entity: &mut EntityMut, value: ActionValue) {
-    let mut action = entity
+fn store_value<A: InputAction>(action: &mut EntityMut, value: ActionValue) {
+    let mut action = action
         .get_mut::<Action<A>>()
         .expect("entity should be an action");
 
@@ -53,7 +53,7 @@ fn store_value<A: InputAction>(entity: &mut EntityMut, value: ActionValue) {
 
 fn trigger<A: InputAction>(
     commands: &mut Commands,
-    entity: Entity,
+    action: Entity,
     state: ActionState,
     events: ActionEvents,
     value: ActionValue,
@@ -64,7 +64,7 @@ fn trigger<A: InputAction>(
             ActionEvents::STARTED => {
                 trigger_and_log::<A, _>(
                     commands,
-                    entity,
+                    action,
                     Started::<A> {
                         value: A::Output::unwrap_value(value),
                         state,
@@ -74,7 +74,7 @@ fn trigger<A: InputAction>(
             ActionEvents::ONGOING => {
                 trigger_and_log::<A, _>(
                     commands,
-                    entity,
+                    action,
                     Ongoing::<A> {
                         value: A::Output::unwrap_value(value),
                         state,
@@ -85,7 +85,7 @@ fn trigger<A: InputAction>(
             ActionEvents::FIRED => {
                 trigger_and_log::<A, _>(
                     commands,
-                    entity,
+                    action,
                     Fired::<A> {
                         value: A::Output::unwrap_value(value),
                         state,
@@ -97,7 +97,7 @@ fn trigger<A: InputAction>(
             ActionEvents::CANCELED => {
                 trigger_and_log::<A, _>(
                     commands,
-                    entity,
+                    action,
                     Canceled::<A> {
                         value: A::Output::unwrap_value(value),
                         state,
@@ -108,7 +108,7 @@ fn trigger<A: InputAction>(
             ActionEvents::COMPLETED => {
                 trigger_and_log::<A, _>(
                     commands,
-                    entity,
+                    action,
                     Completed::<A> {
                         value: A::Output::unwrap_value(value),
                         state,
@@ -122,12 +122,12 @@ fn trigger<A: InputAction>(
     }
 }
 
-fn trigger_and_log<A, E: Event + Debug>(commands: &mut Commands, entity: Entity, event: E) {
+fn trigger_and_log<A, E: Event + Debug>(commands: &mut Commands, action: Entity, event: E) {
     debug!(
-        "triggering `{event:?}` for `{}` for `{entity}`",
+        "triggering `{event:?}` for `{}` for `{action}`",
         any::type_name::<A>()
     );
-    commands.trigger_targets(event, entity);
+    commands.trigger_targets(event, action);
 }
 
 #[cfg(test)]
