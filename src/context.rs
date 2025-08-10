@@ -302,7 +302,7 @@ fn update<S: ScheduleLabel>(
             continue;
         };
 
-        // We only sort actions, without actually modifying the collection.
+        // We only sort actions, without actually modifying elements the collection.
         let context_actions = context_actions.bypass_change_detection();
         context_actions.sort_by_cached_key(|&action| {
             let Ok((.., action_bindings, _, _, _)) = actions.get(action) else {
