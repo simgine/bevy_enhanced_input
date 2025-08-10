@@ -582,7 +582,7 @@ fn apply<S: ScheduleLabel>(
 #[component(immutable)]
 pub struct ContextActivity<C> {
     #[deref]
-    value: bool,
+    active: bool,
     #[reflect(ignore)]
     marker: PhantomData<C>,
 }
@@ -596,9 +596,9 @@ impl<C> ContextActivity<C> {
 
     /// Creates a new instance with the given value.
     #[must_use]
-    pub const fn new(value: bool) -> Self {
+    pub const fn new(active: bool) -> Self {
         Self {
-            value,
+            active,
             marker: PhantomData,
         }
     }
@@ -606,7 +606,7 @@ impl<C> ContextActivity<C> {
     /// Returns a new instance with the value inverted.
     #[must_use]
     pub const fn toggled(self) -> Self {
-        if self.value {
+        if self.active {
             Self::INACTIVE
         } else {
             Self::ACTIVE
