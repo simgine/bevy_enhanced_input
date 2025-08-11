@@ -42,7 +42,7 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
 
     /// Maps keyboard arrow keys as 2-dimensional input.
     #[must_use]
-    pub fn arrow_keys() -> Self {
+    pub fn arrows() -> Self {
         Self {
             north: KeyCode::ArrowUp.into(),
             west: KeyCode::ArrowLeft.into(),
@@ -55,7 +55,7 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
 impl Cardinal<Binding, Binding, Binding, Binding> {
     /// Maps D-pad as 2-dimensional input.
     #[must_use]
-    pub fn dpad_buttons() -> Self {
+    pub fn dpad() -> Self {
         Self {
             north: GamepadButton::DPadUp.into(),
             west: GamepadButton::DPadLeft.into(),

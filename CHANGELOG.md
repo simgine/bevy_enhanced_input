@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `ContextActivity<C>` component to activate or deactivate context `C`.
-- `Bidirectional::dpad_x_buttons` and `Bidirectional::dpad_y_buttons`.
+- `Bidirectional::left_right_dpad` and `Bidirectional::up_down_dpad`.
 
 ### Changed
 
@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Clone`, `PartialEq`, `Eq` and `Debug` are implemented for `ActionOf<C>` even if `C` doesn't implement them.
 - Don't trigger change detection on `Actions<C>` on sorting if it's already sorted.
 - `InputAction` now requires `PartialEq`, and `Action<A>` implements `PartialEq`.
+- Rename `Bidirectional::horizontal_arrow_keys` into `Bidirectional::left_right_arrows`.
+- Rename `Bidirectional::vertical_arrow_keys` into `Bidirectional::up_down_arrows`.
+- Rename `Cardinal::arrow_keys` into `Cardinal::arrows`.
+- Rename `Cardinal::dpad_buttons` into `Cardinal::dpad`.
+- Rename `Ordinal::numpad_keys` into `Cardinal::numpad`.
 
 ### Removed
 
