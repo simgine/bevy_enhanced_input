@@ -114,7 +114,7 @@ mod tests {
     fn fired() {
         let (mut world, mut state) = context::init_world();
         let action = world
-            .spawn((Action::<TestAction>::new(), ActionState::Fired))
+            .spawn((Action::<Test>::new(), ActionState::Fired))
             .id();
         let (time, actions) = state.get(&world);
 
@@ -129,11 +129,9 @@ mod tests {
     fn ongoing() {
         let (mut world, mut state) = context::init_world();
         let action1 = world
-            .spawn((Action::<TestAction>::new(), ActionState::Fired))
+            .spawn((Action::<Test>::new(), ActionState::Fired))
             .id();
-        let action2 = world
-            .spawn((Action::<TestAction>::new(), ActionState::None))
-            .id();
+        let action2 = world.spawn((Action::<Test>::new(), ActionState::None)).id();
         let (time, actions) = state.get(&world);
 
         let mut condition = Chord::new([action1, action2]);
@@ -146,12 +144,8 @@ mod tests {
     #[test]
     fn none() {
         let (mut world, mut state) = context::init_world();
-        let action1 = world
-            .spawn((Action::<TestAction>::new(), ActionState::None))
-            .id();
-        let action2 = world
-            .spawn((Action::<TestAction>::new(), ActionState::None))
-            .id();
+        let action1 = world.spawn((Action::<Test>::new(), ActionState::None)).id();
+        let action2 = world.spawn((Action::<Test>::new(), ActionState::None)).id();
         let (time, actions) = state.get(&world);
 
         let mut condition = Chord::new([action1, action2]);
@@ -175,5 +169,5 @@ mod tests {
 
     #[derive(InputAction)]
     #[action_output(bool)]
-    struct TestAction;
+    struct Test;
 }

@@ -96,7 +96,7 @@ mod tests {
         let (mut world, mut state) = context::init_world();
         let action = world
             .spawn((
-                Action::<TestAction>::new(),
+                Action::<Test>::new(),
                 ActionState::Fired,
                 ActionValue::from(true),
             ))
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn accumulation_inactive() {
         let (mut world, mut state) = context::init_world();
-        let action = world.spawn(Action::<TestAction>::new()).id();
+        let action = world.spawn(Action::<Test>::new()).id();
         let (time, actions) = state.get(&world);
 
         let mut modifier = AccumulateBy::new(action);
@@ -131,5 +131,5 @@ mod tests {
 
     #[derive(InputAction)]
     #[action_output(bool)]
-    struct TestAction;
+    struct Test;
 }
