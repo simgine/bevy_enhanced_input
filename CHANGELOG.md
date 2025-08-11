@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2025-08-11
+
 ### Added
 
 - `ContextActivity<C>` component to activate or deactivate context `C`.
@@ -381,7 +383,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.15.3...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/simgine/bevy_replicon/compare/v0.16.0...v0.16.0
 [0.15.3]: https://github.com/simgine/bevy_replicon/compare/v0.15.2...v0.15.3
 [0.15.2]: https://github.com/simgine/bevy_replicon/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/simgine/bevy_replicon/compare/v0.15.0...v0.15.1
