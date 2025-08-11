@@ -32,60 +32,57 @@ fn spawn(mut commands: Commands) {
         TestContext,
         Actions::<TestContext>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
             context.spawn((
-                Action::<PressAction>::new(),
+                Action::<TestDown>::new(),
                 Down::default(),
-                bindings![PressAction::KEY],
+                bindings![TestDown::KEY],
             ));
             context.spawn((
-                Action::<JustPressAction>::new(),
+                Action::<TestPress>::new(),
                 Press::default(),
-                bindings![JustPressAction::KEY],
+                bindings![TestPress::KEY],
             ));
             context.spawn((
-                Action::<HoldAction>::new(),
+                Action::<TestHold>::new(),
                 Hold::new(1.0),
-                bindings![HoldAction::KEY],
+                bindings![TestHold::KEY],
             ));
             context.spawn((
-                Action::<HoldAndReleaseAction>::new(),
+                Action::<TestHoldAndRelease>::new(),
                 HoldAndRelease::new(1.0),
-                bindings![HoldAndReleaseAction::KEY],
+                bindings![TestHoldAndRelease::KEY],
             ));
             context.spawn((
-                Action::<PulseAction>::new(),
+                Action::<TestPulse>::new(),
                 Pulse::new(1.0),
-                bindings![PulseAction::KEY],
+                bindings![TestPulse::KEY],
             ));
             context.spawn((
-                Action::<ReleaseAction>::new(),
+                Action::<TestRelease>::new(),
                 Release::default(),
-                bindings![ReleaseAction::KEY],
+                bindings![TestRelease::KEY],
             ));
             context.spawn((
-                Action::<TapAction>::new(),
+                Action::<TestTap>::new(),
                 Tap::new(0.5),
-                bindings![TapAction::KEY],
+                bindings![TestTap::KEY],
             ));
 
-            let chord1 = context
+            let member1 = context
                 .spawn((Action::<ChordMember1>::new(), bindings![ChordMember1::KEY]))
                 .id();
-            let chord2 = context
+            let member2 = context
                 .spawn((Action::<ChordMember2>::new(), bindings![ChordMember2::KEY]))
                 .id();
 
-            context.spawn((Action::<ChordAction>::new(), Chord::new([chord1, chord2])));
+            context.spawn((Action::<TestChord>::new(), Chord::new([member1, member2])));
 
             let blocker = context
-                .spawn((
-                    Action::<BlockerAction>::new(),
-                    bindings![BlockerAction::KEY],
-                ))
+                .spawn((Action::<Blocker>::new(), bindings![Blocker::KEY]))
                 .id();
             context.spawn((
-                Action::<BlockByAction>::new(),
+                Action::<TestBlockBy>::new(),
                 BlockBy::single(blocker),
-                bindings![BlockByAction::KEY],
+                bindings![TestBlockBy::KEY],
             ));
         })),
     ));
@@ -96,57 +93,57 @@ struct TestContext;
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct PressAction;
+struct TestDown;
 
-impl PressAction {
+impl TestDown {
     const KEY: KeyCode = KeyCode::Digit1;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct JustPressAction;
+struct TestPress;
 
-impl JustPressAction {
+impl TestPress {
     const KEY: KeyCode = KeyCode::Digit2;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct HoldAction;
+struct TestHold;
 
-impl HoldAction {
+impl TestHold {
     const KEY: KeyCode = KeyCode::Digit3;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct HoldAndReleaseAction;
+struct TestHoldAndRelease;
 
-impl HoldAndReleaseAction {
+impl TestHoldAndRelease {
     const KEY: KeyCode = KeyCode::Digit4;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct PulseAction;
+struct TestPulse;
 
-impl PulseAction {
+impl TestPulse {
     const KEY: KeyCode = KeyCode::Digit5;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct ReleaseAction;
+struct TestRelease;
 
-impl ReleaseAction {
+impl TestRelease {
     const KEY: KeyCode = KeyCode::Digit6;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct TapAction;
+struct TestTap;
 
-impl TapAction {
+impl TestTap {
     const KEY: KeyCode = KeyCode::Digit7;
 }
 
@@ -168,20 +165,20 @@ impl ChordMember2 {
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct ChordAction;
+struct TestChord;
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct BlockerAction;
+struct Blocker;
 
-impl BlockerAction {
+impl Blocker {
     const KEY: KeyCode = KeyCode::Digit0;
 }
 
 #[derive(InputAction)]
 #[action_output(bool)]
-struct BlockByAction;
+struct TestBlockBy;
 
-impl BlockByAction {
+impl TestBlockBy {
     const KEY: KeyCode = KeyCode::Minus;
 }
