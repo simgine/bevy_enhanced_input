@@ -101,7 +101,7 @@ mod tests {
     fn block() {
         let (mut world, mut state) = context::init_world();
         let action = world
-            .spawn((Action::<TestAction>::new(), ActionState::Fired))
+            .spawn((Action::<Test>::new(), ActionState::Fired))
             .id();
         let (time, actions) = state.get(&world);
 
@@ -126,5 +126,5 @@ mod tests {
 
     #[derive(InputAction)]
     #[action_output(bool)]
-    struct TestAction;
+    struct Test;
 }
