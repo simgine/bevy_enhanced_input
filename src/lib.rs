@@ -28,9 +28,9 @@ app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
   entities and define when those actions are evaluated.
 
 Contexts are regular components. Depending on your type of game, you may have a single global context
-or multiple contexts for different gameplay states. To register a component as an input context, you need to call
-[`InputContextAppExt::add_input_context`]. By default, contexts are evaluated during [`PreUpdate`], but you can customize this
-by using [`InputContextAppExt::add_input_context_to`] instead.
+or multiple contexts for different gameplay states. Contexts can be layered, and any number of them can be active at the same time.
+To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
+evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 
 Actions are represented by entities with the [`Action<A>`] component, where `A` is a user-defined marker that implements the
 [`InputAction`] trait, which defines [`InputAction::Output`] type - the value the action produces. It could be [`bool`], [`f32`],
