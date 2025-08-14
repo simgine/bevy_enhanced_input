@@ -95,5 +95,37 @@ pub trait WithBundle<T> {
     type Output;
 
     /// Returns a new instance where the given bundle is added to each preset bundle.
+    ///
+    /// # Examples
+    ///
+    /// Be careful when attaching modifiers like [`SwizzleAxis`](crate::prelude::SwizzleAxis)
+    /// or [`Negate`](crate::prelude::Negate), as they might already be used by the preset,
+    /// which will result in a duplicate component panic.
+    ///
+    /// ```should_panic
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # let mut world = World::new();
+    /// world.spawn(Bindings::spawn(
+    ///     Bidirectional::left_right_dpad().with(Negate::x()),
+    /// ));
+    /// ```
+    ///
+    /// To avoid this, you can attach such modifiers at the action level.
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # let mut world = World::new();
+    /// world.spawn((
+    ///     Action::<Move>::new(),
+    ///     Negate::x(),
+    ///     Bindings::spawn(Bidirectional::left_right_dpad()),
+    /// ));
+    ///
+    /// #[derive(InputAction)]
+    /// #[action_output(f32)]
+    /// struct Move;
+    /// ```
     fn with(self, bundle: T) -> Self::Output;
 }
