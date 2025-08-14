@@ -1,5 +1,5 @@
 //! Pull style as the name implies, means we are pulling the values from the source input.
-//! It is used when we want to do some pre-processing or transform somewhat the given input value, here is a third person camera example to teach you how to do it
+//! It is used when we want to do some specific pre-processing or transform somewhat the given input value, here is a third person camera example to teach you how to do it
 use core::f32::consts::PI;
 
 use bevy::{
@@ -15,7 +15,7 @@ fn main() {
     app.add_plugins((DefaultPlugins, EnhancedInputPlugin));
 
     app.add_observer(release_cursor)
-        .add_observer(apply_movement);
+        .add_observer(player_movement);
 
     app.add_input_context::<CameraInputs>()
         .add_input_context::<Player>();
@@ -65,7 +65,7 @@ struct Move;
 
 /// A context that is added on top of [`CameraInputs`] it contains
 /// ## Actions
-/// [`GrabCursor`], [`CaptureCursor`], [`ReleaseCursor`]
+/// [`GrabCursor`], [`ReleaseCursor`]
 #[derive(Component, Reflect)]
 struct CameraInputs;
 
@@ -102,8 +102,6 @@ struct ThirdPersonCameraInfos {
     pub radius: f32,
     /// How much above the camera should be when it comes to is anchor entity
     pub y_offset: f32,
-    /// Lerp strength of orbit, smooths out camera movement while orbiting
-    pub orbit_smoothing: f32,
     /// While colliding with a floor/wall and so on camera should be slightly offset upwards to give a nice impression!
     pub y_offset_while_hitting: f32,
     /// Yaw limit - Limits horizontol movement
@@ -116,7 +114,6 @@ impl Default for ThirdPersonCameraInfos {
         Self {
             radius: 6.,
             y_offset: 1.0,
-            orbit_smoothing: 0.40,
             y_offset_while_hitting: 0.35,
             yaw_limit: None,
             pitch_limit: Some((-90f32.to_radians(), 85f32.to_radians())),
@@ -243,7 +240,7 @@ fn release_cursor(_trigger: Trigger<Started<ReleaseCursor>>, mut window: Single<
     window.cursor_options.visible = true;
 }
 
-fn apply_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Transform>) {
+fn player_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Transform>) {
     let mut transform = transforms.get_mut(trigger.target()).unwrap();
 
     // Move to the camera direction.
