@@ -6,3 +6,6 @@ html
 
 # For library
 Cargo.lock
+
+#Vscode settings
+.vscode
