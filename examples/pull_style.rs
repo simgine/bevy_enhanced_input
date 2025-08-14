@@ -243,11 +243,8 @@ fn release_cursor(_trigger: Trigger<Started<ReleaseCursor>>, mut window: Single<
 fn player_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Transform>) {
     let mut transform = transforms.get_mut(trigger.target()).unwrap();
 
-    // Move to the camera direction.
-    let rotation = transform.rotation;
-
     let mut movement = trigger.value.extend(0.0).xzy();
     movement.z = -movement.z;
 
-    transform.translation += rotation * movement
+    transform.translation += movement
 }
