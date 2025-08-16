@@ -13,7 +13,7 @@ fn removal() {
         .world_mut()
         .spawn((
             TestContext,
-            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY])]),
+            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY1])]),
         ))
         .id();
 
@@ -25,7 +25,7 @@ fn removal() {
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
-        .press(Test::KEY);
+        .press(Test::KEY1);
 
     app.world_mut().add_observer(|_: Trigger<Fired<Test>>| {
         panic!("action shouldn't trigger");
@@ -50,7 +50,7 @@ fn invalid_hierarchy() {
                 Bindings::spawn((Spawn(Down::default()), Spawn(Scale::splat(1.0))))
             ),
             // Bindings without action.
-            bindings![Test::KEY],
+            bindings![Test::KEY1],
         ]),
     ));
 
@@ -69,7 +69,7 @@ fn disabled() {
         .spawn((
             TestContext,
             Disabled,
-            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY])]),
+            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY1])]),
         ))
         .id();
 
@@ -77,7 +77,7 @@ fn disabled() {
         .world_mut()
         .spawn((
             TestContext,
-            actions!(TestContext[(Action::<Test>::new(), Disabled, bindings![Test::KEY])]),
+            actions!(TestContext[(Action::<Test>::new(), Disabled, bindings![Test::KEY1])]),
         ))
         .id();
 
@@ -85,7 +85,7 @@ fn disabled() {
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
-        .press(Test::KEY);
+        .press(Test::KEY1);
 
     app.world_mut().add_observer(|_: Trigger<Fired<Test>>| {
         panic!("action shouldn't trigger");
@@ -109,7 +109,7 @@ fn reenabling() {
         .spawn((
             TestContext,
             Disabled,
-            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY])]),
+            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY1])]),
         ))
         .id();
 
@@ -120,7 +120,7 @@ fn reenabling() {
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
-        .press(Test::KEY);
+        .press(Test::KEY1);
 
     app.update();
 
@@ -132,6 +132,51 @@ fn reenabling() {
     assert_eq!(state, ActionState::Fired);
 }
 
+#[test]
+fn same_action_different_bindings() {
+    let mut app = App::new();
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
+        .add_input_context::<TestContext>()
+        .finish();
+
+    app.world_mut().spawn((
+        TestContext,
+        actions!(TestContext[
+            (Action::<Test>::new(), bindings![Test::KEY1]),
+            (Action::<Test>::new(), bindings![Test::KEY2]),
+        ]),
+    ));
+
+    app.update();
+
+    let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
+    keys.press(Test::KEY1);
+    keys.press(Test::KEY2);
+
+    app.update();
+
+    let mut actions = app.world_mut().query::<&Action<Test>>();
+
+    assert!(actions.iter(app.world()).all(|&action| *action));
+
+    app.world_mut()
+        .resource_mut::<ButtonInput<KeyCode>>()
+        .release(Test::KEY1);
+
+    app.update();
+
+    assert!(actions.iter(app.world()).any(|&action| *action));
+    assert!(actions.iter(app.world()).any(|&action| !*action));
+
+    app.world_mut()
+        .resource_mut::<ButtonInput<KeyCode>>()
+        .release(Test::KEY2);
+
+    app.update();
+
+    assert!(!actions.iter(app.world()).all(|&action| *action));
+}
+
 #[derive(Component)]
 struct TestContext;
 
@@ -140,5 +185,6 @@ struct TestContext;
 struct Test;
 
 impl Test {
-    const KEY: KeyCode = KeyCode::KeyA;
+    const KEY1: KeyCode = KeyCode::KeyA;
+    const KEY2: KeyCode = KeyCode::KeyB;
 }
