@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Target context entity on events triggered by action removals.
+
 ## [0.16.0] - 2025-08-11
 
 ### Added

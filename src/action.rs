@@ -6,55 +6,10 @@ pub mod value;
 use core::{any, fmt::Debug, time::Duration};
 
 use bevy::prelude::*;
-use log::trace;
 use serde::{Deserialize, Serialize};
 
-use crate::{context::input_reader::PendingBindings, prelude::*};
+use crate::prelude::*;
 use fns::ActionFns;
-
-/// Resets action data and triggers corresponding events on removal.
-pub(crate) fn remove_action(
-    trigger: Trigger<OnRemove, ActionValue>,
-    mut commands: Commands,
-    mut pending: ResMut<PendingBindings>,
-    mut actions: Query<(
-        Option<&Bindings>,
-        &ActionSettings,
-        &ActionFns,
-        &mut ActionValue,
-        &mut ActionState,
-        &mut ActionEvents,
-        &mut ActionTime,
-    )>,
-    bindings: Query<&Binding>,
-) {
-    let Ok((action_bindings, settings, fns, mut value, mut state, mut events, mut time)) =
-        actions.get_mut(trigger.target())
-    else {
-        trace!("ignoring reset for `{}`", trigger.target());
-        return;
-    };
-
-    *time = Default::default();
-    events.set_if_neq(ActionEvents::new(*state, ActionState::None));
-    state.set_if_neq(Default::default());
-    value.set_if_neq(ActionValue::zero(value.dim()));
-
-    fns.trigger(
-        &mut commands,
-        trigger.target(),
-        *state,
-        *events,
-        *value,
-        *time,
-    );
-
-    if let Some(action_bindings) = action_bindings
-        && settings.require_reset
-    {
-        pending.extend(bindings.iter_many(action_bindings).copied());
-    }
-}
 
 /// Component that represents a user action.
 ///

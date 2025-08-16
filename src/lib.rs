@@ -505,7 +505,6 @@ impl Plugin for EnhancedInputPlugin {
                     .chain()
                     .after(InputSystem),
             )
-            .add_observer(action::remove_action)
             .add_systems(
                 PreUpdate,
                 input_reader::update_pending.in_set(EnhancedInputSet::Prepare),
