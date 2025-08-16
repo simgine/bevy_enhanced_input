@@ -104,6 +104,7 @@ impl InputContextAppExt for App {
             .register_required_components::<C, ContextActivity<C>>()
             .add_observer(register::<C, S>)
             .add_observer(unregister::<C, S>)
+            .add_observer(reset_action::<C>)
             .add_observer(deactivate::<C>);
 
         self
@@ -290,6 +291,44 @@ fn deactivate<C: Component>(
                 pending.extend(bindings.iter_many(action_bindings).copied());
             }
         }
+    }
+}
+
+/// Resets action data and triggers corresponding events on removal.
+pub(crate) fn reset_action<C: Component>(
+    trigger: Trigger<OnRemove, ActionOf<C>>,
+    mut commands: Commands,
+    mut pending: ResMut<PendingBindings>,
+    mut actions: Query<(
+        &ActionOf<C>,
+        &ActionSettings,
+        &ActionFns,
+        Option<&Bindings>,
+        &mut ActionValue,
+        &mut ActionState,
+        &mut ActionEvents,
+        &mut ActionTime,
+    )>,
+    bindings: Query<&Binding>,
+) {
+    let Ok((action_of, settings, fns, action_bindings, mut value, mut state, mut events, mut time)) =
+        actions.get_mut(trigger.target())
+    else {
+        trace!("ignoring reset for `{}`", trigger.target());
+        return;
+    };
+
+    *time = Default::default();
+    events.set_if_neq(ActionEvents::new(*state, ActionState::None));
+    state.set_if_neq(Default::default());
+    value.set_if_neq(ActionValue::zero(value.dim()));
+
+    fns.trigger(&mut commands, **action_of, *state, *events, *value, *time);
+
+    if let Some(action_bindings) = action_bindings
+        && settings.require_reset
+    {
+        pending.extend(bindings.iter_many(action_bindings).copied());
     }
 }
 
