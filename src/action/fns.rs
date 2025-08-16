@@ -66,6 +66,7 @@ fn trigger<A: InputAction>(
                     commands,
                     action,
                     Started::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                     },
@@ -76,6 +77,7 @@ fn trigger<A: InputAction>(
                     commands,
                     action,
                     Ongoing::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         elapsed_secs: time.elapsed_secs,
@@ -87,6 +89,7 @@ fn trigger<A: InputAction>(
                     commands,
                     action,
                     Fired::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         fired_secs: time.fired_secs,
@@ -99,6 +102,7 @@ fn trigger<A: InputAction>(
                     commands,
                     action,
                     Canceled::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         elapsed_secs: time.elapsed_secs,
@@ -110,6 +114,7 @@ fn trigger<A: InputAction>(
                     commands,
                     action,
                     Completed::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         fired_secs: time.fired_secs,
@@ -124,7 +129,7 @@ fn trigger<A: InputAction>(
 
 fn trigger_and_log<A, E: Event + Debug>(commands: &mut Commands, action: Entity, event: E) {
     debug!(
-        "triggering `{event:?}` for `{}` for `{action}`",
+        "triggering `{event:?}` for `{}` from `{action}`",
         any::type_name::<A>()
     );
     commands.trigger_targets(event, action);
