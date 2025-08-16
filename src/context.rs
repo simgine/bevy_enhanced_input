@@ -323,7 +323,15 @@ pub(crate) fn reset_action<C: Component>(
     state.set_if_neq(Default::default());
     value.set_if_neq(ActionValue::zero(value.dim()));
 
-    fns.trigger(&mut commands, **action_of, *state, *events, *value, *time);
+    fns.trigger(
+        &mut commands,
+        **action_of,
+        trigger.target(),
+        *state,
+        *events,
+        *value,
+        *time,
+    );
 
     if let Some(action_bindings) = action_bindings
         && settings.require_reset
@@ -602,7 +610,15 @@ fn apply<S: ScheduleLabel>(
             let state = *action.get::<ActionState>().unwrap();
             let events = *action.get::<ActionEvents>().unwrap();
             let time = *action.get::<ActionTime>().unwrap();
-            fns.trigger(&mut commands, context.id(), state, events, value, time);
+            fns.trigger(
+                &mut commands,
+                context.id(),
+                action.id(),
+                state,
+                events,
+                value,
+                time,
+            );
         }
     }
 }

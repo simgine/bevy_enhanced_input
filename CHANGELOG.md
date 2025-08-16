@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- All events now include an `action` field with the entity of the action that triggered them.
+
 ### Fixed
 
 - Target context entity on events triggered by action removals.

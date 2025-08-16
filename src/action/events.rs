@@ -105,6 +105,9 @@ impl ActionEvents {
 /// ```
 #[derive(Event)]
 pub struct Started<A: InputAction> {
+    /// Action that triggered this event.
+    pub action: Entity,
+
     /// Current action value.
     pub value: A::Output,
 
@@ -175,6 +178,9 @@ impl<A: InputAction> Copy for Started<A> {}
 /// ```
 #[derive(Event)]
 pub struct Ongoing<A: InputAction> {
+    /// Action that triggered this event.
+    pub action: Entity,
+
     /// Current action value.
     pub value: A::Output,
 
@@ -239,6 +245,9 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// ```
 #[derive(Event)]
 pub struct Fired<A: InputAction> {
+    /// Action that triggered this event.
+    pub action: Entity,
+
     /// Current action value.
     pub value: A::Output,
 
@@ -312,6 +321,9 @@ impl<A: InputAction> Copy for Fired<A> {}
 /// ```
 #[derive(Event)]
 pub struct Canceled<A: InputAction> {
+    /// Action that triggered this event.
+    pub action: Entity,
+
     /// Current action value.
     pub value: A::Output,
 
@@ -403,6 +415,9 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// ```
 #[derive(Event)]
 pub struct Completed<A: InputAction> {
+    /// Action that triggered this event.
+    pub action: Entity,
+
     /// Current action value.
     pub value: A::Output,
 

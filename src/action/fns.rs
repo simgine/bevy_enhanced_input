@@ -12,7 +12,7 @@ use crate::prelude::*;
 #[component(immutable)]
 pub(crate) struct ActionFns {
     store_value: fn(&mut EntityMut, ActionValue),
-    trigger: fn(&mut Commands, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
+    trigger: fn(&mut Commands, Entity, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
 }
 
 impl ActionFns {
@@ -30,16 +30,18 @@ impl ActionFns {
     }
 
     /// Triggers events based on [`ActionEvents`] for the action marker `A` for which this instance was created.
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn trigger(
         &self,
         commands: &mut Commands,
         context: Entity,
+        action: Entity,
         state: ActionState,
         events: ActionEvents,
         value: ActionValue,
         time: ActionTime,
     ) {
-        (self.trigger)(commands, context, state, events, value, time);
+        (self.trigger)(commands, context, action, state, events, value, time);
     }
 }
 
@@ -54,6 +56,7 @@ fn store_value<A: InputAction>(action: &mut EntityMut, value: ActionValue) {
 fn trigger<A: InputAction>(
     commands: &mut Commands,
     context: Entity,
+    action: Entity,
     state: ActionState,
     events: ActionEvents,
     value: ActionValue,
@@ -66,6 +69,7 @@ fn trigger<A: InputAction>(
                     commands,
                     context,
                     Started::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                     },
@@ -76,6 +80,7 @@ fn trigger<A: InputAction>(
                     commands,
                     context,
                     Ongoing::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         elapsed_secs: time.elapsed_secs,
@@ -87,6 +92,7 @@ fn trigger<A: InputAction>(
                     commands,
                     context,
                     Fired::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         fired_secs: time.fired_secs,
@@ -99,6 +105,7 @@ fn trigger<A: InputAction>(
                     commands,
                     context,
                     Canceled::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         elapsed_secs: time.elapsed_secs,
@@ -110,6 +117,7 @@ fn trigger<A: InputAction>(
                     commands,
                     context,
                     Completed::<A> {
+                        action,
                         value: A::Output::unwrap_value(value),
                         state,
                         fired_secs: time.fired_secs,
@@ -225,6 +233,7 @@ mod tests {
         let fns = ActionFns::new::<Test>();
         fns.trigger(
             &mut world.commands(),
+            Entity::PLACEHOLDER,
             Entity::PLACEHOLDER,
             target_state,
             events,
