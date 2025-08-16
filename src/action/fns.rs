@@ -1,4 +1,4 @@
-use core::{any, fmt::Debug};
+use core::any;
 
 use bevy::prelude::*;
 use log::debug;
@@ -62,80 +62,62 @@ fn trigger<A: InputAction>(
     value: ActionValue,
     time: ActionTime,
 ) {
-    for (_, event) in events.iter_names() {
+    for (name, event) in events.iter_names() {
+        debug!(
+            "triggering `{name}` from `{}` for `{context}`",
+            any::type_name::<A>()
+        );
+
         match event {
             ActionEvents::STARTED => {
-                trigger_and_log::<A, _>(
-                    commands,
-                    context,
-                    Started::<A> {
-                        action,
-                        value: A::Output::unwrap_value(value),
-                        state,
-                    },
-                );
+                let event = Started::<A> {
+                    action,
+                    value: A::Output::unwrap_value(value),
+                    state,
+                };
+                commands.trigger_targets(event, context);
             }
             ActionEvents::ONGOING => {
-                trigger_and_log::<A, _>(
-                    commands,
-                    context,
-                    Ongoing::<A> {
-                        action,
-                        value: A::Output::unwrap_value(value),
-                        state,
-                        elapsed_secs: time.elapsed_secs,
-                    },
-                );
+                let event = Ongoing::<A> {
+                    action,
+                    value: A::Output::unwrap_value(value),
+                    state,
+                    elapsed_secs: time.elapsed_secs,
+                };
+                commands.trigger_targets(event, context);
             }
             ActionEvents::FIRED => {
-                trigger_and_log::<A, _>(
-                    commands,
-                    context,
-                    Fired::<A> {
-                        action,
-                        value: A::Output::unwrap_value(value),
-                        state,
-                        fired_secs: time.fired_secs,
-                        elapsed_secs: time.elapsed_secs,
-                    },
-                );
+                let event = Fired::<A> {
+                    action,
+                    value: A::Output::unwrap_value(value),
+                    state,
+                    fired_secs: time.fired_secs,
+                    elapsed_secs: time.elapsed_secs,
+                };
+                commands.trigger_targets(event, context);
             }
             ActionEvents::CANCELED => {
-                trigger_and_log::<A, _>(
-                    commands,
-                    context,
-                    Canceled::<A> {
-                        action,
-                        value: A::Output::unwrap_value(value),
-                        state,
-                        elapsed_secs: time.elapsed_secs,
-                    },
-                );
+                let event = Canceled::<A> {
+                    action,
+                    value: A::Output::unwrap_value(value),
+                    state,
+                    elapsed_secs: time.elapsed_secs,
+                };
+                commands.trigger_targets(event, context);
             }
             ActionEvents::COMPLETED => {
-                trigger_and_log::<A, _>(
-                    commands,
-                    context,
-                    Completed::<A> {
-                        action,
-                        value: A::Output::unwrap_value(value),
-                        state,
-                        fired_secs: time.fired_secs,
-                        elapsed_secs: time.elapsed_secs,
-                    },
-                );
+                let event = Completed::<A> {
+                    action,
+                    value: A::Output::unwrap_value(value),
+                    state,
+                    fired_secs: time.fired_secs,
+                    elapsed_secs: time.elapsed_secs,
+                };
+                commands.trigger_targets(event, context);
             }
             _ => unreachable!("iteration should yield only named flags"),
         }
     }
-}
-
-fn trigger_and_log<A, E: Event + Debug>(commands: &mut Commands, context: Entity, event: E) {
-    debug!(
-        "triggering `{event:?}` for `{}` for `{context}`",
-        any::type_name::<A>()
-    );
-    commands.trigger_targets(event, context);
 }
 
 #[cfg(test)]
