@@ -1,6 +1,6 @@
 [package]
 name = "bevy_enhanced_input"
-version = "0.16.0"
+version = "0.17.0"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "Alice Cecile <alice.i.cecile@gmail.com>",
@@ -15,7 +15,7 @@ license = "MIT OR Apache-2.0"
 include = ["/src", "/LICENSE*"]
 
 [dependencies]
-bevy_enhanced_input_macros = { path = "macros", version = "0.16.0" }
+bevy_enhanced_input_macros = { path = "macros", version = "0.17.0" }
 bevy = { version = "0.16.0", default-features = false, features = [
   "serialize",
 ] }
