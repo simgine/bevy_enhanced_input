@@ -8,7 +8,7 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
-        .add_observer(equip_observer)
+        .add_observer(equip)
         .add_systems(Startup, spawn)
         .run();
 }
@@ -45,22 +45,23 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-fn equip_observer(
-    equip_trigger: Trigger<Started<EquipItem>>,
-    equip_indices: Query<&EquipHotbarIndex>,
+fn equip(
+    trigger: Trigger<Started<EquipItem>>,
+    actions: Query<&EquipHotbarIndex>,
     mut hotbars: Query<&mut Hotbar, With<Player>>,
 ) {
-    let equip_index = equip_indices.get(equip_trigger.event().action).unwrap();
-    let mut hot_bar = hotbars.get_mut(equip_trigger.target()).unwrap();
+    let equip_index = actions.get(trigger.event().action).unwrap();
+    let mut hotbar = hotbars.get_mut(trigger.target()).unwrap();
 
-    hot_bar.equipped = equip_index.0;
+    hotbar.equipped = equip_index.0;
 
-    if let Some(item) = &hot_bar.inventory[hot_bar.equipped] {
-        println!("equipped item: {:?}", item);
+    if let Some(item) = &hotbar.inventory[hotbar.equipped] {
+        println!("equipped item: {item:?}");
     } else {
         println!("equipped nothing");
     }
 }
+
 #[derive(Component)]
 struct Player;
 
