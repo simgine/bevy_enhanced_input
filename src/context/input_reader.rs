@@ -153,6 +153,90 @@ impl InputReader<'_, '_> {
                 value.into()
             }
             Binding::None => false.into(),
+            Binding::AnyDigital => {
+                let value = match *self.gamepad_device {
+                    GamepadDevice::Single(entity) => {
+                        if !self.action_sources.gamepad_button {
+                            return false.into();
+                        } else {
+                            self.gamepads.get(entity).ok().and_then(|gamepad| {
+                                let pressed = gamepad.get_pressed().next();
+                                match pressed {
+                                    Some(button) => {
+                                        if !self.ignored(Binding::GamepadButton(*button)) {
+                                            Some(gamepad.pressed(*button))
+                                        } else {
+                                            None
+                                        }
+                                    }
+                                    None => None,
+                                }
+                            })
+                        }
+                    }
+                    GamepadDevice::Any | GamepadDevice::None => {
+                        let mut value = if self.action_sources.gamepad_button
+                            && *self.gamepad_device == GamepadDevice::Any
+                        {
+                            self.gamepads
+                                .iter()
+                                .filter_map(|gamepad| {
+                                    let pressed = gamepad.get_pressed().next();
+                                    match pressed {
+                                        Some(button) => {
+                                            if !self.ignored(Binding::GamepadButton(*button)) {
+                                                Some(gamepad.pressed(*button))
+                                            } else {
+                                                None
+                                            }
+                                        }
+                                        None => None,
+                                    }
+                                })
+                                .find(|&value| value)
+                        } else {
+                            None
+                        };
+                        if value == None && self.action_sources.keyboard {
+                            let pressed = self.keys.get_pressed().next();
+                            value = match pressed {
+                                Some(key) => {
+                                    if !self.ignored(Binding::Keyboard {
+                                        key: *key,
+                                        mod_keys: ModKeys::empty(),
+                                    }) && self.keys.any_pressed([*key])
+                                    {
+                                        Some(true)
+                                    } else {
+                                        None
+                                    }
+                                }
+                                None => None,
+                            };
+                        }
+                        if value == None && self.action_sources.mouse_buttons {
+                            let pressed = self.mouse_buttons.get_pressed().next();
+                            value = match pressed {
+                                Some(button) => {
+                                    if !self.ignored(Binding::MouseButton {
+                                        button: *button,
+                                        mod_keys: ModKeys::empty(),
+                                    }) && self.mouse_buttons.any_pressed([*button])
+                                    {
+                                        Some(true)
+                                    } else {
+                                        None
+                                    }
+                                }
+                                None => None,
+                            };
+                        }
+                        value.into()
+                    }
+                };
+
+                value.unwrap_or_default().into()
+            }
         }
     }
 
@@ -202,7 +286,7 @@ impl InputReader<'_, '_> {
                 };
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
-            Binding::None => false,
+            Binding::None | Binding::AnyDigital => false,
         }
     }
 
@@ -345,7 +429,7 @@ impl IgnoredInputs {
 
                 self.gamepad_axes.insert(input);
             }
-            Binding::None => (),
+            Binding::None | Binding::AnyDigital => (),
         }
     }
 
@@ -727,6 +811,97 @@ mod tests {
 
         reader.consume::<PreUpdate>(binding);
         assert_eq!(reader.value(binding), Vec2::ZERO.into());
+    }
+
+    #[test]
+    fn any_binding_keyboard() {
+        let (mut world, mut state) = init_world();
+        let binding = KeyCode::Space;
+
+        world.resource_mut::<ButtonInput<KeyCode>>().press(binding);
+
+        let mut reader = state.get_mut(&mut world);
+        reader.clear_consumed::<PreUpdate>();
+
+        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+
+        reader.consume::<PreUpdate>(binding);
+        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+    }
+
+    #[test]
+    fn any_binding_mouse_button() {
+        let (mut world, mut state) = init_world();
+        let binding = MouseButton::Left;
+
+        world
+            .resource_mut::<ButtonInput<MouseButton>>()
+            .press(binding);
+
+        let mut reader = state.get_mut(&mut world);
+        reader.clear_consumed::<PreUpdate>();
+
+        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+
+        reader.consume::<PreUpdate>(binding);
+        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+    }
+
+    #[test]
+    fn any_binding_single_gamepad() {
+        let (mut world, mut state) = init_world();
+
+        let button1 = GamepadButton::South;
+        let mut gamepad1 = Gamepad::default();
+        gamepad1.digital_mut().press(button1);
+        let gamepad_entity = world.spawn(gamepad1).id();
+
+        let mut reader = state.get_mut(&mut world);
+        reader.set_gamepad(gamepad_entity);
+        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+
+        reader.consume::<PreUpdate>(button1);
+        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+    }
+
+    #[test]
+    fn any_binding_wrong_gamepad() {
+        let (mut world, mut state) = init_world();
+
+        let gamepad1 = Gamepad::default();
+        let gamepad_entity = world.spawn(gamepad1).id();
+
+        let button2 = GamepadButton::East;
+        let mut gamepad2 = Gamepad::default();
+        gamepad2.digital_mut().press(button2);
+        world.spawn(gamepad2);
+
+        let mut reader = state.get_mut(&mut world);
+        reader.set_gamepad(gamepad_entity);
+        assert_eq!(
+            reader.value(Binding::AnyDigital),
+            false.into(),
+            "should read only from `{gamepad_entity:?}`"
+        );
+    }
+
+    #[test]
+    fn any_binding_any_gamepad() {
+        let (mut world, mut state) = init_world();
+
+        let gamepad1 = Gamepad::default();
+        world.spawn(gamepad1);
+
+        let button2 = GamepadButton::East;
+        let mut gamepad2 = Gamepad::default();
+        gamepad2.digital_mut().press(button2);
+        world.spawn(gamepad2);
+
+        let mut reader = state.get_mut(&mut world);
+        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+
+        reader.consume::<PreUpdate>(button2);
+        assert_eq!(reader.value(Binding::AnyDigital), false.into());
     }
 
     #[test]

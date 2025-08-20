@@ -75,6 +75,13 @@ pub enum Binding {
     ///
     /// Useful for expressing empty bindings in [presets](crate::preset).
     None,
+    /// Any digital input, captured as [`ActionValue::Bool`]. If used with a context
+    /// that selects an input device, such as [`GamepadDevice::Single`], it will only
+    /// capture inputs from that device.
+    ///
+    /// This should only be used in the lowest priority context, after all other
+    /// actions, and there should only be one binding of this type active at a time.
+    AnyDigital,
 }
 
 impl Binding {
@@ -108,7 +115,10 @@ impl Binding {
             | Binding::MouseButton { mod_keys, .. }
             | Binding::MouseMotion { mod_keys }
             | Binding::MouseWheel { mod_keys } => mod_keys,
-            Binding::GamepadButton(_) | Binding::GamepadAxis(_) | Binding::None => ModKeys::empty(),
+            Binding::GamepadButton(_)
+            | Binding::GamepadAxis(_)
+            | Binding::None
+            | Binding::AnyDigital => ModKeys::empty(),
         }
     }
 
@@ -138,6 +148,7 @@ impl Display for Binding {
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
             Binding::None => write!(f, "None"),
+            Binding::AnyDigital => write!(f, "AnyDigital"),
         }
     }
 }
@@ -194,6 +205,7 @@ impl<I: Into<Binding>> InputModKeys for I {
             Binding::GamepadButton { .. } | Binding::GamepadAxis { .. } | Binding::None => {
                 panic!("keyboard modifiers can be applied only to mouse and keyboard")
             }
+            Binding::AnyDigital => panic!("keyboard modifiers are separate keys with AnyDigital"),
         }
     }
 }
