@@ -20,17 +20,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check typos
-        uses: crate-ci/typos@v1.35.3
+        uses: crate-ci/typos@v1.35.4
 
   format:
     name: Format
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install dependencies
         run: |
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Use the same target platform as Bevy (Game Boy Advance).
       - name: Instal stable toolchain
@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install dependencies
         run: |
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install dependencies
         run: |
@@ -149,7 +149,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download code coverage results
         uses: actions/download-artifact@v5
