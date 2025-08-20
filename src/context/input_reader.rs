@@ -160,17 +160,16 @@ impl InputReader<'_, '_> {
                             return false.into();
                         } else {
                             self.gamepads.get(entity).ok().and_then(|gamepad| {
-                                let pressed = gamepad.get_pressed().next();
-                                match pressed {
-                                    Some(button) => {
+                                gamepad
+                                    .get_pressed()
+                                    .filter_map(|button| {
                                         if !self.ignored(Binding::GamepadButton(*button)) {
                                             Some(gamepad.pressed(*button))
                                         } else {
                                             None
                                         }
-                                    }
-                                    None => None,
-                                }
+                                    })
+                                    .find(|pressed| *pressed)
                             })
                         }
                     }
@@ -181,26 +180,26 @@ impl InputReader<'_, '_> {
                             self.gamepads
                                 .iter()
                                 .filter_map(|gamepad| {
-                                    let pressed = gamepad.get_pressed().next();
-                                    match pressed {
-                                        Some(button) => {
+                                    gamepad
+                                        .get_pressed()
+                                        .filter_map(|button| {
                                             if !self.ignored(Binding::GamepadButton(*button)) {
                                                 Some(gamepad.pressed(*button))
                                             } else {
                                                 None
                                             }
-                                        }
-                                        None => None,
-                                    }
+                                        })
+                                        .find(|pressed| *pressed)
                                 })
                                 .find(|&value| value)
                         } else {
                             None
                         };
                         if value == None && self.action_sources.keyboard {
-                            let pressed = self.keys.get_pressed().next();
-                            value = match pressed {
-                                Some(key) => {
+                            value = self
+                                .keys
+                                .get_pressed()
+                                .filter_map(|key| {
                                     if !self.ignored(Binding::Keyboard {
                                         key: *key,
                                         mod_keys: ModKeys::empty(),
@@ -210,14 +209,14 @@ impl InputReader<'_, '_> {
                                     } else {
                                         None
                                     }
-                                }
-                                None => None,
-                            };
+                                })
+                                .find(|pressed| *pressed);
                         }
                         if value == None && self.action_sources.mouse_buttons {
-                            let pressed = self.mouse_buttons.get_pressed().next();
-                            value = match pressed {
-                                Some(button) => {
+                            value = self
+                                .mouse_buttons
+                                .get_pressed()
+                                .filter_map(|button| {
                                     if !self.ignored(Binding::MouseButton {
                                         button: *button,
                                         mod_keys: ModKeys::empty(),
@@ -227,9 +226,8 @@ impl InputReader<'_, '_> {
                                     } else {
                                         None
                                     }
-                                }
-                                None => None,
-                            };
+                                })
+                                .find(|pressed| *pressed);
                         }
                         value.into()
                     }
