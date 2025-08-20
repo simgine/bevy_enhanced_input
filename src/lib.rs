@@ -437,6 +437,7 @@ use context::{
 };
 use modifier::fns::ModifierRegistry;
 use prelude::*;
+use crate::condition::cooldown::Cooldown;
 
 /// Initializes contexts and feeds inputs to them.
 ///
@@ -470,6 +471,7 @@ impl Plugin for EnhancedInputPlugin {
             .register_type::<Pulse>()
             .register_type::<Release>()
             .register_type::<Tap>()
+            .register_type::<Cooldown>()
             .register_type::<AccumulateBy>()
             .register_type::<Clamp>()
             .register_type::<DeadZone>()
@@ -489,6 +491,7 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_condition::<Pulse>()
             .add_input_condition::<Release>()
             .add_input_condition::<Tap>()
+            .add_input_condition::<Cooldown>()
             .add_input_modifier::<AccumulateBy>()
             .add_input_modifier::<Clamp>()
             .add_input_modifier::<DeadZone>()

@@ -11,26 +11,27 @@ use crate::prelude::*;
 pub struct Cooldown {
     /// Trigger threshold.
     pub actuation: f32,
-    
-    actuated: bool,
 
     /// The type of time used to advance the timer.
     pub time_kind: TimeKind,
+    
+    actuated: bool,
 
     timer: Timer,
 }
 
 impl Cooldown {
+    /// Creates a new instance with the given cooldown time in seconds.
     #[must_use]
     pub fn new(cd: f32) -> Self {
         let mut timer = Timer::from_seconds(cd, TimerMode::Once);
-        // Allow the first press to fire immediately; cooldown gates later presses
+        // Allow the first press to fire immediately; cooldown gates later presses.
         timer.set_elapsed(Duration::from_secs_f32(cd));
         Self {
-            timer,
-            actuated: false,
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
+            actuated: false,
+            timer,
         }
     }
 
@@ -54,13 +55,16 @@ impl InputCondition for Cooldown {
         time: &ContextTime,
         value: ActionValue,
     ) -> ActionState {
-        self.timer.tick(time.delta_kind(self.time_kind));
         let last_actuated = self.actuated;
+        // Advance the timer only if the input wasn't already actuated last frame and fired.
+        if !last_actuated && self.timer.elapsed() == Duration::ZERO {
+            self.timer.tick(time.delta_kind(self.time_kind));
+        }
         self.actuated = value.is_actuated(self.actuation);
 
-        if self.actuated             // Input is currently pressed
-            && !last_actuated        // Input was NOT pressed last frame
-            && self.timer.finished() // Cooldown has expired
+        if self.actuated
+            && !last_actuated
+            && self.timer.finished()
         {
             self.timer.reset();
             ActionState::Fired
@@ -89,28 +93,29 @@ mod tests {
 
         // The first press should fire immediately (timer initially finished)
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::Fired,
+            "should fire on the first actuation",
         );
 
         // Holding should not fire again
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::None,
         );
 
         // Release
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
         );
 
         // Immediate re-press before cooldown finishes should not fire
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::None,
         );
 
@@ -122,14 +127,14 @@ mod tests {
         // Consume the elapsed time on a non-pressed frame to keep rising edge for the next press
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
         );
 
         // Now pressing should fire again
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::Fired,
         );
     }
@@ -143,14 +148,15 @@ mod tests {
 
         // Initial fire
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::Fired,
+            "should fire on the first actuation",
         );
 
         // Release to allow rising edge next time
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
         );
 
@@ -162,21 +168,21 @@ mod tests {
         // Keep unpressed to preserve the rising edge and tick the timer to finished
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
         );
 
         // Now press should fire exactly at the boundary
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::Fired,
         );
 
         // Further frames without a cooldown won't fire
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::None,
         );
     }
@@ -190,14 +196,14 @@ mod tests {
 
         // Initial fire
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::Fired,
         );
 
         // Release to allow rising edge
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
         );
 
@@ -212,21 +218,21 @@ mod tests {
         // Tick on the unpressed frame
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
         );
 
         // Now press should fire
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::Fired,
         );
 
         // Later press without a cooldown should not fire
         let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, true.into()),
             ActionState::None,
         );
     }
