@@ -55,7 +55,7 @@ fn gamepad_event(
             // case the gamepad had disconnected and reconnected. If no player
             // is assigned, then add the assignment Context if the gamepad doesn't
             // have it.
-            if let Err(_) = gamepad.get(connection_event.gamepad) {
+            if gamepad.get(connection_event.gamepad).is_err() {
                 commands
                     .entity(connection_event.gamepad)
                     .insert_if_new(assign_gamepad(connection_event.gamepad));
@@ -74,8 +74,7 @@ fn gamepad_event(
                 if observer
                     .descriptor()
                     .entities()
-                    .iter()
-                    .any(|watched| *watched == connection_event.gamepad)
+                    .contains(&connection_event.gamepad)
                 {
                     commands.entity(entity).try_despawn();
                 }

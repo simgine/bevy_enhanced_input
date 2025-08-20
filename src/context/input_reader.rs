@@ -195,7 +195,7 @@ impl InputReader<'_, '_> {
                         } else {
                             None
                         };
-                        if value == None && self.action_sources.keyboard {
+                        if value.is_none() && self.action_sources.keyboard {
                             value = self
                                 .keys
                                 .get_pressed()
@@ -212,7 +212,7 @@ impl InputReader<'_, '_> {
                                 })
                                 .find(|pressed| *pressed);
                         }
-                        if value == None && self.action_sources.mouse_buttons {
+                        if value.is_none() && self.action_sources.mouse_buttons {
                             value = self
                                 .mouse_buttons
                                 .get_pressed()
@@ -229,7 +229,7 @@ impl InputReader<'_, '_> {
                                 })
                                 .find(|pressed| *pressed);
                         }
-                        value.into()
+                        value
                     }
                 };
 
