@@ -411,7 +411,7 @@ pub mod prelude {
         condition::{
             ConditionKind, InputCondition, block_by::*, chord::*, down::*,
             fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
-            release::*, tap::*,
+            release::*, tap::*, cooldown::*,
         },
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
@@ -437,7 +437,6 @@ use context::{
 };
 use modifier::fns::ModifierRegistry;
 use prelude::*;
-use crate::condition::cooldown::Cooldown;
 
 /// Initializes contexts and feeds inputs to them.
 ///

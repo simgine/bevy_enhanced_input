@@ -2,7 +2,6 @@
 //! Press keys from the number row on the keyboard to trigger actions and observe the output in console.
 
 use bevy::{ecs::spawn::SpawnWith, log::LogPlugin, prelude::*};
-use bevy_enhanced_input::condition::cooldown::Cooldown;
 use bevy_enhanced_input::prelude::*;
 
 fn main() {
@@ -67,11 +66,6 @@ fn spawn(mut commands: Commands) {
                 Tap::new(0.5),
                 bindings![TestTap::KEY],
             ));
-            context.spawn((
-                Action::<TestCooldown>::new(),
-                Cooldown::new(1.0),
-                bindings![TestCooldown::KEY],
-            ));
 
 
             let member1 = context
@@ -90,6 +84,12 @@ fn spawn(mut commands: Commands) {
                 Action::<TestBlockBy>::new(),
                 BlockBy::single(blocker),
                 bindings![TestBlockBy::KEY],
+            ));
+            
+            context.spawn((
+                Action::<TestCooldown>::new(),
+                Cooldown::new(1.0),
+                bindings![TestCooldown::KEY],
             ));
         })),
     ));

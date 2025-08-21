@@ -14,6 +14,8 @@ pub struct Cooldown {
 
     /// The type of time used to advance the timer.
     pub time_kind: TimeKind,
+
+    pub only_when_released: bool,
     
     actuated: bool,
 
@@ -30,6 +32,7 @@ impl Cooldown {
         Self {
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
+            only_when_released: true,
             actuated: false,
             timer,
         }
@@ -46,6 +49,12 @@ impl Cooldown {
         self.time_kind = kind;
         self
     }
+
+    #[must_use]
+    pub fn only_when_released(mut self, only_when_released: bool) -> Self {
+        self.only_when_released = only_when_released;
+        self
+    }
 }
 
 impl InputCondition for Cooldown {
@@ -56,8 +65,9 @@ impl InputCondition for Cooldown {
         value: ActionValue,
     ) -> ActionState {
         let last_actuated = self.actuated;
-        // Advance the timer only if the input wasn't already actuated last frame and fired.
-        if !last_actuated && self.timer.elapsed() == Duration::ZERO {
+        // Advance the timer only if the input wasn't already actuated last frame and fired based on only_when_released.
+        if !self.only_when_released
+            || (self.only_when_released && !(self.timer.elapsed() == Duration::ZERO && last_actuated)) {
             self.timer.tick(time.delta_kind(self.time_kind));
         }
         self.actuated = value.is_actuated(self.actuation);
