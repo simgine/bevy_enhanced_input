@@ -67,7 +67,6 @@ fn spawn(mut commands: Commands) {
                 bindings![TestTap::KEY],
             ));
 
-
             let member1 = context
                 .spawn((Action::<ChordMember1>::new(), bindings![ChordMember1::KEY]))
                 .id();
@@ -85,7 +84,7 @@ fn spawn(mut commands: Commands) {
                 BlockBy::single(blocker),
                 bindings![TestBlockBy::KEY],
             ));
-            
+
             context.spawn((
                 Action::<TestCooldown>::new(),
                 Cooldown::new(1.0),
