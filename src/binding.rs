@@ -75,12 +75,15 @@ pub enum Binding {
     ///
     /// Useful for expressing empty bindings in [presets](crate::preset).
     None,
-    /// Any digital input, captured as [`ActionValue::Bool`]. If used with a context
-    /// that selects an input device, such as [`GamepadDevice::Single`], it will only
-    /// capture inputs from that device.
+    /// Any key, mouse button, or gamepad button, captured as [`ActionValue::Bool`].
+    /// If used with a context that selects an input device, such as
+    /// [`GamepadDevice::Single`], it will only capture inputs from that device.
     ///
-    /// This should only be used in the lowest priority context, after all other
-    /// actions, and there should only be one binding of this type active at a time.
+    /// When activated by the indicated inputs this binding will consume all remaining
+    /// inputs. Any actions at a lower priority, whether in the same context or lower
+    /// priority contexts, will not activate. If you want this binding to activate
+    /// prior to bindings that include modifier keys then it needs to be placed in a
+    /// higher priority context.
     AnyDigital,
 }
 

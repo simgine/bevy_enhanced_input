@@ -154,6 +154,9 @@ impl InputReader<'_, '_> {
             }
             Binding::None => false.into(),
             Binding::AnyDigital => {
+                if self.ignored(Binding::AnyDigital) {
+                    return false.into();
+                }
                 let value = match *self.gamepad_device {
                     GamepadDevice::Single(entity) => {
                         if !self.action_sources.gamepad_button {
@@ -255,6 +258,11 @@ impl InputReader<'_, '_> {
     fn ignored(&self, binding: Binding) -> bool {
         if *self.skip_ignore_check {
             return false;
+        }
+        if self.pending.ignored.any_digital
+            || self.consumed.values().any(|ignored| ignored.any_digital)
+        {
+            return true;
         }
 
         let mut iter = iter::once(&self.pending.ignored).chain(self.consumed.values());
@@ -390,6 +398,7 @@ pub(crate) struct IgnoredInputs {
     mouse_wheel: bool,
     gamepad_buttons: HashSet<GamepadInput<GamepadButton>>,
     gamepad_axes: HashSet<GamepadInput<GamepadAxis>>,
+    any_digital: bool,
 }
 
 impl IgnoredInputs {
@@ -427,7 +436,8 @@ impl IgnoredInputs {
 
                 self.gamepad_axes.insert(input);
             }
-            Binding::None | Binding::AnyDigital => (),
+            Binding::None => (),
+            Binding::AnyDigital => self.any_digital = true,
         }
     }
 
@@ -439,6 +449,7 @@ impl IgnoredInputs {
         self.mouse_wheel = false;
         self.gamepad_buttons.clear();
         self.gamepad_axes.clear();
+        self.any_digital = false;
     }
 }
 
@@ -814,70 +825,77 @@ mod tests {
     #[test]
     fn any_binding_keyboard() {
         let (mut world, mut state) = init_world();
-        let binding = KeyCode::Space;
+        let binding = Binding::AnyDigital;
 
-        world.resource_mut::<ButtonInput<KeyCode>>().press(binding);
+        world
+            .resource_mut::<ButtonInput<KeyCode>>()
+            .press(KeyCode::Space);
+        world
+            .resource_mut::<ButtonInput<KeyCode>>()
+            .press(KeyCode::Enter);
 
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
 
-        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+        assert_eq!(reader.value(binding), true.into());
 
         reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+        assert_eq!(reader.value(binding), false.into());
+        assert_eq!(reader.value(KeyCode::Space), false.into());
+        assert_eq!(reader.value(KeyCode::Enter), false.into());
     }
 
     #[test]
     fn any_binding_mouse_button() {
         let (mut world, mut state) = init_world();
-        let binding = MouseButton::Left;
+        let binding = Binding::AnyDigital;
 
         world
             .resource_mut::<ButtonInput<MouseButton>>()
-            .press(binding);
+            .press(MouseButton::Left);
 
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
 
-        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+        assert_eq!(reader.value(binding), true.into());
 
         reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+        assert_eq!(reader.value(binding), false.into());
     }
 
     #[test]
     fn any_binding_single_gamepad() {
         let (mut world, mut state) = init_world();
 
-        let button1 = GamepadButton::South;
+        let binding = Binding::AnyDigital;
         let mut gamepad1 = Gamepad::default();
-        gamepad1.digital_mut().press(button1);
+        gamepad1.digital_mut().press(GamepadButton::South);
         let gamepad_entity = world.spawn(gamepad1).id();
 
         let mut reader = state.get_mut(&mut world);
         reader.set_gamepad(gamepad_entity);
-        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+        assert_eq!(reader.value(binding), true.into());
 
-        reader.consume::<PreUpdate>(button1);
-        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+        reader.consume::<PreUpdate>(binding);
+        assert_eq!(reader.value(binding), false.into());
     }
 
     #[test]
     fn any_binding_wrong_gamepad() {
         let (mut world, mut state) = init_world();
+        let binding = Binding::AnyDigital;
 
         let gamepad1 = Gamepad::default();
         let gamepad_entity = world.spawn(gamepad1).id();
 
-        let button2 = GamepadButton::East;
         let mut gamepad2 = Gamepad::default();
-        gamepad2.digital_mut().press(button2);
+        gamepad2.digital_mut().press(GamepadButton::East);
         world.spawn(gamepad2);
 
         let mut reader = state.get_mut(&mut world);
         reader.set_gamepad(gamepad_entity);
         assert_eq!(
-            reader.value(Binding::AnyDigital),
+            reader.value(binding),
             false.into(),
             "should read only from `{gamepad_entity:?}`"
         );
@@ -886,20 +904,20 @@ mod tests {
     #[test]
     fn any_binding_any_gamepad() {
         let (mut world, mut state) = init_world();
+        let binding = Binding::AnyDigital;
 
         let gamepad1 = Gamepad::default();
         world.spawn(gamepad1);
 
-        let button2 = GamepadButton::East;
         let mut gamepad2 = Gamepad::default();
-        gamepad2.digital_mut().press(button2);
+        gamepad2.digital_mut().press(GamepadButton::East);
         world.spawn(gamepad2);
 
         let mut reader = state.get_mut(&mut world);
-        assert_eq!(reader.value(Binding::AnyDigital), true.into());
+        assert_eq!(reader.value(binding), true.into());
 
-        reader.consume::<PreUpdate>(button2);
-        assert_eq!(reader.value(Binding::AnyDigital), false.into());
+        reader.consume::<PreUpdate>(binding);
+        assert_eq!(reader.value(binding), false.into());
     }
 
     #[test]
