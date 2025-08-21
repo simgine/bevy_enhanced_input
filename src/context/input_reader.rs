@@ -162,78 +162,46 @@ impl InputReader<'_, '_> {
                         if !self.action_sources.gamepad_button {
                             return false.into();
                         } else {
-                            self.gamepads.get(entity).ok().and_then(|gamepad| {
+                            self.gamepads.get(entity).ok().map(|gamepad| {
                                 gamepad
                                     .get_pressed()
-                                    .filter_map(|button| {
-                                        if !self.ignored(Binding::GamepadButton(*button)) {
-                                            Some(gamepad.pressed(*button))
-                                        } else {
-                                            None
-                                        }
-                                    })
-                                    .find(|pressed| *pressed)
+                                    .map(|button| Binding::GamepadButton(*button))
+                                    .any(|binding| !self.ignored(binding))
                             })
                         }
                     }
-                    GamepadDevice::Any | GamepadDevice::None => {
-                        let mut value = if self.action_sources.gamepad_button
-                            && *self.gamepad_device == GamepadDevice::Any
-                        {
-                            self.gamepads
-                                .iter()
-                                .filter_map(|gamepad| {
-                                    gamepad
-                                        .get_pressed()
-                                        .filter_map(|button| {
-                                            if !self.ignored(Binding::GamepadButton(*button)) {
-                                                Some(gamepad.pressed(*button))
-                                            } else {
-                                                None
-                                            }
-                                        })
-                                        .find(|pressed| *pressed)
-                                })
-                                .find(|&value| value)
-                        } else {
-                            None
-                        };
-                        if value.is_none() && self.action_sources.keyboard {
-                            value = self
-                                .keys
-                                .get_pressed()
-                                .filter_map(|key| {
-                                    if !self.ignored(Binding::Keyboard {
+                    GamepadDevice::Any | GamepadDevice::None => Some(
+                        self.gamepads
+                            .iter()
+                            .filter(|_| {
+                                self.action_sources.gamepad_button
+                                    && *self.gamepad_device == GamepadDevice::Any
+                            })
+                            .flat_map(|gamepad| {
+                                gamepad
+                                    .get_pressed()
+                                    .map(|button| Binding::GamepadButton(*button))
+                            })
+                            .chain(
+                                self.keys
+                                    .get_pressed()
+                                    .filter(|_| self.action_sources.keyboard)
+                                    .map(|key| Binding::Keyboard {
                                         key: *key,
                                         mod_keys: ModKeys::empty(),
-                                    }) && self.keys.any_pressed([*key])
-                                    {
-                                        Some(true)
-                                    } else {
-                                        None
-                                    }
-                                })
-                                .find(|pressed| *pressed);
-                        }
-                        if value.is_none() && self.action_sources.mouse_buttons {
-                            value = self
-                                .mouse_buttons
-                                .get_pressed()
-                                .filter_map(|button| {
-                                    if !self.ignored(Binding::MouseButton {
+                                    }),
+                            )
+                            .chain(
+                                self.mouse_buttons
+                                    .get_pressed()
+                                    .filter(|_| self.action_sources.mouse_buttons)
+                                    .map(|button| Binding::MouseButton {
                                         button: *button,
                                         mod_keys: ModKeys::empty(),
-                                    }) && self.mouse_buttons.any_pressed([*button])
-                                    {
-                                        Some(true)
-                                    } else {
-                                        None
-                                    }
-                                })
-                                .find(|pressed| *pressed);
-                        }
-                        value
-                    }
+                                    }),
+                            )
+                            .any(|binding| !self.ignored(binding)),
+                    ),
                 };
 
                 value.unwrap_or_default().into()
