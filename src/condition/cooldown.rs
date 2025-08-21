@@ -119,8 +119,8 @@ mod tests {
         world
             .resource_mut::<Time>()
             .advance_by(Duration::from_secs(1));
-
         let (time, actions) = state.get(&world);
+
         assert_eq!(
             condition.evaluate(&actions, &time, false.into()),
             ActionState::None,
