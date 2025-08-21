@@ -165,7 +165,7 @@ pub struct ActionSettings {
     /// Specifies whether this action should swallow any [`Bindings`]
     /// bound to it or allow them to pass through to affect actions that evaluated later.
     ///
-    /// Actions are ordered by the maximum number of keyboard modifiers in their bindings.
+    /// Actions are ordered by the maximum number of [`ModKeys`] in their bindings.
     /// For example, an action with a `Ctrl + C` binding is evaluated before one with just
     /// a `C` binding. If actions have the same modifier count, they are ordered by their
     /// spawn order.
