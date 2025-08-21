@@ -76,15 +76,14 @@ pub enum Binding {
     /// Useful for expressing empty bindings in [presets](crate::preset).
     None,
     /// Any key, mouse button, or gamepad button, captured as [`ActionValue::Bool`].
-    /// If used with a context that selects an input device, such as
-    /// [`GamepadDevice::Single`], it will only capture inputs from that device.
     ///
-    /// When activated by the indicated inputs this binding will consume all remaining
-    /// inputs. Any actions at a lower priority, whether in the same context or lower
-    /// priority contexts, will not activate. If you want this binding to activate
-    /// prior to bindings that include modifier keys then it needs to be placed in a
-    /// higher priority context.
-    AnyDigital,
+    /// If used with a context that selects a [`GamepadDevice::Single`], it will only
+    /// activate on inputs from that gamepad in addition to mouse and keyboard.
+    ///
+    /// If [`ActionSettings::consume_input`] is set, this binding consumes all button
+    /// inputs, not just the one that activated it. To have an action with this binding
+    /// evaluated first, place it in a higher-priority context.
+    AnyKey,
 }
 
 impl Binding {
@@ -121,7 +120,7 @@ impl Binding {
             Binding::GamepadButton(_)
             | Binding::GamepadAxis(_)
             | Binding::None
-            | Binding::AnyDigital => ModKeys::empty(),
+            | Binding::AnyKey => ModKeys::empty(),
         }
     }
 
@@ -151,7 +150,7 @@ impl Display for Binding {
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
             Binding::None => write!(f, "None"),
-            Binding::AnyDigital => write!(f, "AnyDigital"),
+            Binding::AnyKey => write!(f, "AnyKey"),
         }
     }
 }
@@ -208,7 +207,7 @@ impl<I: Into<Binding>> InputModKeys for I {
             Binding::GamepadButton { .. } | Binding::GamepadAxis { .. } | Binding::None => {
                 panic!("keyboard modifiers can be applied only to mouse and keyboard")
             }
-            Binding::AnyDigital => panic!("keyboard modifiers are separate keys with AnyDigital"),
+            Binding::AnyKey => panic!("keyboard modifiers are separate keys with AnyKey"),
         }
     }
 }

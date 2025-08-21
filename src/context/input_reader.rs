@@ -153,22 +153,37 @@ impl InputReader<'_, '_> {
                 value.into()
             }
             Binding::None => false.into(),
-            Binding::AnyDigital => {
-                if self.ignored(Binding::AnyDigital) {
+            Binding::AnyKey => {
+                if self.ignored(Binding::AnyKey) {
                     return false.into();
                 }
+                let keyboard = self
+                    .keys
+                    .get_pressed()
+                    .filter(|_| self.action_sources.keyboard)
+                    .map(|key| Binding::Keyboard {
+                        key: *key,
+                        mod_keys: ModKeys::empty(),
+                    });
+                let mouse_buttons = self
+                    .mouse_buttons
+                    .get_pressed()
+                    .filter(|_| self.action_sources.mouse_buttons)
+                    .map(|button| Binding::MouseButton {
+                        button: *button,
+                        mod_keys: ModKeys::empty(),
+                    });
                 let value = match *self.gamepad_device {
                     GamepadDevice::Single(entity) => {
-                        if !self.action_sources.gamepad_button {
-                            return false.into();
-                        } else {
-                            self.gamepads.get(entity).ok().map(|gamepad| {
-                                gamepad
-                                    .get_pressed()
-                                    .map(|button| Binding::GamepadButton(*button))
-                                    .any(|binding| !self.ignored(binding))
-                            })
-                        }
+                        self.gamepads.get(entity).ok().map(|gamepad| {
+                            gamepad
+                                .get_pressed()
+                                .filter(|_| self.action_sources.gamepad_button)
+                                .map(|button| Binding::GamepadButton(*button))
+                                .chain(keyboard)
+                                .chain(mouse_buttons)
+                                .any(|binding| !self.ignored(binding))
+                        })
                     }
                     GamepadDevice::Any | GamepadDevice::None => Some(
                         self.gamepads
@@ -182,24 +197,8 @@ impl InputReader<'_, '_> {
                                     .get_pressed()
                                     .map(|button| Binding::GamepadButton(*button))
                             })
-                            .chain(
-                                self.keys
-                                    .get_pressed()
-                                    .filter(|_| self.action_sources.keyboard)
-                                    .map(|key| Binding::Keyboard {
-                                        key: *key,
-                                        mod_keys: ModKeys::empty(),
-                                    }),
-                            )
-                            .chain(
-                                self.mouse_buttons
-                                    .get_pressed()
-                                    .filter(|_| self.action_sources.mouse_buttons)
-                                    .map(|button| Binding::MouseButton {
-                                        button: *button,
-                                        mod_keys: ModKeys::empty(),
-                                    }),
-                            )
+                            .chain(keyboard)
+                            .chain(mouse_buttons)
                             .any(|binding| !self.ignored(binding)),
                     ),
                 };
@@ -227,10 +226,20 @@ impl InputReader<'_, '_> {
         if *self.skip_ignore_check {
             return false;
         }
-        if self.pending.ignored.any_digital
-            || self.consumed.values().any(|ignored| ignored.any_digital)
-        {
-            return true;
+        if self.pending.ignored.any_key || self.consumed.values().any(|ignored| ignored.any_key) {
+            match binding {
+                Binding::Keyboard {
+                    key: _,
+                    mod_keys: _,
+                }
+                | Binding::MouseButton {
+                    button: _,
+                    mod_keys: _,
+                }
+                | Binding::GamepadButton(_)
+                | Binding::AnyKey => return true,
+                _ => (),
+            }
         }
 
         let mut iter = iter::once(&self.pending.ignored).chain(self.consumed.values());
@@ -260,7 +269,7 @@ impl InputReader<'_, '_> {
                 };
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
-            Binding::None | Binding::AnyDigital => false,
+            Binding::None | Binding::AnyKey => false,
         }
     }
 
@@ -366,7 +375,7 @@ pub(crate) struct IgnoredInputs {
     mouse_wheel: bool,
     gamepad_buttons: HashSet<GamepadInput<GamepadButton>>,
     gamepad_axes: HashSet<GamepadInput<GamepadAxis>>,
-    any_digital: bool,
+    any_key: bool,
 }
 
 impl IgnoredInputs {
@@ -405,7 +414,7 @@ impl IgnoredInputs {
                 self.gamepad_axes.insert(input);
             }
             Binding::None => (),
-            Binding::AnyDigital => self.any_digital = true,
+            Binding::AnyKey => self.any_key = true,
         }
     }
 
@@ -417,7 +426,7 @@ impl IgnoredInputs {
         self.mouse_wheel = false;
         self.gamepad_buttons.clear();
         self.gamepad_axes.clear();
-        self.any_digital = false;
+        self.any_key = false;
     }
 }
 
@@ -793,7 +802,7 @@ mod tests {
     #[test]
     fn any_binding_keyboard() {
         let (mut world, mut state) = init_world();
-        let binding = Binding::AnyDigital;
+        let binding = Binding::AnyKey;
 
         world
             .resource_mut::<ButtonInput<KeyCode>>()
@@ -816,7 +825,7 @@ mod tests {
     #[test]
     fn any_binding_mouse_button() {
         let (mut world, mut state) = init_world();
-        let binding = Binding::AnyDigital;
+        let binding = Binding::AnyKey;
 
         world
             .resource_mut::<ButtonInput<MouseButton>>()
@@ -835,7 +844,7 @@ mod tests {
     fn any_binding_single_gamepad() {
         let (mut world, mut state) = init_world();
 
-        let binding = Binding::AnyDigital;
+        let binding = Binding::AnyKey;
         let mut gamepad1 = Gamepad::default();
         gamepad1.digital_mut().press(GamepadButton::South);
         let gamepad_entity = world.spawn(gamepad1).id();
@@ -851,7 +860,7 @@ mod tests {
     #[test]
     fn any_binding_wrong_gamepad() {
         let (mut world, mut state) = init_world();
-        let binding = Binding::AnyDigital;
+        let binding = Binding::AnyKey;
 
         let gamepad1 = Gamepad::default();
         let gamepad_entity = world.spawn(gamepad1).id();
@@ -872,7 +881,7 @@ mod tests {
     #[test]
     fn any_binding_any_gamepad() {
         let (mut world, mut state) = init_world();
-        let binding = Binding::AnyDigital;
+        let binding = Binding::AnyKey;
 
         let gamepad1 = Gamepad::default();
         world.spawn(gamepad1);
