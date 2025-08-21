@@ -1,5 +1,6 @@
 pub mod block_by;
 pub mod chord;
+pub mod cooldown;
 pub mod down;
 pub mod fns;
 pub mod hold;
@@ -8,7 +9,6 @@ pub mod press;
 pub mod pulse;
 pub mod release;
 pub mod tap;
-pub mod cooldown;
 
 use core::fmt::Debug;
 

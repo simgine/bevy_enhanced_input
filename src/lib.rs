@@ -409,9 +409,9 @@ pub mod prelude {
         },
         bindings,
         condition::{
-            ConditionKind, InputCondition, block_by::*, chord::*, down::*,
+            ConditionKind, InputCondition, block_by::*, chord::*, cooldown::*, down::*,
             fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
-            release::*, tap::*, cooldown::*,
+            release::*, tap::*,
         },
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
