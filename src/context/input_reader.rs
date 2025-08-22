@@ -433,11 +433,13 @@ mod tests {
 
         let mut reader = state.get_mut(&mut world);
         assert_eq!(reader.value(key), true.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(reader.value(KeyCode::Escape), false.into());
         assert_eq!(reader.value(key.with_mod_keys(ModKeys::ALT)), false.into());
 
         reader.consume::<PreUpdate>(key);
         assert_eq!(reader.value(key), false.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
     }
 
     #[test]
@@ -451,6 +453,7 @@ mod tests {
 
         let mut reader = state.get_mut(&mut world);
         assert_eq!(reader.value(button), true.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(reader.value(MouseButton::Right), false.into());
         assert_eq!(
             reader.value(button.with_mod_keys(ModKeys::CONTROL)),
@@ -459,6 +462,7 @@ mod tests {
 
         reader.consume::<PreUpdate>(button);
         assert_eq!(reader.value(button), false.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
     }
 
     #[test]
@@ -512,11 +516,13 @@ mod tests {
         let button1 = GamepadButton::South;
         let mut gamepad1 = Gamepad::default();
         gamepad1.analog_mut().set(button1, value);
+        gamepad1.digital_mut().press(button1);
         let gamepad_entity = world.spawn(gamepad1).id();
 
         let button2 = GamepadButton::East;
         let mut gamepad2 = Gamepad::default();
         gamepad2.analog_mut().set(button2, value);
+        gamepad2.digital_mut().press(button2);
         world.spawn(gamepad2);
 
         let mut reader = state.get_mut(&mut world);
@@ -527,10 +533,12 @@ mod tests {
             0.0.into(),
             "should read only from `{gamepad_entity:?}`"
         );
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(reader.value(GamepadButton::North), 0.0.into());
 
         reader.consume::<PreUpdate>(button1);
         assert_eq!(reader.value(button1), 0.0.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
     }
 
     #[test]
@@ -541,23 +549,28 @@ mod tests {
         let button1 = GamepadButton::South;
         let mut gamepad1 = Gamepad::default();
         gamepad1.analog_mut().set(button1, value);
+        gamepad1.digital_mut().press(button1);
         world.spawn(gamepad1);
 
         let button2 = GamepadButton::East;
         let mut gamepad2 = Gamepad::default();
         gamepad2.analog_mut().set(button2, value);
+        gamepad2.digital_mut().press(button2);
         world.spawn(gamepad2);
 
         let mut reader = state.get_mut(&mut world);
         assert_eq!(reader.value(button1), value.into());
         assert_eq!(reader.value(button2), value.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(reader.value(GamepadButton::North), 0.0.into());
 
         reader.consume::<PreUpdate>(button1);
         assert_eq!(reader.value(button1), 0.0.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
 
         reader.consume::<PreUpdate>(button2);
         assert_eq!(reader.value(button2), 0.0.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
     }
 
     #[test]
@@ -626,12 +639,14 @@ mod tests {
         let mut gamepad = Gamepad::default();
         gamepad.analog_mut().set(axis, value);
         gamepad.analog_mut().set(button, value);
+        gamepad.digital_mut().press(button);
         world.spawn(gamepad);
 
         let mut reader = state.get_mut(&mut world);
         reader.set_gamepad(None);
         assert_eq!(reader.value(button), 0.0.into());
         assert_eq!(reader.value(axis), 0.0.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
     }
 
     #[test]
@@ -669,6 +684,7 @@ mod tests {
         let mut reader = state.get_mut(&mut world);
         assert_eq!(reader.value(binding), true.into());
         assert_eq!(reader.value(key), true.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(
             reader.value(binding.with_mod_keys(ModKeys::ALT)),
             false.into()
@@ -680,6 +696,11 @@ mod tests {
 
         reader.consume::<PreUpdate>(binding);
         assert_eq!(reader.value(binding), false.into());
+        assert_eq!(
+            reader.value(Binding::AnyKey),
+            true.into(),
+            "should still be pressed due to modifier"
+        );
 
         // Try another key, but with the same modifier that was consumed.
         let other_key = KeyCode::Enter;
@@ -707,6 +728,7 @@ mod tests {
         let mut reader = state.get_mut(&mut world);
         assert_eq!(reader.value(binding), true.into());
         assert_eq!(reader.value(button), true.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(
             reader.value(binding.with_mod_keys(ModKeys::CONTROL)),
             false.into()
@@ -718,6 +740,11 @@ mod tests {
 
         reader.consume::<PreUpdate>(binding);
         assert_eq!(reader.value(binding), false.into());
+        assert_eq!(
+            reader.value(Binding::AnyKey),
+            true.into(),
+            "should still be pressed due to modifier"
+        );
     }
 
     #[test]
@@ -775,104 +802,6 @@ mod tests {
 
         reader.consume::<PreUpdate>(binding);
         assert_eq!(reader.value(binding), Vec2::ZERO.into());
-    }
-
-    #[test]
-    fn any_binding_keyboard() {
-        let (mut world, mut state) = init_world();
-        let binding = Binding::AnyKey;
-
-        world
-            .resource_mut::<ButtonInput<KeyCode>>()
-            .press(KeyCode::Space);
-        world
-            .resource_mut::<ButtonInput<KeyCode>>()
-            .press(KeyCode::Enter);
-
-        let mut reader = state.get_mut(&mut world);
-        reader.clear_consumed::<PreUpdate>();
-
-        assert_eq!(reader.value(binding), true.into());
-
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), false.into());
-        assert_eq!(reader.value(KeyCode::Space), false.into());
-        assert_eq!(reader.value(KeyCode::Enter), false.into());
-    }
-
-    #[test]
-    fn any_binding_mouse_button() {
-        let (mut world, mut state) = init_world();
-        let binding = Binding::AnyKey;
-
-        world
-            .resource_mut::<ButtonInput<MouseButton>>()
-            .press(MouseButton::Left);
-
-        let mut reader = state.get_mut(&mut world);
-        reader.clear_consumed::<PreUpdate>();
-
-        assert_eq!(reader.value(binding), true.into());
-
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), false.into());
-    }
-
-    #[test]
-    fn any_binding_single_gamepad() {
-        let (mut world, mut state) = init_world();
-
-        let binding = Binding::AnyKey;
-        let mut gamepad1 = Gamepad::default();
-        gamepad1.digital_mut().press(GamepadButton::South);
-        let gamepad_entity = world.spawn(gamepad1).id();
-
-        let mut reader = state.get_mut(&mut world);
-        reader.set_gamepad(gamepad_entity);
-        assert_eq!(reader.value(binding), true.into());
-
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), false.into());
-    }
-
-    #[test]
-    fn any_binding_wrong_gamepad() {
-        let (mut world, mut state) = init_world();
-        let binding = Binding::AnyKey;
-
-        let gamepad1 = Gamepad::default();
-        let gamepad_entity = world.spawn(gamepad1).id();
-
-        let mut gamepad2 = Gamepad::default();
-        gamepad2.digital_mut().press(GamepadButton::East);
-        world.spawn(gamepad2);
-
-        let mut reader = state.get_mut(&mut world);
-        reader.set_gamepad(gamepad_entity);
-        assert_eq!(
-            reader.value(binding),
-            false.into(),
-            "should read only from `{gamepad_entity:?}`"
-        );
-    }
-
-    #[test]
-    fn any_binding_any_gamepad() {
-        let (mut world, mut state) = init_world();
-        let binding = Binding::AnyKey;
-
-        let gamepad1 = Gamepad::default();
-        world.spawn(gamepad1);
-
-        let mut gamepad2 = Gamepad::default();
-        gamepad2.digital_mut().press(GamepadButton::East);
-        world.spawn(gamepad2);
-
-        let mut reader = state.get_mut(&mut world);
-        assert_eq!(reader.value(binding), true.into());
-
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), false.into());
     }
 
     #[test]
