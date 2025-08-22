@@ -71,6 +71,15 @@ pub enum Binding {
     GamepadButton(GamepadButton),
     /// Gamepad stick axis, captured as [`ActionValue::Axis1D`].
     GamepadAxis(GamepadAxis),
+    /// Any key, mouse button, or gamepad button, captured as [`ActionValue::Bool`].
+    ///
+    /// If used with a context with [`GamepadDevice::Single`], it will only
+    /// activate on inputs from that gamepad in addition to mouse and keyboard.
+    ///
+    /// If [`ActionSettings::consume_input`] is set, this binding consumes all button
+    /// inputs, not just the one that activated it. To have an action with this binding
+    /// evaluated first, place it in a higher-priority context.
+    AnyKey,
     /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
     ///
     /// Useful for expressing empty bindings in [presets](crate::preset).
@@ -108,7 +117,10 @@ impl Binding {
             | Binding::MouseButton { mod_keys, .. }
             | Binding::MouseMotion { mod_keys }
             | Binding::MouseWheel { mod_keys } => mod_keys,
-            Binding::GamepadButton(_) | Binding::GamepadAxis(_) | Binding::None => ModKeys::empty(),
+            Binding::GamepadButton(_)
+            | Binding::GamepadAxis(_)
+            | Binding::AnyKey
+            | Binding::None => ModKeys::empty(),
         }
     }
 
@@ -137,6 +149,7 @@ impl Display for Binding {
             Binding::MouseWheel { .. } => write!(f, "Scroll Wheel"),
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
+            Binding::AnyKey => write!(f, "Any Key"),
             Binding::None => write!(f, "None"),
         }
     }
@@ -184,15 +197,19 @@ impl<I: Into<Binding>> InputModKeys for I {
     ///
     /// # Panics
     ///
-    /// Panics when called on [`Binding::GamepadButton`], [`Binding::GamepadAxis`] or [`Binding::None`].
+    /// Panics when called on [`Binding::GamepadButton`], [`Binding::GamepadAxis`],
+    /// [`Binding::AnyKey`] or [`Binding::None`].
     fn with_mod_keys(self, mod_keys: ModKeys) -> Binding {
         match self.into() {
             Binding::Keyboard { key, .. } => Binding::Keyboard { key, mod_keys },
             Binding::MouseButton { button, .. } => Binding::MouseButton { button, mod_keys },
             Binding::MouseMotion { .. } => Binding::MouseMotion { mod_keys },
             Binding::MouseWheel { .. } => Binding::MouseWheel { mod_keys },
-            Binding::GamepadButton { .. } | Binding::GamepadAxis { .. } | Binding::None => {
-                panic!("keyboard modifiers can be applied only to mouse and keyboard")
+            Binding::GamepadButton { .. }
+            | Binding::GamepadAxis { .. }
+            | Binding::None
+            | Binding::AnyKey => {
+                panic!("keyboard modifiers can be applied only to mouse and keyboard bindings")
             }
         }
     }
