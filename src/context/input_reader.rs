@@ -152,7 +152,6 @@ impl InputReader<'_, '_> {
                 let value = value.unwrap_or_default();
                 value.into()
             }
-            Binding::None => false.into(),
             Binding::AnyKey => {
                 if self.ignored(Binding::AnyKey) {
                     return false.into();
@@ -192,6 +191,7 @@ impl InputReader<'_, '_> {
 
                 false.into()
             }
+            Binding::None => false.into(),
         }
     }
 
@@ -391,8 +391,8 @@ impl IgnoredInputs {
 
                 self.gamepad_axes.insert(input);
             }
-            Binding::None => (),
             Binding::AnyKey => self.any_key = true,
+            Binding::None => (),
         }
     }
 

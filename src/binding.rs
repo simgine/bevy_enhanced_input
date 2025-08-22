@@ -71,10 +71,6 @@ pub enum Binding {
     GamepadButton(GamepadButton),
     /// Gamepad stick axis, captured as [`ActionValue::Axis1D`].
     GamepadAxis(GamepadAxis),
-    /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
-    ///
-    /// Useful for expressing empty bindings in [presets](crate::preset).
-    None,
     /// Any key, mouse button, or gamepad button, captured as [`ActionValue::Bool`].
     ///
     /// If used with a context with [`GamepadDevice::Single`], it will only
@@ -84,6 +80,10 @@ pub enum Binding {
     /// inputs, not just the one that activated it. To have an action with this binding
     /// evaluated first, place it in a higher-priority context.
     AnyKey,
+    /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
+    ///
+    /// Useful for expressing empty bindings in [presets](crate::preset).
+    None,
 }
 
 impl Binding {
@@ -119,8 +119,8 @@ impl Binding {
             | Binding::MouseWheel { mod_keys } => mod_keys,
             Binding::GamepadButton(_)
             | Binding::GamepadAxis(_)
-            | Binding::None
-            | Binding::AnyKey => ModKeys::empty(),
+            | Binding::AnyKey
+            | Binding::None => ModKeys::empty(),
         }
     }
 
@@ -149,8 +149,8 @@ impl Display for Binding {
             Binding::MouseWheel { .. } => write!(f, "Scroll Wheel"),
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
+            Binding::AnyKey => write!(f, "Any Key"),
             Binding::None => write!(f, "None"),
-            Binding::AnyKey => write!(f, "AnyKey"),
         }
     }
 }
@@ -207,8 +207,8 @@ impl<I: Into<Binding>> InputModKeys for I {
             Binding::MouseWheel { .. } => Binding::MouseWheel { mod_keys },
             Binding::GamepadButton { .. }
             | Binding::GamepadAxis { .. }
-            | Binding::AnyKey
-            | Binding::None => {
+            | Binding::None
+            | Binding::AnyKey => {
                 panic!("keyboard modifiers can be applied only to mouse and keyboard bindings")
             }
         }
