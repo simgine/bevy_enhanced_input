@@ -197,17 +197,20 @@ impl<I: Into<Binding>> InputModKeys for I {
     ///
     /// # Panics
     ///
-    /// Panics when called on [`Binding::GamepadButton`], [`Binding::GamepadAxis`] or [`Binding::None`].
+    /// Panics when called on [`Binding::GamepadButton`], [`Binding::GamepadAxis`],
+    /// [`Binding::AnyKey`] or [`Binding::None`].
     fn with_mod_keys(self, mod_keys: ModKeys) -> Binding {
         match self.into() {
             Binding::Keyboard { key, .. } => Binding::Keyboard { key, mod_keys },
             Binding::MouseButton { button, .. } => Binding::MouseButton { button, mod_keys },
             Binding::MouseMotion { .. } => Binding::MouseMotion { mod_keys },
             Binding::MouseWheel { .. } => Binding::MouseWheel { mod_keys },
-            Binding::GamepadButton { .. } | Binding::GamepadAxis { .. } | Binding::None => {
-                panic!("keyboard modifiers can be applied only to mouse and keyboard")
+            Binding::GamepadButton { .. }
+            | Binding::GamepadAxis { .. }
+            | Binding::AnyKey
+            | Binding::None => {
+                panic!("keyboard modifiers can be applied only to mouse and keyboard bindings")
             }
-            Binding::AnyKey => panic!("keyboard modifiers are separate keys with AnyKey"),
         }
     }
 }
