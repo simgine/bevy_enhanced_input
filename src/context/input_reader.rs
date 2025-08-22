@@ -172,10 +172,10 @@ impl InputReader<'_, '_> {
                 if self.action_sources.gamepad_button {
                     match *self.gamepad_device {
                         GamepadDevice::Single(entity) => {
-                            if let Ok(gamepad) = self.gamepads.get(entity) {
-                                if gamepad.get_pressed().any(|&b| !self.ignored(b)) {
-                                    return true.into();
-                                }
+                            if let Ok(gamepad) = self.gamepads.get(entity)
+                                && gamepad.get_pressed().any(|&b| !self.ignored(b))
+                            {
+                                return true.into();
                             }
                         }
                         GamepadDevice::Any => {
