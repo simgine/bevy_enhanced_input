@@ -77,7 +77,7 @@ pub enum Binding {
     None,
     /// Any key, mouse button, or gamepad button, captured as [`ActionValue::Bool`].
     ///
-    /// If used with a context that selects a [`GamepadDevice::Single`], it will only
+    /// If used with a context with [`GamepadDevice::Single`], it will only
     /// activate on inputs from that gamepad in addition to mouse and keyboard.
     ///
     /// If [`ActionSettings::consume_input`] is set, this binding consumes all button
