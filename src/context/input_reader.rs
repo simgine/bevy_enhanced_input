@@ -214,24 +214,18 @@ impl InputReader<'_, '_> {
             return false;
         }
 
-        let binding = binding.into();
-        if self.pending.ignored.any_key || self.consumed.values().any(|ignored| ignored.any_key) {
-            match binding {
-                Binding::Keyboard { .. }
-                | Binding::MouseButton { .. }
-                | Binding::GamepadButton(_)
-                | Binding::AnyKey => return true,
-                _ => (),
-            }
-        }
-
+        let keys_ignored =
+            self.pending.ignored.any_key || self.consumed.values().any(|ignored| ignored.any_key);
         let mut iter = iter::once(&self.pending.ignored).chain(self.consumed.values());
-        match binding {
-            Binding::Keyboard { key, mod_keys } => iter
-                .any(|inputs| inputs.keys.contains(&key) || inputs.mod_keys.intersects(mod_keys)),
-            Binding::MouseButton { button, mod_keys } => iter.any(|inputs| {
-                inputs.mouse_buttons.contains(&button) || inputs.mod_keys.intersects(mod_keys)
-            }),
+        match binding.into() {
+            Binding::Keyboard { key, mod_keys } => {
+                iter.any(|i| i.keys.contains(&key) || i.mod_keys.intersects(mod_keys))
+                    || keys_ignored
+            }
+            Binding::MouseButton { button, mod_keys } => {
+                iter.any(|i| i.mouse_buttons.contains(&button) || i.mod_keys.intersects(mod_keys))
+                    || keys_ignored
+            }
             Binding::MouseMotion { mod_keys } => {
                 iter.any(|inputs| inputs.mouse_motion || inputs.mod_keys.intersects(mod_keys))
             }
@@ -243,7 +237,7 @@ impl InputReader<'_, '_> {
                     gamepad: *self.gamepad_device,
                     input: button,
                 };
-                iter.any(|inputs| inputs.gamepad_buttons.contains(&input))
+                iter.any(|inputs| inputs.gamepad_buttons.contains(&input)) || keys_ignored
             }
             Binding::GamepadAxis(axis) => {
                 let input = GamepadInput {
@@ -252,7 +246,8 @@ impl InputReader<'_, '_> {
                 };
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
-            Binding::None | Binding::AnyKey => false,
+            Binding::AnyKey => keys_ignored,
+            Binding::None => false,
         }
     }
 
