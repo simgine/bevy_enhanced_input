@@ -157,46 +157,40 @@ impl InputReader<'_, '_> {
                 if self.ignored(Binding::AnyKey) {
                     return false.into();
                 }
-                let keyboard = self
-                    .keys
-                    .get_pressed()
-                    .filter(|_| self.action_sources.keyboard)
-                    .copied()
-                    .map(Into::into);
-                let mouse_buttons = self
-                    .mouse_buttons
-                    .get_pressed()
-                    .filter(|_| self.action_sources.mouse_buttons)
-                    .copied()
-                    .map(Into::into);
-                let value = match *self.gamepad_device {
-                    GamepadDevice::Single(entity) => {
-                        self.gamepads.get(entity).ok().map(|gamepad| {
-                            gamepad
-                                .get_pressed()
-                                .filter(|_| self.action_sources.gamepad_button)
-                                .copied()
-                                .map(Into::into)
-                                .chain(keyboard)
-                                .chain(mouse_buttons)
-                                .any(|binding| !self.ignored(binding))
-                        })
-                    }
-                    GamepadDevice::Any | GamepadDevice::None => Some(
-                        self.gamepads
-                            .iter()
-                            .filter(|_| {
-                                self.action_sources.gamepad_button
-                                    && *self.gamepad_device == GamepadDevice::Any
-                            })
-                            .flat_map(|gamepad| gamepad.get_pressed().copied().map(Into::into))
-                            .chain(keyboard)
-                            .chain(mouse_buttons)
-                            .any(|binding| !self.ignored(binding)),
-                    ),
-                };
 
-                value.unwrap_or_default().into()
+                if self.action_sources.keyboard
+                    && self.keys.get_pressed().any(|&k| !self.ignored(k))
+                {
+                    return true.into();
+                }
+
+                if self.action_sources.mouse_buttons
+                    && self.mouse_buttons.get_pressed().any(|&b| !self.ignored(b))
+                {
+                    return true.into();
+                }
+
+                if self.action_sources.gamepad_button {
+                    match *self.gamepad_device {
+                        GamepadDevice::Single(entity) => {
+                            if let Ok(gamepad) = self.gamepads.get(entity) {
+                                if gamepad.get_pressed().any(|&b| !self.ignored(b)) {
+                                    return true.into();
+                                }
+                            }
+                        }
+                        GamepadDevice::Any => {
+                            for gamepad in &self.gamepads {
+                                if gamepad.get_pressed().any(|&b| !self.ignored(b)) {
+                                    return true.into();
+                                }
+                            }
+                        }
+                        GamepadDevice::None => (),
+                    };
+                }
+
+                false.into()
             }
         }
     }
@@ -215,10 +209,12 @@ impl InputReader<'_, '_> {
         true
     }
 
-    fn ignored(&self, binding: Binding) -> bool {
+    fn ignored(&self, binding: impl Into<Binding>) -> bool {
         if *self.skip_ignore_check {
             return false;
         }
+
+        let binding = binding.into();
         if self.pending.ignored.any_key || self.consumed.values().any(|ignored| ignored.any_key) {
             match binding {
                 Binding::Keyboard { .. }
