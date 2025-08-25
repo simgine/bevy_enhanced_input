@@ -1,5 +1,6 @@
 pub mod block_by;
 pub mod chord;
+pub mod cooldown;
 pub mod down;
 pub mod fns;
 pub mod hold;

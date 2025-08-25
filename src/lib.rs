@@ -409,7 +409,7 @@ pub mod prelude {
         },
         bindings,
         condition::{
-            ConditionKind, InputCondition, block_by::*, chord::*, down::*,
+            ConditionKind, InputCondition, block_by::*, chord::*, cooldown::*, down::*,
             fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
             release::*, tap::*,
         },
@@ -470,6 +470,7 @@ impl Plugin for EnhancedInputPlugin {
             .register_type::<Pulse>()
             .register_type::<Release>()
             .register_type::<Tap>()
+            .register_type::<Cooldown>()
             .register_type::<AccumulateBy>()
             .register_type::<Clamp>()
             .register_type::<DeadZone>()
@@ -489,6 +490,7 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_condition::<Pulse>()
             .add_input_condition::<Release>()
             .add_input_condition::<Tap>()
+            .add_input_condition::<Cooldown>()
             .add_input_modifier::<AccumulateBy>()
             .add_input_modifier::<Clamp>()
             .add_input_modifier::<DeadZone>()
