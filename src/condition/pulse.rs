@@ -68,6 +68,12 @@ impl Pulse {
         self.time_kind = kind;
         self
     }
+
+    /// Returns the associated timer.
+    #[must_use]
+    pub fn timer(&self) -> &Timer {
+        &self.timer
+    }
 }
 
 impl InputCondition for Pulse {
