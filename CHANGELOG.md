@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Cooldown` input condition.
 - `timer` getter for conditions that contain one.
 
+### Changed
+
+- Print an error instead of panicking in `InputModKeys::with_mod_keys` when keyboard modifiers can't be applied.
+
 ## [0.17.0] - 2025-08-18
 
 ### Added

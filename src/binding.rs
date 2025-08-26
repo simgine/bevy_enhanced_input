@@ -7,6 +7,7 @@ use bevy::{
     ecs::{component::HookContext, world::DeferredWorld},
     prelude::*,
 };
+use log::error;
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -195,12 +196,11 @@ pub trait InputModKeys {
 impl<I: Into<Binding>> InputModKeys for I {
     /// Returns new instance with the replaced keyboard modifiers.
     ///
-    /// # Panics
-    ///
-    /// Panics when called on [`Binding::GamepadButton`], [`Binding::GamepadAxis`],
-    /// [`Binding::AnyKey`] or [`Binding::None`].
+    /// Prints error and does nothing when called on [`Binding::GamepadButton`],
+    /// [`Binding::GamepadAxis`], [`Binding::AnyKey`] or [`Binding::None`].
     fn with_mod_keys(self, mod_keys: ModKeys) -> Binding {
-        match self.into() {
+        let binding = self.into();
+        match binding {
             Binding::Keyboard { key, .. } => Binding::Keyboard { key, mod_keys },
             Binding::MouseButton { button, .. } => Binding::MouseButton { button, mod_keys },
             Binding::MouseMotion { .. } => Binding::MouseMotion { mod_keys },
@@ -209,7 +209,8 @@ impl<I: Into<Binding>> InputModKeys for I {
             | Binding::GamepadAxis { .. }
             | Binding::None
             | Binding::AnyKey => {
-                panic!("keyboard modifiers can be applied only to mouse and keyboard bindings")
+                error!("can't add `{mod_keys:?}` to `{binding:?}`");
+                binding
             }
         }
     }
