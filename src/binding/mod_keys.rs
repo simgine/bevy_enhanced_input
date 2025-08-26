@@ -5,6 +5,11 @@ use bitflags::bitflags;
 use serde::{Deserialize, Serialize};
 
 /// Keyboard modifiers for both left and right keys.
+///
+/// The number of keyboard modifiers in a [`Binding`](super::Binding) affects the
+/// order in which its action is evaluated. See
+/// [`ActionSettings::consume_input`](crate::prelude::ActionSettings::consume_input)
+/// for more details.
 #[derive(Default, Reflect, Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub struct ModKeys(u8);
 

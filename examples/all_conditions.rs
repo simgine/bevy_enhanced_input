@@ -84,6 +84,12 @@ fn spawn(mut commands: Commands) {
                 BlockBy::single(blocker),
                 bindings![TestBlockBy::KEY],
             ));
+
+            context.spawn((
+                Action::<TestCooldown>::new(),
+                Cooldown::new(1.0),
+                bindings![TestCooldown::KEY],
+            ));
         })),
     ));
 }
@@ -181,4 +187,12 @@ struct TestBlockBy;
 
 impl TestBlockBy {
     const KEY: KeyCode = KeyCode::Minus;
+}
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct TestCooldown;
+
+impl TestCooldown {
+    const KEY: KeyCode = KeyCode::Equal;
 }
