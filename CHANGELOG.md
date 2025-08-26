@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Print an error instead of panicking in `InputModKeys::with_mod_keys` when keyboard modifiers can't be applied.
 
+### Changed
+
+- Mocking can be used without `InputPlugin`.
+
 ## [0.17.0] - 2025-08-18
 
 ### Added
