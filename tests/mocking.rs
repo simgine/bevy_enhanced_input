@@ -1,13 +1,13 @@
 use core::time::Duration;
 
-use bevy::{input::InputPlugin, prelude::*, time::TimeUpdateStrategy};
+use bevy::{prelude::*, time::TimeUpdateStrategy};
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
 #[test]
 fn updates() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
@@ -43,7 +43,7 @@ fn updates() {
 #[test]
 fn duration() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
         .insert_resource(TimeUpdateStrategy::ManualDuration(Duration::from_millis(1)))
         .add_input_context::<TestContext>()
         .finish();
@@ -90,7 +90,7 @@ fn duration() {
 #[test]
 fn manual() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 

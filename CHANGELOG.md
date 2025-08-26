@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Binding::AnyKey` to assign any button.
 - `Cooldown` input condition.
 
+### Changed
+
+- Mocking can be used without `InputPlugin`.
+
 ## [0.17.0] - 2025-08-18
 
 ### Added

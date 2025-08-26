@@ -233,6 +233,9 @@ You can also mock actions using the [`ActionMock`] component. When it's present 
 the [`ActionState`] and [`ActionValue`] for the specified [`MockSpan`] duration. During this time, all bindings for this action will be ignored.
 For more details, see the [`ActionMock`] documentation.
 
+If you only need mocking, you can disable [`InputPlugin`](bevy::input::InputPlugin) entirely. However, `bevy_input` is a required dependency
+because we use its input types.
+
 ## Reacting on actions
 
 Up to this point, we've only defined actions and contexts but haven't reacted to them yet.

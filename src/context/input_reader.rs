@@ -21,10 +21,10 @@ pub(crate) fn update_pending(mut reader: InputReader) {
 /// Actions can read binding values and optionally consume them without affecting Bevy input resources.
 #[derive(SystemParam)]
 pub(crate) struct InputReader<'w, 's> {
-    keys: Res<'w, ButtonInput<KeyCode>>,
-    mouse_buttons: Res<'w, ButtonInput<MouseButton>>,
-    mouse_motion: Res<'w, AccumulatedMouseMotion>,
-    mouse_scroll: Res<'w, AccumulatedMouseScroll>,
+    keys: Option<Res<'w, ButtonInput<KeyCode>>>,
+    mouse_buttons: Option<Res<'w, ButtonInput<MouseButton>>>,
+    mouse_motion: Option<Res<'w, AccumulatedMouseMotion>>,
+    mouse_scroll: Option<Res<'w, AccumulatedMouseScroll>>,
     gamepads: Query<'w, 's, &'static Gamepad>,
     action_sources: Res<'w, ActionSources>,
     consumed: ResMut<'w, ConsumedInputs>,
@@ -75,7 +75,7 @@ impl InputReader<'_, '_> {
         match binding {
             Binding::Keyboard { key, mod_keys } => {
                 let pressed = self.action_sources.keyboard
-                    && self.keys.pressed(key)
+                    && self.keys.as_ref().is_some_and(|k| k.pressed(key))
                     && self.mod_keys_pressed(mod_keys)
                     && !self.ignored(binding);
 
@@ -83,7 +83,10 @@ impl InputReader<'_, '_> {
             }
             Binding::MouseButton { button, mod_keys } => {
                 let pressed = self.action_sources.mouse_buttons
-                    && self.mouse_buttons.pressed(button)
+                    && self
+                        .mouse_buttons
+                        .as_ref()
+                        .is_some_and(|b| b.pressed(button))
                     && self.mod_keys_pressed(mod_keys)
                     && !self.ignored(binding);
 
@@ -97,7 +100,11 @@ impl InputReader<'_, '_> {
                     return Vec2::ZERO.into();
                 }
 
-                self.mouse_motion.delta.into()
+                self.mouse_motion
+                    .as_ref()
+                    .map(|m| m.delta)
+                    .unwrap_or_default()
+                    .into()
             }
             Binding::MouseWheel { mod_keys } => {
                 if !self.action_sources.mouse_wheel
@@ -107,7 +114,11 @@ impl InputReader<'_, '_> {
                     return Vec2::ZERO.into();
                 }
 
-                self.mouse_scroll.delta.into()
+                self.mouse_scroll
+                    .as_ref()
+                    .map(|s| s.delta)
+                    .unwrap_or_default()
+                    .into()
             }
             Binding::GamepadButton(button) => {
                 if !self.action_sources.gamepad_button || self.ignored(binding) {
@@ -158,13 +169,21 @@ impl InputReader<'_, '_> {
                 }
 
                 if self.action_sources.keyboard
-                    && self.keys.get_pressed().any(|&k| !self.ignored(k))
+                    && self
+                        .keys
+                        .iter()
+                        .flat_map(|k| k.get_pressed())
+                        .any(|&k| !self.ignored(k))
                 {
                     return true.into();
                 }
 
                 if self.action_sources.mouse_buttons
-                    && self.mouse_buttons.get_pressed().any(|&b| !self.ignored(b))
+                    && self
+                        .mouse_buttons
+                        .iter()
+                        .flat_map(|b| b.get_pressed())
+                        .any(|&b| !self.ignored(b))
                 {
                     return true.into();
                 }
@@ -201,7 +220,7 @@ impl InputReader<'_, '_> {
         }
 
         for keys in mod_keys.iter_keys() {
-            if !self.keys.any_pressed(keys) {
+            if self.keys.as_ref().is_none_or(|k| !k.any_pressed(keys)) {
                 return false;
             }
         }
