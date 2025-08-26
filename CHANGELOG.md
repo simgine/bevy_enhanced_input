@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2025-08-26
+
 ### Added
 
 - `Binding::AnyKey` to assign any button.
@@ -404,7 +406,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.17.0...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/simgine/bevy_replicon/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/simgine/bevy_replicon/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/simgine/bevy_replicon/compare/v0.15.3...v0.16.0
 [0.15.3]: https://github.com/simgine/bevy_replicon/compare/v0.15.2...v0.15.3
