@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Binding::AnyKey` to assign any button.
 - `Cooldown` input condition.
+- `timer` getter for conditions that contain one.
 
 ## [0.17.0] - 2025-08-18
 
