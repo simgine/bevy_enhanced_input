@@ -259,7 +259,7 @@ pub struct ActionTime {
 }
 
 impl ActionTime {
-    pub(crate) fn update(&mut self, delta_secs: f32, state: ActionState) {
+    pub fn update(&mut self, delta_secs: f32, state: ActionState) {
         match state {
             ActionState::None => {
                 self.elapsed_secs = 0.0;
