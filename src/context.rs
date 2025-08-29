@@ -340,6 +340,10 @@ pub(crate) fn reset_action<C: Component>(
     }
 }
 
+/// Marker component that can be used to exclude some Action entities from the [`update`] system.
+#[derive(Component)]
+pub struct ExcludeFromUpdate;
+
 #[allow(clippy::too_many_arguments)]
 fn update<S: ScheduleLabel>(
     mut consume_buffer: Local<Vec<Binding>>, // Consumed inputs during state evaluation.
@@ -347,15 +351,18 @@ fn update<S: ScheduleLabel>(
     mut reader: InputReader,
     instances: Res<ContextInstances<S>>,
     mut contexts: Query<FilteredEntityMut>,
-    mut actions: Query<(
-        Entity,
-        &Name,
-        &ActionSettings,
-        Option<&Bindings>,
-        Option<&ModifierFns>,
-        Option<&ConditionFns>,
-        Option<&mut ActionMock>,
-    )>,
+    mut actions: Query<
+        (
+            Entity,
+            &Name,
+            &ActionSettings,
+            Option<&Bindings>,
+            Option<&ModifierFns>,
+            Option<&ConditionFns>,
+            Option<&mut ActionMock>,
+        ),
+        Without<ExcludeFromUpdate>,
+    >,
     mut actions_data: Query<(
         &'static mut ActionValue,
         &'static mut ActionState,
