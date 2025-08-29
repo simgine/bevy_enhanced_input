@@ -259,6 +259,8 @@ pub struct ActionTime {
 }
 
 impl ActionTime {
+
+    /// Updates the timers based on the given delta time and action state.
     pub fn update(&mut self, delta_secs: f32, state: ActionState) {
         match state {
             ActionState::None => {
