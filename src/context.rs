@@ -21,7 +21,7 @@ use bevy::{
     },
     prelude::*,
 };
-use log::{debug, trace, warn};
+use log::{debug, trace};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -340,6 +340,14 @@ pub(crate) fn reset_action<C: Component>(
     }
 }
 
+/// Marks an [`Action<C>`] as manually mocked, skipping the [`EnhancedInputSet::Update`] logic for it.
+///
+/// This allows modifying any action data without its values being overridden during evaluation.
+///
+/// Takes precedence over [`ActionMock`], which drives specific [`ActionValue`] and [`ActionState`] during evaluation.
+#[derive(Component)]
+pub struct ExternallyMocked;
+
 #[allow(clippy::too_many_arguments)]
 fn update<S: ScheduleLabel>(
     mut consume_buffer: Local<Vec<Binding>>, // Consumed inputs during state evaluation.
@@ -347,15 +355,18 @@ fn update<S: ScheduleLabel>(
     mut reader: InputReader,
     instances: Res<ContextInstances<S>>,
     mut contexts: Query<FilteredEntityMut>,
-    mut actions: Query<(
-        Entity,
-        &Name,
-        &ActionSettings,
-        Option<&Bindings>,
-        Option<&ModifierFns>,
-        Option<&ConditionFns>,
-        Option<&mut ActionMock>,
-    )>,
+    mut actions: Query<
+        (
+            Entity,
+            &Name,
+            &ActionSettings,
+            Option<&Bindings>,
+            Option<&ModifierFns>,
+            Option<&ConditionFns>,
+            Option<&mut ActionMock>,
+        ),
+        Without<ExternallyMocked>,
+    >,
     mut actions_data: Query<(
         &'static mut ActionValue,
         &'static mut ActionState,
@@ -393,11 +404,6 @@ fn update<S: ScheduleLabel>(
 
         let mods_count = |action: &Entity| {
             let Ok((.., action_bindings, _, _, _)) = actions.get(*action) else {
-                // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-                warn!(
-                    "`{action}` from `{}` missing action components",
-                    instance.name
-                );
                 return Reverse(0);
             };
 

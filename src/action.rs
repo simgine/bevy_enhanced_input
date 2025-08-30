@@ -291,6 +291,8 @@ impl ActionTime {
 /// Mocking does not take effect immediately - it is applied during the next context evaluation.
 /// For more details, see the [evaluation](../index.html#evaluation) section in the quick start guide.
 ///
+/// See also [`ExternallyMocked`](crate::context::ExternallyMocked) to manually control the action data.
+///
 /// # Examples
 ///
 /// Spawn and move up for 2 seconds:
