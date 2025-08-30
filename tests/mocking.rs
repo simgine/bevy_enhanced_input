@@ -157,9 +157,11 @@ fn external_mock() {
         .world_mut()
         .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
 
-    // the action data should not be updated because of ExternallyMocked
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
-    assert!(!*action);
+    assert!(
+        !*action,
+        "action shouldn't be updated because it marked as mocked externally"
+    );
     assert_eq!(state, ActionState::None);
     assert_eq!(events, ActionEvents::empty());
 }

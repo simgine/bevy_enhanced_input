@@ -180,7 +180,6 @@ impl ScheduleContexts {
             QueryParamBuilder::new(|builder| {
                 builder
                     .data::<Option<&GamepadDevice>>()
-                    .without::<ExternallyMocked>()
                     .optional(|builder| {
                         for &id in &self.activity_ids {
                             builder.mut_id(id);
@@ -194,7 +193,7 @@ impl ScheduleContexts {
             ParamBuilder,
             ParamBuilder,
             QueryParamBuilder::new(|builder| {
-                builder.without::<ExternallyMocked>().optional(|builder| {
+                builder.optional(|builder| {
                     for &id in &**conditions {
                         builder.mut_id(id);
                     }
