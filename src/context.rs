@@ -340,11 +340,11 @@ pub(crate) fn reset_action<C: Component>(
     }
 }
 
-/// Marker component that can be used to exclude some [`Action`] entities from the `update` system.
+/// Marks an [`Action<C>`] as manually mocked, skipping the [`EnhancedInputSet::Update`] logic for it.
 ///
-/// This is useful if the user wants greater control over how the [`Action`]'s components are updated.
+/// This allows modifying any action data without its values being overridden during evaluation.
 ///
-/// This is an advanced feature that should be used with caution.
+/// Takes precedence over [`ActionMock`], which drives specific [`ActionValue`] and [`ActionState`] during evaluation.
 #[derive(Component)]
 pub struct ExternallyMocked;
 
