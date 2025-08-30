@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added a component `ExcludeFromUpdate` to exclude actions from being updated.
+- Added a component `ExternallyMocked` to exclude actions from being updated. These actions are updated manually by the user.
 
 ### Changed
 

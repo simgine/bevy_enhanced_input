@@ -340,9 +340,13 @@ pub(crate) fn reset_action<C: Component>(
     }
 }
 
-/// Marker component that can be used to exclude some Action entities from the [`update`] system.
+/// Marker component that can be used to exclude some [`Action`] entities from the [`update`] system.
+///
+/// This is useful if the user wants greater control over how the [`Action`]'s components are updated.
+///
+/// This is an advanced feature that should be used with caution.
 #[derive(Component)]
-pub struct ExcludeFromUpdate;
+pub struct ExternallyMocked;
 
 #[allow(clippy::too_many_arguments)]
 fn update<S: ScheduleLabel>(
@@ -361,7 +365,7 @@ fn update<S: ScheduleLabel>(
             Option<&ConditionFns>,
             Option<&mut ActionMock>,
         ),
-        Without<ExcludeFromUpdate>,
+        Without<ExternallyMocked>,
     >,
     mut actions_data: Query<(
         &'static mut ActionValue,
