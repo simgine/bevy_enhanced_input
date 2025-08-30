@@ -404,11 +404,6 @@ fn update<S: ScheduleLabel>(
 
         let mods_count = |action: &Entity| {
             let Ok((.., action_bindings, _, _, _)) = actions.get(*action) else {
-                // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-                warn!(
-                    "`{action}` from `{}` missing action components",
-                    instance.name
-                );
                 return Reverse(0);
             };
 
