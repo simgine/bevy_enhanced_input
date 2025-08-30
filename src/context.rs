@@ -194,9 +194,7 @@ impl ScheduleContexts {
             ParamBuilder,
             ParamBuilder,
             QueryParamBuilder::new(|builder| {
-                builder
-                    .without::<ExternallyMocked>()
-                    .optional(|builder| {
+                builder.without::<ExternallyMocked>().optional(|builder| {
                     for &id in &**conditions {
                         builder.mut_id(id);
                     }

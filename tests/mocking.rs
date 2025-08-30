@@ -1,6 +1,7 @@
 use core::time::Duration;
 
 use bevy::{prelude::*, time::TimeUpdateStrategy};
+use bevy_enhanced_input::context::ExternallyMocked;
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
@@ -130,6 +131,37 @@ fn manual() {
     assert!(!*action);
     assert_eq!(state, ActionState::None);
     assert_eq!(events, ActionEvents::COMPLETED);
+}
+
+#[test]
+fn external_mock() {
+    let mut app = App::new();
+    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+        .add_input_context::<TestContext>()
+        .finish();
+
+    app.world_mut().spawn((
+        TestContext,
+        actions!(
+            TestContext[(
+                Action::<Test>::new(),
+                ExternallyMocked,
+                ActionMock::once(ActionState::Fired, true)
+            )]
+        ),
+    ));
+
+    app.update();
+
+    let mut actions = app
+        .world_mut()
+        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+
+    // the action data should not be updated because of ExternallyMocked
+    let (&action, &state, &events) = actions.single(app.world()).unwrap();
+    assert!(!*action);
+    assert_eq!(state, ActionState::None);
+    assert_eq!(events, ActionEvents::empty());
 }
 
 #[derive(Component)]
