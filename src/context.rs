@@ -340,7 +340,7 @@ pub(crate) fn reset_action<C: Component>(
     }
 }
 
-/// Marker component that can be used to exclude some [`Action`] entities from the [`update`] system.
+/// Marker component that can be used to exclude some [`Action`] entities from the `update` system.
 ///
 /// This is useful if the user wants greater control over how the [`Action`]'s components are updated.
 ///
