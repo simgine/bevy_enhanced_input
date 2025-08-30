@@ -1,8 +1,7 @@
 use core::time::Duration;
 
 use bevy::{prelude::*, time::TimeUpdateStrategy};
-use bevy_enhanced_input::context::ExternallyMocked;
-use bevy_enhanced_input::prelude::*;
+use bevy_enhanced_input::{context::ExternallyMocked, prelude::*};
 use test_log::test;
 
 #[test]
