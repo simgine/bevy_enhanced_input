@@ -320,7 +320,9 @@ fn apply_input(
 
 ## Removing contexts
 
-To remove a context from an entity, you need to remove it with required components **and** despawn its actions.
+If you despawn an entity with its context, the actions and bindings will also be despawned.
+However, if you only want to remove a context from an entity, you must remove the required components
+**and** manually despawn its actions.
 
 ```
 # use bevy::prelude::*;
