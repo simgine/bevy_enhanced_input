@@ -38,7 +38,7 @@ bevy = { version = "0.16.0", default-features = false, features = [
   "x11",
 ] }
 test-log = "0.2"
-ron = "0.8"
+ron = "0.11"
 
 [lints.clippy]
 type_complexity = "allow"
