@@ -353,7 +353,7 @@ assert_eq!(world.entities().len(), 1, "only the player entity should be left");
 
 Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically
 despawn related entities when their relationship targets (like [`Actions<C>`]) are removed. For this reason, [`Actions<C>`]
-is not a required component for `C`. See [this issue](https://github.com/bevyengine/bevy/issues/20252) for more details.
+is not a required component for `C`. See [#20252](https://github.com/bevyengine/bevy/issues/20252) for more details.
 
 When an action is despawned, it automatically transitions its state to [`ActionState::None`] with [`ActionValue::zero`],
 triggering the corresponding events. Depending on your use case, using [`ContextActivity`] might be more convenient than removal.
