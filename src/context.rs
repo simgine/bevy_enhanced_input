@@ -172,7 +172,7 @@ impl ScheduleContexts {
     ) {
         debug!("setting up systems for `{}`", any::type_name::<S>());
 
-        let update = (
+        let update_fn = (
             ParamBuilder,
             ParamBuilder,
             ParamBuilder,
@@ -206,7 +206,7 @@ impl ScheduleContexts {
             .build_state(app.world_mut())
             .build_system(update::<S>);
 
-        let trigger = (
+        let trigger_fn = (
             ParamBuilder,
             ParamBuilder,
             QueryParamBuilder::new(|builder| {
@@ -232,8 +232,8 @@ impl ScheduleContexts {
             .add_systems(
                 S::default(),
                 (
-                    update.in_set(EnhancedInputSet::Update),
-                    trigger.in_set(EnhancedInputSet::Apply),
+                    update_fn.in_set(EnhancedInputSet::Update),
+                    trigger_fn.in_set(EnhancedInputSet::Apply),
                 ),
             );
     }
