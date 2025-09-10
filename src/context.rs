@@ -102,6 +102,7 @@ impl InputContextAppExt for App {
 
         let _ = self.try_register_required_components::<C, ContextPriority<C>>();
         let _ = self.try_register_required_components::<C, ContextActivity<C>>();
+
         self.add_observer(register::<C, S>)
             .add_observer(unregister::<C, S>)
             .add_observer(reset_action::<C>)
