@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `DuplicateRegistration` error when `ContextActivity` or `ContextPriority` are set as required context components by user.
+
 ## [0.18.1] - 2025-09-01
 
 ### Added
