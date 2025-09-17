@@ -75,7 +75,7 @@ fn trigger<A: InputAction>(
                     value: A::Output::unwrap_value(value),
                     state,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::ONGOING => {
                 let event = Ongoing::<A> {
@@ -84,7 +84,7 @@ fn trigger<A: InputAction>(
                     state,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::FIRED => {
                 let event = Fired::<A> {
@@ -94,7 +94,7 @@ fn trigger<A: InputAction>(
                     fired_secs: time.fired_secs,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::CANCELED => {
                 let event = Canceled::<A> {
@@ -103,7 +103,7 @@ fn trigger<A: InputAction>(
                     state,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::COMPLETED => {
                 let event = Completed::<A> {
@@ -113,7 +113,7 @@ fn trigger<A: InputAction>(
                     fired_secs: time.fired_secs,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             _ => unreachable!("iteration should yield only named flags"),
         }

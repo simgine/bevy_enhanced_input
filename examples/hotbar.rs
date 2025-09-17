@@ -51,7 +51,7 @@ fn equip(
     mut hotbars: Query<&mut Hotbar, With<Player>>,
 ) {
     let equip_index = actions.get(trigger.event().action).unwrap();
-    let mut hotbar = hotbars.get_mut(trigger.target()).unwrap();
+    let mut hotbar = hotbars.get_mut(add.entity).unwrap();
 
     hotbar.equipped = equip_index.0;
 

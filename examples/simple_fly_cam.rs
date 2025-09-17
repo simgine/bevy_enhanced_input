@@ -94,7 +94,7 @@ fn setup(
 }
 
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Transform>) {
-    let mut transform = transforms.get_mut(trigger.target()).unwrap();
+    let mut transform = transforms.get_mut(add.entity).unwrap();
 
     // Move to the camera direction.
     let rotation = transform.rotation;
@@ -117,7 +117,7 @@ fn rotate(
         return;
     }
 
-    let mut transform = transforms.get_mut(trigger.target()).unwrap();
+    let mut transform = transforms.get_mut(add.entity).unwrap();
     let (mut yaw, mut pitch, _) = transform.rotation.to_euler(EulerRot::YXZ);
 
     yaw += trigger.value.x.to_radians();
@@ -127,7 +127,7 @@ fn rotate(
 }
 
 fn zoom(trigger: Trigger<Fired<Zoom>>, mut projections: Query<&mut Projection>) {
-    let mut projection = projections.get_mut(trigger.target()).unwrap();
+    let mut projection = projections.get_mut(add.entity).unwrap();
     let Projection::Perspective(projection) = &mut *projection else {
         panic!("camera should be perspective");
     };

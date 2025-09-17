@@ -59,12 +59,12 @@ fn setup(
 }
 
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(trigger.target()).unwrap();
+    let mut physics = query.get_mut(add.entity).unwrap();
     physics.velocity.x = trigger.value;
 }
 
 fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(trigger.target()).unwrap();
+    let mut physics = query.get_mut(add.entity).unwrap();
     if physics.is_grounded {
         // Jump only if on the ground.
         physics.velocity.y = JUMP_VELOCITY;

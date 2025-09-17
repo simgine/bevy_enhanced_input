@@ -34,18 +34,18 @@ impl InputConditionAppExt for App {
 }
 
 fn register_condition<C: InputCondition + Component<Mutability = Mutable>>(
-    trigger: Trigger<OnAdd, C>,
+    add: On<Add, C>,
     mut conditions: Query<&mut ConditionFns>,
 ) {
-    let mut fns = conditions.get_mut(trigger.target()).unwrap();
+    let mut fns = conditions.get_mut(add.entity).unwrap();
     fns.0.push(get_condition::<C>);
 }
 
 fn unregister_condition<C: InputCondition + Component<Mutability = Mutable>>(
-    trigger: Trigger<OnRemove, C>,
+    add: On<Remove, C>,
     mut conditions: Query<&mut ConditionFns>,
 ) {
-    let mut fns = conditions.get_mut(trigger.target()).unwrap();
+    let mut fns = conditions.get_mut(add.entity).unwrap();
     let index = fns
         .iter()
         .position(|&f| ptr::fn_addr_eq(f, get_condition::<C> as GetConditionFn))

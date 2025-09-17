@@ -64,7 +64,7 @@ fn spawn(
 }
 
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut players: Query<&mut Transform>) {
-    let mut transform = players.get_mut(trigger.target()).unwrap();
+    let mut transform = players.get_mut(add.entity).unwrap();
 
     // Adjust axes for top-down movement.
     transform.translation.z -= trigger.value.x;

@@ -241,7 +241,7 @@ impl ScheduleContexts {
 }
 
 fn register<C: Component, S: ScheduleLabel>(
-    trigger: Trigger<OnInsert, ContextPriority<C>>,
+    add: On<Insert, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
     // TODO Bevy 0.17: Use `Allows` filter instead of `Has`.
     contexts: Query<(&ContextPriority<C>, Has<Disabled>)>,
@@ -249,34 +249,34 @@ fn register<C: Component, S: ScheduleLabel>(
     debug!(
         "registering `{}` to `{}`",
         any::type_name::<C>(),
-        trigger.target(),
+        add.entity,
     );
 
-    let (&priority, _) = contexts.get(trigger.target()).unwrap();
-    instances.add::<C>(trigger.target(), *priority);
+    let (&priority, _) = contexts.get(add.entity).unwrap();
+    instances.add::<C>(add.entity, *priority);
 }
 
 fn unregister<C: Component, S: ScheduleLabel>(
-    trigger: Trigger<OnReplace, ContextPriority<C>>,
+    add: On<Replace, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
 ) {
     debug!(
         "unregistering `{}` from `{}`",
         any::type_name::<C>(),
-        trigger.target(),
+        add.entity,
     );
 
-    instances.remove::<C>(trigger.target());
+    instances.remove::<C>(add.entity);
 }
 
 fn deactivate<C: Component>(
-    trigger: Trigger<OnInsert, ContextActivity<C>>,
+    add: On<Insert, ContextActivity<C>>,
     mut pending: ResMut<PendingBindings>,
     contexts: Query<(&ContextActivity<C>, &Actions<C>)>,
     actions: Query<(&ActionSettings, &Bindings)>,
     bindings: Query<&Binding>,
 ) {
-    let Ok((&active, context_actions)) = contexts.get(trigger.target()) else {
+    let Ok((&active, context_actions)) = contexts.get(add.entity) else {
         return;
     };
 
@@ -297,7 +297,7 @@ fn deactivate<C: Component>(
 
 /// Resets action data and triggers corresponding events on removal.
 pub(crate) fn reset_action<C: Component>(
-    trigger: Trigger<OnRemove, ActionOf<C>>,
+    add: On<Remove, ActionOf<C>>,
     mut commands: Commands,
     mut pending: ResMut<PendingBindings>,
     mut actions: Query<(
@@ -313,9 +313,9 @@ pub(crate) fn reset_action<C: Component>(
     bindings: Query<&Binding>,
 ) {
     let Ok((action_of, settings, fns, action_bindings, mut value, mut state, mut events, mut time)) =
-        actions.get_mut(trigger.target())
+        actions.get_mut(add.entity)
     else {
-        trace!("ignoring reset for `{}`", trigger.target());
+        trace!("ignoring reset for `{}`", add.entity);
         return;
     };
 
@@ -327,7 +327,7 @@ pub(crate) fn reset_action<C: Component>(
     fns.trigger(
         &mut commands,
         **action_of,
-        trigger.target(),
+        add.entity,
         *state,
         *events,
         *value,

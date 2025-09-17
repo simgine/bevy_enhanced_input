@@ -51,7 +51,7 @@ fn enter_car(trigger: Trigger<Started<EnterCar>>, mut commands: Commands) {
     // preventing `Rotate` and `EnterWater` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
-    commands.entity(trigger.target()).insert((
+    commands.entity(add.entity).insert((
         Driving,
         ContextPriority::<Driving>::new(1),
         actions!(Driving[
@@ -80,7 +80,7 @@ fn brake(_trigger: Trigger<Fired<Brake>>) {
 fn exit_car(trigger: Trigger<Started<ExitCar>>, mut commands: Commands) {
     info!("exiting car");
     commands
-        .entity(trigger.target())
+        .entity(add.entity)
         .remove_with_requires::<Driving>() // Necessary to fully remove the context.
         .despawn_related::<Actions<Driving>>();
 }

@@ -16,7 +16,7 @@ include = ["/src", "/LICENSE*"]
 
 [dependencies]
 bevy_enhanced_input_macros = { path = "macros", version = "0.18.2" }
-bevy = { version = "0.16.0", default-features = false, features = [
+bevy = { version = "0.17.0-rc.1", default-features = false, features = [
   "serialize",
 ] }
 log = "0.4" # Directly depend on `log` like other `no_std` Bevy crates, since `bevy_log` currently requires `std`.
@@ -24,9 +24,10 @@ smallvec = "1.15"
 variadics_please = "1.0"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
+bevy_ptr = "0.16.1"
 
 [dev-dependencies]
-bevy = { version = "0.16.0", default-features = false, features = [
+bevy = { version = "0.17.0-rc.1", default-features = false, features = [
   "bevy_gilrs",
   "bevy_log",
   "bevy_pbr",

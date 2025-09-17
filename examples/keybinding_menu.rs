@@ -203,7 +203,7 @@ fn delete_binding(
     mut binding_buttons: Query<(&Name, &mut BindingButton)>,
     delete_buttons: Query<&DeleteButton>,
 ) {
-    let delete_button = delete_buttons.get(trigger.target()).unwrap();
+    let delete_button = delete_buttons.get(add.entity).unwrap();
     let (name, mut binding_button) = binding_buttons
         .get_mut(delete_button.binding_button)
         .expect("delete button should point to a binding button");
@@ -217,12 +217,12 @@ fn show_binding_dialog(
     root_entity: Single<Entity, (With<Node>, Without<ChildOf>)>,
     names: Query<&Name>,
 ) {
-    let name = names.get(trigger.target()).unwrap();
+    let name = names.get(add.entity).unwrap();
     info!("starting binding for '{name}'");
 
     commands.entity(*root_entity).with_child((
         BindingDialog {
-            binding_button: trigger.target(),
+            binding_button: add.entity,
         },
         children![(
             Node {

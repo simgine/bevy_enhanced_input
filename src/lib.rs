@@ -265,7 +265,7 @@ app.add_observer(apply_movement);
 /// Apply movement when `Move` action considered fired.
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut players: Query<&mut Transform>) {
     // Read transform from the context entity.
-    let mut transform = players.get_mut(trigger.target()).unwrap();
+    let mut transform = players.get_mut(add.entity).unwrap();
 
     // We defined the output of `Move` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
@@ -433,7 +433,7 @@ pub mod prelude {
     pub use bevy_enhanced_input_macros::InputAction;
 }
 
-use bevy::{input::InputSystem, prelude::*};
+use bevy::{input::InputSystems, prelude::*};
 
 use condition::fns::ConditionRegistry;
 use context::{
@@ -510,7 +510,7 @@ impl Plugin for EnhancedInputPlugin {
                 PreUpdate,
                 (EnhancedInputSet::Prepare, EnhancedInputSet::Update)
                     .chain()
-                    .after(InputSystem),
+                    .after(InputSystems),
             )
             .add_systems(
                 PreUpdate,

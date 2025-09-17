@@ -4,7 +4,7 @@ pub mod relationship;
 use core::fmt::{self, Display, Formatter};
 
 use bevy::{
-    ecs::{component::HookContext, world::DeferredWorld},
+    ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
 use log::error;

@@ -31,7 +31,7 @@ fn attack(_trigger: Trigger<Fired<Attack>>) {
 
 fn open_inventory(trigger: Trigger<Started<OpenInventory>>, mut commands: Commands) {
     info!("opening inventory");
-    commands.entity(trigger.target()).insert((
+    commands.entity(add.entity).insert((
         ContextActivity::<Player>::INACTIVE,
         ContextActivity::<Inventory>::ACTIVE,
     ));
@@ -43,7 +43,7 @@ fn navigate_inventory(_trigger: Trigger<Fired<NavigateInventory>>) {
 
 fn close_inventory(trigger: Trigger<Started<CloseInventory>>, mut commands: Commands) {
     info!("closing inventory");
-    commands.entity(trigger.target()).insert((
+    commands.entity(add.entity).insert((
         ContextActivity::<Player>::ACTIVE,
         ContextActivity::<Inventory>::INACTIVE,
     ));

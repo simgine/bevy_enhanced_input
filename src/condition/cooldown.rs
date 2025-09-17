@@ -64,19 +64,19 @@ impl InputCondition for Cooldown {
         self.actuated = value.is_actuated(self.actuation);
 
         if !self.actuated {
-            let finished_before = self.timer.finished();
+            let is_finished_before = self.timer.is_finished();
             self.timer.tick(time.delta_kind(self.time_kind));
 
             // Start cooldown when the action stops actuating, but
             // only if it was already finished before this tick.
             // This avoids re-triggering cooldown when a hold started during cooldown
             // and is released exactly as the cooldown completes.
-            if last_actuated && finished_before {
+            if last_actuated && is_finished_before {
                 self.timer.reset();
             }
         }
 
-        if self.actuated && self.timer.finished() {
+        if self.actuated && self.timer.is_finished() {
             ActionState::Fired
         } else {
             ActionState::None
