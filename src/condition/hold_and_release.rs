@@ -60,11 +60,11 @@ impl InputCondition for HoldAndRelease {
         if value.is_actuated(self.actuation) {
             ActionState::Ongoing
         } else {
-            let is_finished = self.timer.is_finished();
+            let finished = self.timer.is_finished();
             self.timer.reset();
 
             // Trigger if we've passed the threshold and released.
-            if is_finished {
+            if finished {
                 ActionState::Fired
             } else {
                 ActionState::None
