@@ -82,9 +82,10 @@ where
         let z = Bidirectional {
             positive: spatial.backward,
             negative: spatial.forward,
-        };
+        }
+        .with(SwizzleAxis::ZYX);
         move_as_ptr!(z);
-        SpawnableList::spawn(z.with(SwizzleAxis::ZYX), world, entity);
+        SpawnableList::spawn(z, world, entity);
     }
 
     fn size_hint(&self) -> usize {

@@ -1,6 +1,8 @@
-use core::ptr::NonNull;
-
-use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
+use bevy::{
+    ecs::spawn::SpawnableList,
+    prelude::*,
+    ptr::{MovingPtr, move_as_ptr},
+};
 
 use crate::prelude::*;
 
@@ -95,12 +97,7 @@ where
             west: ordinal.west,
         };
 
-        // Safety:
-        // - `&cardinal` is a valid `Cardinal`.
-        // - `Cardinal` is properly aligned
-        // - `&cardinal` is a regular reference
-        // - `cardinal` is not used after this point
-        let cardinal = unsafe { MovingPtr::new(NonNull::from_ref(&cardinal)) };
+        move_as_ptr!(cardinal);
         SpawnableList::spawn(cardinal, world, entity);
 
         world.spawn((BindingOf(entity), ordinal.north_east, SwizzleAxis::XXZ));

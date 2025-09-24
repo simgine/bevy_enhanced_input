@@ -1,6 +1,8 @@
-use core::ptr::NonNull;
-
-use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
+use bevy::{
+    ecs::spawn::SpawnableList,
+    prelude::*,
+    ptr::{MovingPtr, move_as_ptr},
+};
 
 use crate::prelude::*;
 
@@ -74,12 +76,8 @@ impl<N: Bundle, E: Bundle, S: Bundle, W: Bundle> SpawnableList<BindingOf> for Ca
             positive: cardinal.east,
             negative: cardinal.west,
         };
-        // Safety:
-        // - `&x` is a valid `Bidirectional`.
-        // - `Bidirectional` is properly aligned
-        // - `&x` is a regular reference
-        // - `x` is not used after this point
-        let x = unsafe { MovingPtr::new(NonNull::from_ref(&x)) };
+
+        move_as_ptr!(x);
         SpawnableList::spawn(x, world, entity);
 
         let y = Bidirectional {
@@ -87,13 +85,7 @@ impl<N: Bundle, E: Bundle, S: Bundle, W: Bundle> SpawnableList<BindingOf> for Ca
             negative: cardinal.south,
         };
 
-        let y = y.with(SwizzleAxis::YXZ);
-        // Safety:
-        // - `&y` is a valid `Bidirectional`.
-        // - `Bidirectional` is properly aligned
-        // - `&y` is a regular reference
-        // - `y` is not used after this point
-        let y = unsafe { MovingPtr::new(NonNull::from_ref(&y)) };
+        move_as_ptr!(y);
         SpawnableList::spawn(y, world, entity);
     }
 
