@@ -12,6 +12,7 @@ use bevy::{
     ui::FocusPolicy,
 };
 use bevy_enhanced_input::prelude::*;
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 fn main() {
@@ -497,8 +498,10 @@ struct ConflictDialog {
 /// you need to create your own binding enum. However, this approach is mostly used in emulators rather than games.
 ///
 /// So in this example we assign only keyboard and mouse bindings.
-#[derive(Resource, Reflect, Clone, Deserialize, Serialize)]
-#[serde(default)]
+#[derive(Resource, Reflect, Clone)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", serde(default))]
 pub struct InputSettings {
     pub forward: [Binding; BINDINGS_COUNT],
     pub left: [Binding; BINDINGS_COUNT],

@@ -9,12 +9,15 @@ use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},
     prelude::*,
 };
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 /// Context entity associated with this action entity.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Serialize, Deserialize)]
+#[derive(Component, Deref, Reflect)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 #[relationship(relationship_target = Actions<C>)]
 pub struct ActionOf<C: Component> {
     #[deref]

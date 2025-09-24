@@ -22,6 +22,7 @@ use bevy::{
     prelude::*,
 };
 use log::{debug, trace};
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -763,9 +764,9 @@ impl<C> Copy for ContextPriority<C> {}
 /// Associated gamepad for all input contexts on this entity.
 ///
 /// If not present, input will be read from all connected gamepads.
-#[derive(
-    Component, Reflect, Debug, Serialize, Deserialize, Default, Hash, PartialEq, Eq, Clone, Copy,
-)]
+#[derive(Component, Reflect, Debug, Default, Hash, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub enum GamepadDevice {
     /// Matches input from any gamepad.
     ///

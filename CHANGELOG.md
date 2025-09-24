@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `Started` to `Start`
 - Note that `Press`, `Release`, and `Cancel` are part of both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*`.
   To disambiguate, import `bevy_enhanced_input::prelude::{*, Press, Release, Cancel}`.
+- Serde integration is now gated behind the `serialize` feature.
 
 ## [0.18.2] - 2025-09-10
 

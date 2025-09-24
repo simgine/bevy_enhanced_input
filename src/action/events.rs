@@ -2,6 +2,7 @@ use core::fmt::{self, Debug, Formatter};
 
 use bevy::prelude::*;
 use bitflags::bitflags;
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -28,9 +29,9 @@ use crate::prelude::*;
 ///
 /// The meaning of each kind depends on the assigned [`InputCondition`]s. The events are
 /// triggered in the action evaluation order.
-#[derive(
-    Component, Reflect, Default, Debug, PartialEq, Eq, Serialize, Deserialize, Clone, Copy,
-)]
+#[derive(Component, Reflect, Default, Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionEvents(u8);
 
 bitflags! {

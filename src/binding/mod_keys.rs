@@ -2,6 +2,7 @@ use core::fmt::{self, Display, Formatter};
 
 use bevy::prelude::*;
 use bitflags::bitflags;
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 /// Keyboard modifiers for both left and right keys.
@@ -10,7 +11,9 @@ use serde::{Deserialize, Serialize};
 /// order in which its action is evaluated. See
 /// [`ActionSettings::consume_input`](crate::prelude::ActionSettings::consume_input)
 /// for more details.
-#[derive(Default, Reflect, Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Default, Reflect, Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ModKeys(u8);
 
 bitflags! {
