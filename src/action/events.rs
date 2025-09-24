@@ -106,7 +106,7 @@ impl ActionEvents {
 /// ```
 #[derive(EntityEvent)]
 pub struct Start<A: InputAction> {
-    /// Entity that this event was triggered on.
+    /// Entity with the context component on which this event was triggered.
     #[event_target]
     pub context: Entity,
 
@@ -188,7 +188,7 @@ impl<A: InputAction> Copy for Start<A> {}
 /// ```
 #[derive(EntityEvent)]
 pub struct Ongoing<A: InputAction> {
-    /// Entity that this event was triggered on.
+    /// Entity with the context component on which this event was triggered.
     #[event_target]
     pub context: Entity,
 
@@ -259,7 +259,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// ```
 #[derive(EntityEvent)]
 pub struct Fire<A: InputAction> {
-    /// Entity that this event was triggered on.
+    /// Entity with the context component on which this event was triggered.
     #[event_target]
     pub context: Entity,
 
@@ -347,7 +347,7 @@ impl<A: InputAction> Copy for Fire<A> {}
 /// ```
 #[derive(EntityEvent)]
 pub struct Cancel<A: InputAction> {
-    /// Entity that this event was triggered on.
+    /// Entity with the context component on which this event was triggered.
     #[event_target]
     pub context: Entity,
 
@@ -450,7 +450,7 @@ impl<A: InputAction> Copy for Cancel<A> {}
 /// ```
 #[derive(EntityEvent)]
 pub struct Complete<A: InputAction> {
-    /// Entity that this event was triggered on.
+    /// Entity with the context component on which this event was triggered.
     #[event_target]
     pub context: Entity,
 
