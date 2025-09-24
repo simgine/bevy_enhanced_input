@@ -26,7 +26,7 @@ fn input_level() {
                         Chord::single(chord_member),
                         BlockBy::single(blocker),
                         Down::default(),
-                        Release::default(),
+                        bevy_enhanced_input::prelude::Release::default(),
                         Scale::splat(2.0),
                         SwizzleAxis::YXZ
                     ),
@@ -35,7 +35,7 @@ fn input_level() {
                         Chord::single(chord_member),
                         BlockBy::single(blocker),
                         Down::default(),
-                        Release::default(),
+                        bevy_enhanced_input::prelude::Release::default(),
                         Negate::all(),
                         SwizzleAxis::YXZ
                     ),
@@ -122,7 +122,7 @@ fn action_level() {
             context.spawn((
                 Action::<Test>::new(),
                 Down::default(),
-                Release::default(),
+                bevy_enhanced_input::prelude::Release::default(),
                 Chord::single(chord_member),
                 BlockBy::single(blocker),
                 SwizzleAxis::YXZ,
@@ -210,7 +210,7 @@ fn both_levels() {
                 .id();
             context.spawn((
                 Action::<Test>::new(),
-                Release::default(),
+                bevy_enhanced_input::prelude::Release::default(),
                 Chord::single(chord_member),
                 BlockBy::single(blocker),
                 SwizzleAxis::YXZ,
