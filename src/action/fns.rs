@@ -190,29 +190,25 @@ mod tests {
         let mut world = World::new();
 
         world.init_resource::<TriggeredEvents>();
-        world.add_observer(|_on: On<Fire<Test>>, mut events: ResMut<TriggeredEvents>| {
+        world.add_observer(|_: On<Fire<Test>>, mut events: ResMut<TriggeredEvents>| {
             events.insert(ActionEvents::FIRED);
         });
+        world.add_observer(|_: On<Start<Test>>, mut events: ResMut<TriggeredEvents>| {
+            events.insert(ActionEvents::STARTED);
+        });
         world.add_observer(
-            |_on: On<Start<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::STARTED);
-            },
-        );
-        world.add_observer(
-            |_on: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::ONGOING);
             },
         );
         world.add_observer(
-            |_on: On<Complete<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_: On<Complete<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::COMPLETED);
             },
         );
-        world.add_observer(
-            |_on: On<Cancel<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::CANCELED);
-            },
-        );
+        world.add_observer(|_: On<Cancel<Test>>, mut events: ResMut<TriggeredEvents>| {
+            events.insert(ActionEvents::CANCELED);
+        });
 
         let events = ActionEvents::new(initial_state, target_state);
         let fns = ActionFns::new::<Test>();
