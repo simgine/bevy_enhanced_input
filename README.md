@@ -9,7 +9,7 @@ Input manager for [Bevy](https://bevyengine.org), inspired by [Unreal Engine Enh
 
 ## Features
 
-* Map inputs from various sources (keyboard, gamepad, etc.) to gameplay actions like `Jump`, `Move`, or `Attack`.
+* Map inputs from various sources (keyboard, gamepad, etc.) to gameplay actions like `Jump`, `Movement`, or `Attack`.
 * Assign actions to different contexts like `OnFoot` or `InCar`.
 * Layer multiple contexts on a single entity, controlled by priority.
 * Apply modifiers to inputs, such as dead zones, inversion, scaling, etc., or create custom modifiers by implementing a trait.
