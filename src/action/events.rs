@@ -17,14 +17,14 @@ use crate::prelude::*;
 /// | Last state                  | New state                | Events                    |
 /// | --------------------------- | ------------------------ | ------------------------- |
 /// | [`ActionState::None`]       | [`ActionState::None`]    | No events                 |
-/// | [`ActionState::None`]       | [`ActionState::Ongoing`] | [`Started`] + [`Ongoing`] |
-/// | [`ActionState::None`]       | [`ActionState::Fired`]   | [`Started`] + [`Fired`]   |
-/// | [`ActionState::Ongoing`]    | [`ActionState::None`]    | [`Canceled`]              |
+/// | [`ActionState::None`]       | [`ActionState::Ongoing`] | [`Start`] + [`Ongoing`] |
+/// | [`ActionState::None`]       | [`ActionState::Fired`]   | [`Start`] + [`Fire`]   |
+/// | [`ActionState::Ongoing`]    | [`ActionState::None`]    | [`Cancel`]              |
 /// | [`ActionState::Ongoing`]    | [`ActionState::Ongoing`] | [`Ongoing`]               |
-/// | [`ActionState::Ongoing`]    | [`ActionState::Fired`]   | [`Fired`]                 |
-/// | [`ActionState::Fired`]      | [`ActionState::Fired`]   | [`Fired`]                 |
+/// | [`ActionState::Ongoing`]    | [`ActionState::Fired`]   | [`Fire`]                 |
+/// | [`ActionState::Fired`]      | [`ActionState::Fired`]   | [`Fire`]                 |
 /// | [`ActionState::Fired`]      | [`ActionState::Ongoing`] | [`Ongoing`]               |
-/// | [`ActionState::Fired`]      | [`ActionState::None`]    | [`Completed`]             |
+/// | [`ActionState::Fired`]      | [`ActionState::None`]    | [`Complete`]             |
 ///
 /// The meaning of each kind depends on the assigned [`InputCondition`]s. The events are
 /// triggered in the action evaluation order.

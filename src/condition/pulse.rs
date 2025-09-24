@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// on the defined time interval.
 ///
 /// Note: [`Completed`] only fires when the repeat limit is reached or when input is released
-/// immediately after being triggered. Otherwise, [`Canceled`] is fired when input is released.
+/// immediately after being triggered. Otherwise, [`Cancel`] is fired when input is released.
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Pulse {
     /// Number of times the condition can be triggered (0 means no limit).

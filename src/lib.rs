@@ -277,7 +277,7 @@ fn apply_movement(move_: On<Fire<Move>>, mut players: Query<&mut Transform>) {
 ```
 
 The event system is highly flexible. For example, you can use the [`Hold`] condition for an attack action, triggering strong attacks on
-[`Completed`] events and regular attacks on [`Canceled`] events.
+[`Complete`]d events and regular attacks on [`Cancel`]ed events.
 
 ### Pull-style
 
