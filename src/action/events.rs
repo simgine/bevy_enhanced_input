@@ -305,6 +305,9 @@ impl<A: InputAction> Copy for Fire<A> {}
 
 /// Triggers when action switches its state from [`ActionState::Ongoing`] to [`ActionState::None`].
 ///
+/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
+/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Cancel}`.
+///
 /// See [`ActionEvents`] for all transitions.
 ///
 /// # Examples
@@ -342,9 +345,6 @@ impl<A: InputAction> Copy for Fire<A> {}
 /// # #[action_output(bool)]
 /// # struct SecondaryAttack;
 /// ```
-///
-/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export this item.
-/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Cancel}`.
 #[derive(EntityEvent)]
 pub struct Cancel<A: InputAction> {
     /// Entity that this event was triggered on.

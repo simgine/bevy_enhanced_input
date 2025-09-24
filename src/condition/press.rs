@@ -7,7 +7,7 @@ use crate::prelude::*;
 ///
 /// Holding the input will not cause further triggers.
 ///
-/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export this item.
+/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
 /// To disambiguate, import `bevy_enhanced_input::prelude::{*, Press}`.
 #[derive(Component, Reflect, Debug, Clone, Copy)]
 pub struct Press {
