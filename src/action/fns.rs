@@ -12,7 +12,7 @@ use crate::prelude::{Cancel, *};
 #[component(immutable)]
 pub(crate) struct ActionFns {
     store_value: fn(&mut EntityMut, ActionValue),
-    on: fn(&mut Commands, Entity, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
+    trigger: fn(&mut Commands, Entity, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
 }
 
 impl ActionFns {
@@ -20,7 +20,7 @@ impl ActionFns {
     pub(super) fn new<A: InputAction>() -> Self {
         Self {
             store_value: store_value::<A>,
-            on: on::<A>,
+            trigger: trigger::<A>,
         }
     }
 
@@ -31,7 +31,7 @@ impl ActionFns {
 
     /// Triggers events based on [`ActionEvents`] for the action marker `A` for which this instance was created.
     #[allow(clippy::too_many_arguments)]
-    pub(crate) fn on(
+    pub(crate) fn trigger(
         &self,
         commands: &mut Commands,
         context: Entity,
@@ -41,7 +41,7 @@ impl ActionFns {
         value: ActionValue,
         time: ActionTime,
     ) {
-        (self.on)(commands, context, action, state, events, value, time);
+        (self.trigger)(commands, context, action, state, events, value, time);
     }
 }
 
@@ -53,7 +53,7 @@ fn store_value<A: InputAction>(action: &mut EntityMut, value: ActionValue) {
     **action = A::Output::unwrap_value(value);
 }
 
-fn on<A: InputAction>(
+fn trigger<A: InputAction>(
     commands: &mut Commands,
     context: Entity,
     action: Entity,
@@ -216,7 +216,7 @@ mod tests {
 
         let events = ActionEvents::new(initial_state, target_state);
         let fns = ActionFns::new::<Test>();
-        fns.on(
+        fns.trigger(
             &mut world.commands(),
             Entity::PLACEHOLDER,
             Entity::PLACEHOLDER,
