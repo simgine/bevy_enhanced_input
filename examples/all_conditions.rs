@@ -38,7 +38,7 @@ fn spawn(mut commands: Commands) {
             ));
             context.spawn((
                 Action::<TestPress>::new(),
-                Press::default(),
+                JustPressed::default(),
                 bindings![TestPress::KEY],
             ));
             context.spawn((
@@ -58,7 +58,7 @@ fn spawn(mut commands: Commands) {
             ));
             context.spawn((
                 Action::<TestRelease>::new(),
-                Release::default(),
+                JustReleased::default(),
                 bindings![TestRelease::KEY],
             ));
             context.spawn((
