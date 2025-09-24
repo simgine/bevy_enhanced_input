@@ -395,6 +395,8 @@ pub mod modifier;
 pub mod preset;
 
 pub mod prelude {
+    #[expect(deprecated, reason = "Exporting to improve migration")]
+    pub use super::EnhancedInputSet;
     pub use super::{
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{
@@ -539,6 +541,9 @@ impl Plugin for EnhancedInputPlugin {
         }
     }
 }
+
+#[deprecated(since = "0.19.0", note = "Use EnhancedInputSystems instead")]
+pub type EnhancedInputSet = EnhancedInputSystems;
 
 /// Label for the system that updates input context instances.
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemSet)]
