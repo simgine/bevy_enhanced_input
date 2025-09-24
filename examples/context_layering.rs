@@ -22,7 +22,7 @@ fn spawn(mut commands: Commands) {
         Player,
         actions!(Player[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
             ),
@@ -38,20 +38,20 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-fn apply_movement(trigger: Trigger<Fired<Move>>) {
-    info!("moving: {}", trigger.value);
+fn apply_movement(movement: On<Fire<Movement>>) {
+    info!("moving: {}", movement.value);
 }
 
-fn jump(_trigger: Trigger<Started<Jump>>) {
+fn jump(_on: On<Start<Jump>>) {
     info!("jumping");
 }
 
-fn enter_car(trigger: Trigger<Started<EnterCar>>, mut commands: Commands) {
+fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
     // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
     // preventing `Rotate` and `EnterWater` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
-    commands.entity(trigger.target()).insert((
+    commands.entity(enter.context).insert((
         Driving,
         ContextPriority::<Driving>::new(1),
         actions!(Driving[
@@ -73,14 +73,14 @@ fn enter_car(trigger: Trigger<Started<EnterCar>>, mut commands: Commands) {
     ));
 }
 
-fn brake(_trigger: Trigger<Fired<Brake>>) {
+fn brake(_on: On<Fire<Brake>>) {
     info!("braking");
 }
 
-fn exit_car(trigger: Trigger<Started<ExitCar>>, mut commands: Commands) {
+fn exit_car(exit: On<Start<ExitCar>>, mut commands: Commands) {
     info!("exiting car");
     commands
-        .entity(trigger.target())
+        .entity(exit.context)
         .remove_with_requires::<Driving>() // Necessary to fully remove the context.
         .despawn_related::<Actions<Driving>>();
 }
@@ -90,7 +90,7 @@ struct Player;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(bool)]

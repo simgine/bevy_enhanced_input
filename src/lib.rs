@@ -22,7 +22,7 @@ app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
 
 ## Core Concepts
 
-- **Actions** represent something a player can do, like "Jump", "Move", or "Open Menu". They are not tied to specific input.
+- **Actions** represent something a player can do, like "Jump", "Movement", or "Open Menu". They are not tied to specific input.
 - **Bindings** connect those actions to real input sources such as keyboard keys, mouse buttons, gamepad axes, etc.
 - **Contexts** represent a certain input state the player can be in, such as "On foot" or "In car". They associate actions with
   entities and define when those actions are evaluated.
@@ -117,12 +117,12 @@ world.spawn((
     Player,
     actions!(Player[
         (
-            Action::<Move>::new(),
+            Action::<Movement>::new(),
             // Modifier components at the action level.
             DeadZone::default(),    // Applies non-uniform normalization.
             SmoothNudge::default(), // Smoothes movement.
             bindings![
-                // Keyboard keys captured as `bool`, but the output of `Move` is defined as `Vec2`,
+                // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
                 // so you need to assign keys to axes using swizzle to reorder them and negation.
                 (KeyCode::KeyW, SwizzleAxis::YXZ),
                 (KeyCode::KeyA, Negate::all()),
@@ -142,7 +142,7 @@ struct Player;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 ```
 
 ### Presets
@@ -162,7 +162,7 @@ world.spawn((
     Player,
     actions!(Player[
         (
-            Action::<Move>::new(),
+            Action::<Movement>::new(),
             DeadZone::default(),
             SmoothNudge::default(),
             Bindings::spawn((
@@ -176,7 +176,7 @@ world.spawn((
 # struct Player;
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
-# struct Move;
+# struct Movement;
 ```
 
 You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
@@ -262,22 +262,22 @@ for more details.
 # let mut app = App::new();
 app.add_observer(apply_movement);
 
-/// Apply movement when `Move` action considered fired.
-fn apply_movement(trigger: Trigger<Fired<Move>>, mut players: Query<&mut Transform>) {
+/// Apply movement when `Movement` action considered fired.
+fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transform>) {
     // Read transform from the context entity.
-    let mut transform = players.get_mut(trigger.target()).unwrap();
+    let mut transform = players.get_mut(movement.context).unwrap();
 
-    // We defined the output of `Move` as `Vec2`,
+    // We defined the output of `Movement` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
-    transform.translation += trigger.value.extend(0.0);
+    transform.translation += movement.value.extend(0.0);
 }
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
-# struct Move;
+# struct Movement;
 ```
 
 The event system is highly flexible. For example, you can use the [`Hold`] condition for an attack action, triggering strong attacks on
-[`Completed`] events and regular attacks on [`Canceled`] events.
+[`Complete`] events and regular attacks on [`Cancel`] events.
 
 ### Pull-style
 
@@ -296,7 +296,7 @@ You can also use Bevy's change detection - these components marked as changed on
 # use bevy_enhanced_input::prelude::*;
 fn apply_input(
     jump_events: Single<&ActionEvents, With<Action<Jump>>>,
-    move_action: Single<&Action<Move>>,
+    movement: Single<&Action<Movement>>,
     mut player_transform: Single<&mut Transform, With<Player>>,
 ) {
     // Jumped this frame
@@ -304,9 +304,9 @@ fn apply_input(
         // User logic...
     }
 
-    // We defined the output of `Move` as `Vec2`,
+    // We defined the output of `Movement` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
-    player_transform.translation = move_action.extend(0.0);
+    player_transform.translation = movement.extend(0.0);
 }
 # #[derive(Component)]
 # struct Player;
@@ -315,7 +315,7 @@ fn apply_input(
 # struct Jump;
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
-# struct Move;
+# struct Movement;
 ```
 
 ## Removing contexts
@@ -396,7 +396,7 @@ pub mod preset;
 
 pub mod prelude {
     pub use super::{
-        EnhancedInputPlugin, EnhancedInputSet,
+        EnhancedInputPlugin, EnhancedInputSystems,
         action::{
             Accumulation, Action, ActionMock, ActionOutput, ActionSettings, ActionState,
             ActionTime, InputAction, MockSpan,
@@ -430,10 +430,19 @@ pub mod prelude {
         },
         preset::{WithBundle, axial::*, bidirectional::*, cardinal::*, ordinal::*, spatial::*},
     };
+    #[expect(
+        deprecated,
+        reason = "Exporting deprecated aliases to improve migration"
+    )]
+    pub use super::{
+        EnhancedInputSet,
+        action::events::{Cancelled, Completed, Fired, Started},
+        condition::{press::Pressed, release::Released},
+    };
     pub use bevy_enhanced_input_macros::InputAction;
 }
 
-use bevy::{input::InputSystem, prelude::*};
+use bevy::{input::InputSystems, prelude::*};
 
 use condition::fns::ConditionRegistry;
 use context::{
@@ -441,7 +450,7 @@ use context::{
     input_reader::{self, ConsumedInputs, PendingBindings},
 };
 use modifier::fns::ModifierRegistry;
-use prelude::*;
+use prelude::{Press, Release, *};
 
 /// Initializes contexts and feeds inputs to them.
 ///
@@ -456,36 +465,6 @@ impl Plugin for EnhancedInputPlugin {
             .init_resource::<ActionSources>()
             .init_resource::<ConditionRegistry>()
             .init_resource::<ModifierRegistry>()
-            .register_type::<ActionValue>()
-            .register_type::<ActionState>()
-            .register_type::<ActionTime>()
-            .register_type::<ActionEvents>()
-            .register_type::<ActionSettings>()
-            .register_type::<ActionMock>()
-            .register_type::<Binding>()
-            .register_type::<Bindings>()
-            .register_type::<BindingOf>()
-            .register_type::<GamepadDevice>()
-            .register_type::<BlockBy>()
-            .register_type::<Chord>()
-            .register_type::<Down>()
-            .register_type::<Hold>()
-            .register_type::<HoldAndRelease>()
-            .register_type::<Press>()
-            .register_type::<Pulse>()
-            .register_type::<Release>()
-            .register_type::<Tap>()
-            .register_type::<Cooldown>()
-            .register_type::<AccumulateBy>()
-            .register_type::<Clamp>()
-            .register_type::<DeadZone>()
-            .register_type::<DeltaScale>()
-            .register_type::<ExponentialCurve>()
-            .register_type::<LinearStep>()
-            .register_type::<Negate>()
-            .register_type::<Scale>()
-            .register_type::<SmoothNudge>()
-            .register_type::<SwizzleAxis>()
             .add_input_condition::<BlockBy>()
             .add_input_condition::<Chord>()
             .add_input_condition::<Down>()
@@ -508,13 +487,13 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_modifier::<SwizzleAxis>()
             .configure_sets(
                 PreUpdate,
-                (EnhancedInputSet::Prepare, EnhancedInputSet::Update)
+                (EnhancedInputSystems::Prepare, EnhancedInputSystems::Update)
                     .chain()
-                    .after(InputSystem),
+                    .after(InputSystems),
             )
             .add_systems(
                 PreUpdate,
-                input_reader::update_pending.in_set(EnhancedInputSet::Prepare),
+                input_reader::update_pending.in_set(EnhancedInputSystems::Prepare),
             );
     }
 
@@ -540,9 +519,14 @@ impl Plugin for EnhancedInputPlugin {
     }
 }
 
+/// Outdated alias for [`EnhancedInputSystems`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `EnhancedInputSystems` instead")]
+pub type EnhancedInputSet = EnhancedInputSystems;
+
 /// Label for the system that updates input context instances.
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemSet)]
-pub enum EnhancedInputSet {
+pub enum EnhancedInputSystems {
     /// Updates list of pending inputs to ignore.
     ///
     /// Runs in [`PreUpdate`].

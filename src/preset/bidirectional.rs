@@ -1,4 +1,4 @@
-use bevy::{ecs::spawn::SpawnableList, prelude::*};
+use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
 
 use crate::prelude::*;
 
@@ -21,9 +21,10 @@ impl<P, N, T: Clone> WithBundle<T> for Bidirectional<P, N> {
 }
 
 impl<P: Bundle, N: Bundle> SpawnableList<BindingOf> for Bidirectional<P, N> {
-    fn spawn(self, world: &mut World, entity: Entity) {
-        world.spawn((BindingOf(entity), self.positive));
-        world.spawn((BindingOf(entity), self.negative, Negate::all()));
+    fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
+        let bidirectional = this.read();
+        world.spawn((BindingOf(entity), bidirectional.positive));
+        world.spawn((BindingOf(entity), bidirectional.negative, Negate::all()));
     }
 
     fn size_hint(&self) -> usize {

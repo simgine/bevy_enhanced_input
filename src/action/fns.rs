@@ -3,7 +3,7 @@ use core::any;
 use bevy::prelude::*;
 use log::debug;
 
-use crate::prelude::*;
+use crate::prelude::{Cancel, *};
 
 /// Functions for type `A` associated with [`Action<A>`] component.
 ///
@@ -70,50 +70,55 @@ fn trigger<A: InputAction>(
 
         match event {
             ActionEvents::STARTED => {
-                let event = Started::<A> {
+                let event = Start::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::ONGOING => {
                 let event = Ongoing::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::FIRED => {
-                let event = Fired::<A> {
+                let event = Fire::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
                     fired_secs: time.fired_secs,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::CANCELED => {
-                let event = Canceled::<A> {
+                let event = Cancel::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             ActionEvents::COMPLETED => {
-                let event = Completed::<A> {
+                let event = Complete::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
                     fired_secs: time.fired_secs,
                     elapsed_secs: time.elapsed_secs,
                 };
-                commands.trigger_targets(event, context);
+                commands.trigger(event);
             }
             _ => unreachable!("iteration should yield only named flags"),
         }
@@ -185,31 +190,25 @@ mod tests {
         let mut world = World::new();
 
         world.init_resource::<TriggeredEvents>();
+        world.add_observer(|_: On<Fire<Test>>, mut events: ResMut<TriggeredEvents>| {
+            events.insert(ActionEvents::FIRED);
+        });
+        world.add_observer(|_: On<Start<Test>>, mut events: ResMut<TriggeredEvents>| {
+            events.insert(ActionEvents::STARTED);
+        });
         world.add_observer(
-            |_trigger: Trigger<Fired<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::FIRED);
-            },
-        );
-        world.add_observer(
-            |_trigger: Trigger<Started<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::STARTED);
-            },
-        );
-        world.add_observer(
-            |_trigger: Trigger<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::ONGOING);
             },
         );
         world.add_observer(
-            |_trigger: Trigger<Completed<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_: On<Complete<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::COMPLETED);
             },
         );
-        world.add_observer(
-            |_trigger: Trigger<Canceled<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::CANCELED);
-            },
-        );
+        world.add_observer(|_: On<Cancel<Test>>, mut events: ResMut<TriggeredEvents>| {
+            events.insert(ActionEvents::CANCELED);
+        });
 
         let events = ActionEvents::new(initial_state, target_state);
         let fns = ActionFns::new::<Test>();

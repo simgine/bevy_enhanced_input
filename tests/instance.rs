@@ -27,7 +27,7 @@ fn removal() {
         .resource_mut::<ButtonInput<KeyCode>>()
         .press(Test::KEY1);
 
-    app.world_mut().add_observer(|_: Trigger<Fired<Test>>| {
+    app.world_mut().add_observer(|_: On<Fire<Test>>| {
         panic!("action shouldn't trigger");
     });
 
@@ -87,7 +87,7 @@ fn disabled() {
         .resource_mut::<ButtonInput<KeyCode>>()
         .press(Test::KEY1);
 
-    app.world_mut().add_observer(|_: Trigger<Fired<Test>>| {
+    app.world_mut().add_observer(|_: On<Fire<Test>>| {
         panic!("action shouldn't trigger");
     });
 

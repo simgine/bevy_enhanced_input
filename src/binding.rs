@@ -4,10 +4,11 @@ pub mod relationship;
 use core::fmt::{self, Display, Formatter};
 
 use bevy::{
-    ecs::{component::HookContext, world::DeferredWorld},
+    ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
 use log::error;
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -21,7 +22,9 @@ use crate::prelude::*;
 ///
 /// If the action's dimension differs from the captured input, it will be converted using
 /// [`ActionValue::convert`](crate::action::value::ActionValue::convert).
-#[derive(Component, Reflect, Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[derive(Component, Reflect, Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 #[component(on_insert = reset_first_activation, immutable)]
 #[require(FirstActivation)]
 pub enum Binding {

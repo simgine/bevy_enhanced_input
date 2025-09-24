@@ -2,6 +2,7 @@ use core::fmt::{self, Debug, Formatter};
 
 use bevy::prelude::*;
 use bitflags::bitflags;
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -17,20 +18,20 @@ use crate::prelude::*;
 /// | Last state                  | New state                | Events                    |
 /// | --------------------------- | ------------------------ | ------------------------- |
 /// | [`ActionState::None`]       | [`ActionState::None`]    | No events                 |
-/// | [`ActionState::None`]       | [`ActionState::Ongoing`] | [`Started`] + [`Ongoing`] |
-/// | [`ActionState::None`]       | [`ActionState::Fired`]   | [`Started`] + [`Fired`]   |
-/// | [`ActionState::Ongoing`]    | [`ActionState::None`]    | [`Canceled`]              |
+/// | [`ActionState::None`]       | [`ActionState::Ongoing`] | [`Start`] + [`Ongoing`] |
+/// | [`ActionState::None`]       | [`ActionState::Fired`]   | [`Start`] + [`Fire`]   |
+/// | [`ActionState::Ongoing`]    | [`ActionState::None`]    | [`Cancel`]              |
 /// | [`ActionState::Ongoing`]    | [`ActionState::Ongoing`] | [`Ongoing`]               |
-/// | [`ActionState::Ongoing`]    | [`ActionState::Fired`]   | [`Fired`]                 |
-/// | [`ActionState::Fired`]      | [`ActionState::Fired`]   | [`Fired`]                 |
+/// | [`ActionState::Ongoing`]    | [`ActionState::Fired`]   | [`Fire`]                 |
+/// | [`ActionState::Fired`]      | [`ActionState::Fired`]   | [`Fire`]                 |
 /// | [`ActionState::Fired`]      | [`ActionState::Ongoing`] | [`Ongoing`]               |
-/// | [`ActionState::Fired`]      | [`ActionState::None`]    | [`Completed`]             |
+/// | [`ActionState::Fired`]      | [`ActionState::None`]    | [`Complete`]             |
 ///
 /// The meaning of each kind depends on the assigned [`InputCondition`]s. The events are
 /// triggered in the action evaluation order.
-#[derive(
-    Component, Reflect, Default, Debug, PartialEq, Eq, Serialize, Deserialize, Clone, Copy,
-)]
+#[derive(Component, Reflect, Default, Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionEvents(u8);
 
 bitflags! {
@@ -92,7 +93,7 @@ impl ActionEvents {
 /// /// Triggered only once on the first press, similar to `just_pressed` in `bevy_input`.
 /// ///
 /// /// It will not trigger again until the key is released and pressed again.
-/// fn throw(trigger: Trigger<Fired<Throw>>, players: Query<(&Transform, &mut Health)>) {
+/// fn throw(throw: On<Fire<Throw>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -103,8 +104,12 @@ impl ActionEvents {
 /// # #[action_output(bool)]
 /// # struct Throw;
 /// ```
-#[derive(Event)]
-pub struct Started<A: InputAction> {
+#[derive(EntityEvent)]
+pub struct Start<A: InputAction> {
+    /// Entity with the context component on which this event was triggered.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -115,7 +120,12 @@ pub struct Started<A: InputAction> {
     pub state: ActionState,
 }
 
-impl<A: InputAction> Debug for Started<A> {
+/// Outdated alias for [`Start`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Start` instead.")]
+pub type Started<A> = Start<A>;
+
+impl<A: InputAction> Debug for Start<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Started")
             .field("value", &self.value)
@@ -124,13 +134,13 @@ impl<A: InputAction> Debug for Started<A> {
     }
 }
 
-impl<A: InputAction> Clone for Started<A> {
+impl<A: InputAction> Clone for Start<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Started<A> {}
+impl<A: InputAction> Copy for Start<A> {}
 
 /// Triggers every frame when an action state is [`ActionState::Ongoing`].
 ///
@@ -165,7 +175,7 @@ impl<A: InputAction> Copy for Started<A> {}
 ///
 /// /// Triggered continuously while the user is holding down the button,
 /// /// until the specified duration is reached.
-/// fn heal(trigger: Trigger<Ongoing<Heal>>, players: Query<&mut Health>) {
+/// fn heal(heal: On<Ongoing<Heal>>, players: Query<&mut Health>) {
 ///     // ..
 /// }
 /// # #[derive(Component)]
@@ -176,8 +186,12 @@ impl<A: InputAction> Copy for Started<A> {}
 /// # #[action_output(bool)]
 /// # struct Heal;
 /// ```
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct Ongoing<A: InputAction> {
+    /// Entity with the context component on which this event was triggered.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -232,7 +246,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// ));
 ///
 /// /// Triggered every frame while the key is held down.
-/// fn primary_fire(trigger: Trigger<Fired<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
+/// fn primary_fire(fire: On<Fire<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -243,8 +257,12 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// # #[action_output(bool)]
 /// # struct PrimaryFire;
 /// ```
-#[derive(Event)]
-pub struct Fired<A: InputAction> {
+#[derive(EntityEvent)]
+pub struct Fire<A: InputAction> {
+    /// Entity with the context component on which this event was triggered.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -261,7 +279,12 @@ pub struct Fired<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-impl<A: InputAction> Debug for Fired<A> {
+/// Outdated alias for [`Fire`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Fire` instead.")]
+pub type Fired<A> = Fire<A>;
+
+impl<A: InputAction> Debug for Fire<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Fired")
             .field("value", &self.value)
@@ -272,15 +295,18 @@ impl<A: InputAction> Debug for Fired<A> {
     }
 }
 
-impl<A: InputAction> Clone for Fired<A> {
+impl<A: InputAction> Clone for Fire<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Fired<A> {}
+impl<A: InputAction> Copy for Fire<A> {}
 
 /// Triggers when action switches its state from [`ActionState::Ongoing`] to [`ActionState::None`].
+///
+/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
+/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Cancel}`.
 ///
 /// See [`ActionEvents`] for all transitions.
 ///
@@ -292,7 +318,7 @@ impl<A: InputAction> Copy for Fired<A> {}
 ///
 /// ```
 /// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::*;
+/// # use bevy_enhanced_input::prelude::{*, Cancel};
 /// # let mut app = App::new();
 /// app.add_observer(weak_attack);
 ///
@@ -308,7 +334,7 @@ impl<A: InputAction> Copy for Fired<A> {}
 /// ));
 ///
 /// /// Triggered if the user releases the key before 1.5 seconds.
-/// fn weak_attack(trigger: Trigger<Canceled<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
+/// fn weak_attack(attack: On<Cancel<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -319,8 +345,12 @@ impl<A: InputAction> Copy for Fired<A> {}
 /// # #[action_output(bool)]
 /// # struct SecondaryAttack;
 /// ```
-#[derive(Event)]
-pub struct Canceled<A: InputAction> {
+#[derive(EntityEvent)]
+pub struct Cancel<A: InputAction> {
+    /// Entity with the context component on which this event was triggered.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -334,7 +364,12 @@ pub struct Canceled<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-impl<A: InputAction> Debug for Canceled<A> {
+/// Outdated alias for [`Cancel`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Cancel` instead.")]
+pub type Cancelled<A> = Cancel<A>;
+
+impl<A: InputAction> Debug for Cancel<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Canceled")
             .field("value", &self.value)
@@ -344,13 +379,13 @@ impl<A: InputAction> Debug for Canceled<A> {
     }
 }
 
-impl<A: InputAction> Clone for Canceled<A> {
+impl<A: InputAction> Clone for Cancel<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Canceled<A> {}
+impl<A: InputAction> Copy for Cancel<A> {}
 
 /// Triggers when action switches its state from [`ActionState::Fired`] to [`ActionState::None`].
 ///
@@ -372,7 +407,7 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// ));
 ///
 /// /// Triggered only once when the user releases the key, similar to `just_released` in `bevy_input`.
-/// fn jump(trigger: Trigger<Completed<Jump>>, players: Query<&mut Transform>) {
+/// fn jump(jump: On<Complete<Jump>>, players: Query<&mut Transform>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -402,7 +437,7 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// ));
 ///
 /// /// Triggered if the user releases the key before 1.5 seconds.
-/// fn strong_attack(trigger: Trigger<Completed<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
+/// fn strong_attack(attack: On<Complete<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -413,8 +448,12 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// # #[action_output(bool)]
 /// # struct SecondaryAttack;
 /// ```
-#[derive(Event)]
-pub struct Completed<A: InputAction> {
+#[derive(EntityEvent)]
+pub struct Complete<A: InputAction> {
+    /// Entity with the context component on which this event was triggered.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -431,7 +470,12 @@ pub struct Completed<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-impl<A: InputAction> Debug for Completed<A> {
+/// Outdated alias for [`Complete`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Complete` instead.")]
+pub type Completed<A> = Complete<A>;
+
+impl<A: InputAction> Debug for Complete<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Completed")
             .field("value", &self.value)
@@ -442,10 +486,10 @@ impl<A: InputAction> Debug for Completed<A> {
     }
 }
 
-impl<A: InputAction> Clone for Completed<A> {
+impl<A: InputAction> Clone for Complete<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Completed<A> {}
+impl<A: InputAction> Copy for Complete<A> {}

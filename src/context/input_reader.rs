@@ -871,8 +871,8 @@ mod tests {
         let mut world = World::new();
         world.init_resource::<ButtonInput<KeyCode>>();
         world.init_resource::<ButtonInput<MouseButton>>();
-        world.init_resource::<Events<MouseMotion>>();
-        world.init_resource::<Events<MouseWheel>>();
+        world.init_resource::<Messages<MouseMotion>>();
+        world.init_resource::<Messages<MouseWheel>>();
         world.init_resource::<ButtonInput<GamepadButton>>();
         world.init_resource::<Axis<GamepadAxis>>();
         world.init_resource::<AccumulatedMouseMotion>();

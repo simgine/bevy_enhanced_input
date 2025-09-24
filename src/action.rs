@@ -6,6 +6,7 @@ pub mod value;
 use core::{any, fmt::Debug, time::Duration};
 
 use bevy::prelude::*;
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -70,14 +71,14 @@ impl<A: InputAction> Action<A> {
 /// # use bevy_enhanced_input::prelude::*;
 /// #[derive(InputAction)]
 /// #[action_output(Vec2)]
-/// struct Move;
+/// struct Movement;
 /// ```
 pub trait InputAction: 'static {
     /// What type of value this action will output.
     ///
     /// - Use [`bool`] for button-like actions (e.g., `Jump`).
     /// - Use [`f32`] for single-axis actions (e.g., `Zoom`).
-    /// - For multi-axis actions, like `Move`, use [`Vec2`] or [`Vec3`].
+    /// - For multi-axis actions, like `Movement`, use [`Vec2`] or [`Vec3`].
     type Output: ActionOutput;
 }
 
@@ -145,7 +146,9 @@ impl ActionOutput for Vec3 {
 }
 
 /// Behavior configuration for [`Action<C>`].
-#[derive(Component, Reflect, Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionSettings {
     /// Accumulation behavior.
     ///
@@ -194,7 +197,9 @@ impl Default for ActionSettings {
 /// same most significant [`ActionState`] (excluding [`ActionState::None`]).
 ///
 /// Stored inside [`ActionSettings`].
-#[derive(Reflect, Debug, Default, Serialize, Deserialize, Clone, Copy)]
+#[derive(Reflect, Debug, Default, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub enum Accumulation {
     /// Cumulatively add the key values for each mapping.
     ///
@@ -215,20 +220,9 @@ pub enum Accumulation {
 /// or overridden by [`ActionMock`] if present.
 ///
 /// During evaluation, [`ActionEvents`] are derived from the previous and current state.
-#[derive(
-    Component,
-    Reflect,
-    Debug,
-    Default,
-    Serialize,
-    Deserialize,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Clone,
-    Copy,
-)]
+#[derive(Component, Reflect, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub enum ActionState {
     /// Condition is not triggered.
     #[default]
@@ -249,7 +243,9 @@ pub enum ActionState {
 }
 
 /// Timing information for [`Action<C>`].
-#[derive(Component, Reflect, Debug, Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Component, Reflect, Debug, Default, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionTime {
     /// Time the action was in [`ActionState::Ongoing`] and [`ActionState::Fired`] states.
     pub elapsed_secs: f32,
@@ -306,7 +302,7 @@ impl ActionTime {
 ///     Player,
 ///     actions!(Player[
 ///         (
-///             Action::<Move>::new(),
+///             Action::<Movement>::new(),
 ///             ActionMock::new(ActionState::Fired, Vec2::Y, Duration::from_secs(2)),
 ///             Bindings::spawn(Cardinal::wasd_keys()), // Bindings will be ignored while mocked.
 ///         ),
@@ -316,7 +312,7 @@ impl ActionTime {
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(Vec2)]
-/// # struct Move;
+/// # struct Movement;
 /// ```
 ///
 /// Mock previously spawned jump action for the next frame:
@@ -330,7 +326,9 @@ impl ActionTime {
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
 /// # struct Jump;
-#[derive(Component, Reflect, Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionMock {
     pub state: ActionState,
     pub value: ActionValue,
@@ -362,7 +360,9 @@ impl ActionMock {
 }
 
 /// Specifies how long [`ActionMock`] should remain active.
-#[derive(Reflect, Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Reflect, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub enum MockSpan {
     /// Active for a fixed number of context evaluations.
     Updates(u32),

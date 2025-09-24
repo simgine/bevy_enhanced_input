@@ -64,7 +64,7 @@ impl InputCondition for Cooldown {
         self.actuated = value.is_actuated(self.actuation);
 
         if !self.actuated {
-            let finished_before = self.timer.finished();
+            let finished_before = self.timer.is_finished();
             self.timer.tick(time.delta_kind(self.time_kind));
 
             // Start cooldown when the action stops actuating, but
@@ -76,7 +76,7 @@ impl InputCondition for Cooldown {
             }
         }
 
-        if self.actuated && self.timer.finished() {
+        if self.actuated && self.timer.is_finished() {
             ActionState::Fired
         } else {
             ActionState::None
