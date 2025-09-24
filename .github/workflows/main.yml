@@ -84,7 +84,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check compilation
-        run: cargo check --target thumbv6m-none-eabi --features bevy/critical-section
+        run: cargo check --target thumbv6m-none-eabi --features bevy/critical-section --lib
 
   doctest:
     name: Doctest
