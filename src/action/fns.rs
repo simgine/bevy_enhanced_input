@@ -3,7 +3,7 @@ use core::any;
 use bevy::prelude::*;
 use log::debug;
 
-use crate::prelude::*;
+use crate::prelude::{Cancel, *};
 
 /// Functions for type `A` associated with [`Action<A>`] component.
 ///
@@ -100,7 +100,7 @@ fn on<A: InputAction>(
                 commands.trigger(event);
             }
             ActionEvents::CANCELED => {
-                let event = JustCancelled::<A> {
+                let event = Cancel::<A> {
                     context,
                     action,
                     value: A::Output::unwrap_value(value),
@@ -209,7 +209,7 @@ mod tests {
             },
         );
         world.add_observer(
-            |_on: On<JustCancelled<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Cancel<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::CANCELED);
             },
         );

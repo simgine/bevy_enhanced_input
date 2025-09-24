@@ -342,7 +342,7 @@ impl<A: InputAction> Copy for Fire<A> {}
 /// # struct SecondaryAttack;
 /// ```
 #[derive(EntityEvent)]
-pub struct JustCancelled<A: InputAction> {
+pub struct Cancel<A: InputAction> {
     /// Entity that this event was triggered on.
     #[event_target]
     pub context: Entity,
@@ -360,12 +360,12 @@ pub struct JustCancelled<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-/// Outdated alias for [`JustCancelled`].
+/// Outdated alias for [`Cancel`].
 #[doc(hidden)]
-#[deprecated(since = "0.19.0", note = "Use `JustCancelled` instead.")]
-pub type Cancelled<A> = JustCancelled<A>;
+#[deprecated(since = "0.19.0", note = "Use `Cancel` instead.")]
+pub type Cancelled<A> = Cancel<A>;
 
-impl<A: InputAction> Debug for JustCancelled<A> {
+impl<A: InputAction> Debug for Cancel<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Canceled")
             .field("value", &self.value)
@@ -375,13 +375,13 @@ impl<A: InputAction> Debug for JustCancelled<A> {
     }
 }
 
-impl<A: InputAction> Clone for JustCancelled<A> {
+impl<A: InputAction> Clone for Cancel<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for JustCancelled<A> {}
+impl<A: InputAction> Copy for Cancel<A> {}
 
 /// Triggers when action switches its state from [`ActionState::Fired`] to [`ActionState::None`].
 ///
