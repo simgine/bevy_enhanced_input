@@ -9,12 +9,15 @@ use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},
     prelude::*,
 };
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 /// Context entity associated with this action entity.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Serialize, Deserialize)]
+#[derive(Component, Deref, Reflect)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 #[relationship(relationship_target = Actions<C>)]
 pub struct ActionOf<C: Component> {
     #[deref]
@@ -145,7 +148,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # let mut world = World::new();
 /// world.spawn(actions!(Player[
 ///     (
-///         Action::<Move>::new(),
+///         Action::<Movement>::new(),
 ///         Bindings::spawn(Cardinal::wasd_keys()),
 ///     ),
 ///     (
@@ -158,7 +161,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(Vec2)]
-/// # struct Move;
+/// # struct Movement;
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
 /// # struct Jump;
