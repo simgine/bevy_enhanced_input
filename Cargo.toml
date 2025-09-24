@@ -28,6 +28,10 @@ bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 [features]
 serialize = ["bevy/serialize", "dep:serde"]
 
+[[example]]
+name = "keybinding_menu"
+required-features = ["serialize"]
+
 [dev-dependencies]
 bevy = { version = "0.17.0-rc.2", default-features = false, features = [
   "bevy_gilrs",
@@ -42,10 +46,7 @@ bevy = { version = "0.17.0-rc.2", default-features = false, features = [
   "zstd_rust",
 ] }
 test-log = "0.2"
-ron = "0.8"
-bevy_enhanced_input = { version = "0.19.0-rc.1", path = ".", features = [
-  "serialize",
-] }
+ron = "0.10"
 
 [lints.clippy]
 type_complexity = "allow"
