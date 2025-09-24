@@ -341,6 +341,9 @@ impl<A: InputAction> Copy for Fire<A> {}
 /// # #[action_output(bool)]
 /// # struct SecondaryAttack;
 /// ```
+///
+/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export this item.
+/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Cancel}`.
 #[derive(EntityEvent)]
 pub struct Cancel<A: InputAction> {
     /// Entity that this event was triggered on.
