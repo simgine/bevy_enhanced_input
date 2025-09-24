@@ -244,8 +244,7 @@ impl ScheduleContexts {
 fn register<C: Component, S: ScheduleLabel>(
     add: On<Insert, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
-    // TODO Bevy 0.17: Use `Allows` filter instead of `Has`.
-    contexts: Query<(&ContextPriority<C>, Has<Disabled>)>,
+    contexts: Query<&ContextPriority<C>, Allow<Disabled>>,
 ) {
     debug!(
         "registering `{}` to `{}`",
@@ -253,8 +252,8 @@ fn register<C: Component, S: ScheduleLabel>(
         add.entity,
     );
 
-    let (&priority, _) = contexts.get(add.entity).unwrap();
-    instances.add::<C>(add.entity, *priority);
+    let priority = **contexts.get(add.entity).unwrap();
+    instances.add::<C>(add.entity, priority);
 }
 
 fn unregister<C: Component, S: ScheduleLabel>(
