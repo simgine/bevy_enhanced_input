@@ -542,6 +542,9 @@ impl Plugin for EnhancedInputPlugin {
     }
 }
 
+/// Old label for the system that updates input context instances.
+/// Use [`EnhancedInputSystems`] instead.
+#[doc(hidden)]
 #[deprecated(since = "0.19.0", note = "Use EnhancedInputSystems instead")]
 pub type EnhancedInputSet = EnhancedInputSystems;
 
