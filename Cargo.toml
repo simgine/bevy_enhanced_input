@@ -36,6 +36,7 @@ bevy = { version = "0.17.0-rc.1", default-features = false, features = [
   "default_font",
   "tonemapping_luts",
   "x11",
+  "zstd_rust",
 ] }
 test-log = "0.2"
 ron = "0.8"
