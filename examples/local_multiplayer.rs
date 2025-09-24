@@ -76,10 +76,10 @@ fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transfor
 }
 
 fn update_gamepads(
-    mut connections: MessageReader<GamepadConnectionEvent>,
+    mut gamepad_connections: MessageReader<GamepadConnectionEvent>,
     mut players: Query<&mut GamepadDevice>,
 ) {
-    for connection in connections.read() {
+    for connection in gamepad_connections.read() {
         match connection.connection {
             GamepadConnection::Connected { .. } => {
                 // Assign to a player without a gamepad.
