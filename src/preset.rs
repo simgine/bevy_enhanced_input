@@ -41,7 +41,6 @@ Loading from settings.
 ```
 # use bevy::prelude::*;
 # use bevy_enhanced_input::prelude::*;
-# use serde::{Serialize, Deserialize};
 // Could be loaded from a file.
 // `Binding::None` represents unbound inputs.
 let settings = InputSettings {
@@ -72,7 +71,7 @@ Bindings::spawn((
 /// have 2 or 3 bindings for a single action.
 ///
 /// Usually stored as a resource.
-#[derive(Resource, Serialize, Deserialize)]
+#[derive(Resource)]
 struct InputSettings {
     forward: [Binding; 2],
     right: [Binding; 2],
