@@ -46,7 +46,7 @@ impl Pulse {
     }
 
     #[must_use]
-    pub fn with_on_limit(mut self, trigger_limit: u32) -> Self {
+    pub fn with_trigger_limit(mut self, trigger_limit: u32) -> Self {
         self.trigger_limit = trigger_limit;
         self
     }
@@ -199,7 +199,7 @@ mod tests {
     }
 
     #[test]
-    fn not_on_on_start() {
+    fn not_trigger_on_start() {
         let (world, mut state) = context::init_world();
         let (time, actions) = state.get(&world);
 
@@ -215,7 +215,7 @@ mod tests {
         let (world, mut state) = context::init_world();
         let (time, actions) = state.get(&world);
 
-        let mut condition = Pulse::new(1.0).with_on_limit(1);
+        let mut condition = Pulse::new(1.0).with_trigger_limit(1);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             ActionState::Fired,
