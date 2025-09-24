@@ -70,7 +70,7 @@ fn on<A: InputAction>(
 
         match event {
             ActionEvents::STARTED => {
-                let event = Started::<A> {
+                let event = Start::<A> {
                     context,
                     action,
                     value: A::Output::unwrap_value(value),
@@ -89,7 +89,7 @@ fn on<A: InputAction>(
                 commands.trigger(event);
             }
             ActionEvents::FIRED => {
-                let event = Fired::<A> {
+                let event = Fire::<A> {
                     context,
                     action,
                     value: A::Output::unwrap_value(value),
@@ -100,7 +100,7 @@ fn on<A: InputAction>(
                 commands.trigger(event);
             }
             ActionEvents::CANCELED => {
-                let event = Canceled::<A> {
+                let event = JustCancelled::<A> {
                     context,
                     action,
                     value: A::Output::unwrap_value(value),
@@ -110,7 +110,7 @@ fn on<A: InputAction>(
                 commands.trigger(event);
             }
             ActionEvents::COMPLETED => {
-                let event = Completed::<A> {
+                let event = Complete::<A> {
                     context,
                     action,
                     value: A::Output::unwrap_value(value),
@@ -190,13 +190,11 @@ mod tests {
         let mut world = World::new();
 
         world.init_resource::<TriggeredEvents>();
+        world.add_observer(|_on: On<Fire<Test>>, mut events: ResMut<TriggeredEvents>| {
+            events.insert(ActionEvents::FIRED);
+        });
         world.add_observer(
-            |_on: On<Fired<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::FIRED);
-            },
-        );
-        world.add_observer(
-            |_on: On<Started<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Start<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::STARTED);
             },
         );
@@ -206,12 +204,12 @@ mod tests {
             },
         );
         world.add_observer(
-            |_on: On<Completed<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Complete<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::COMPLETED);
             },
         );
         world.add_observer(
-            |_on: On<Canceled<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<JustCancelled<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::CANCELED);
             },
         );

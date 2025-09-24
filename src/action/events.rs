@@ -104,7 +104,7 @@ impl ActionEvents {
 /// # struct Throw;
 /// ```
 #[derive(EntityEvent)]
-pub struct Started<A: InputAction> {
+pub struct Start<A: InputAction> {
     /// Entity that this event was triggered on.
     #[event_target]
     pub context: Entity,
@@ -119,7 +119,7 @@ pub struct Started<A: InputAction> {
     pub state: ActionState,
 }
 
-impl<A: InputAction> Debug for Started<A> {
+impl<A: InputAction> Debug for Start<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Started")
             .field("value", &self.value)
@@ -128,13 +128,13 @@ impl<A: InputAction> Debug for Started<A> {
     }
 }
 
-impl<A: InputAction> Clone for Started<A> {
+impl<A: InputAction> Clone for Start<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Started<A> {}
+impl<A: InputAction> Copy for Start<A> {}
 
 /// Triggers every frame when an action state is [`ActionState::Ongoing`].
 ///
@@ -252,7 +252,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// # struct PrimaryFire;
 /// ```
 #[derive(EntityEvent)]
-pub struct Fired<A: InputAction> {
+pub struct Fire<A: InputAction> {
     /// Entity that this event was triggered on.
     #[event_target]
     pub context: Entity,
@@ -273,7 +273,7 @@ pub struct Fired<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-impl<A: InputAction> Debug for Fired<A> {
+impl<A: InputAction> Debug for Fire<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Fired")
             .field("value", &self.value)
@@ -284,13 +284,13 @@ impl<A: InputAction> Debug for Fired<A> {
     }
 }
 
-impl<A: InputAction> Clone for Fired<A> {
+impl<A: InputAction> Clone for Fire<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Fired<A> {}
+impl<A: InputAction> Copy for Fire<A> {}
 
 /// Triggers when action switches its state from [`ActionState::Ongoing`] to [`ActionState::None`].
 ///
@@ -332,7 +332,7 @@ impl<A: InputAction> Copy for Fired<A> {}
 /// # struct SecondaryAttack;
 /// ```
 #[derive(EntityEvent)]
-pub struct Canceled<A: InputAction> {
+pub struct JustCancelled<A: InputAction> {
     /// Entity that this event was triggered on.
     #[event_target]
     pub context: Entity,
@@ -350,7 +350,7 @@ pub struct Canceled<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-impl<A: InputAction> Debug for Canceled<A> {
+impl<A: InputAction> Debug for JustCancelled<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Canceled")
             .field("value", &self.value)
@@ -360,13 +360,13 @@ impl<A: InputAction> Debug for Canceled<A> {
     }
 }
 
-impl<A: InputAction> Clone for Canceled<A> {
+impl<A: InputAction> Clone for JustCancelled<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Canceled<A> {}
+impl<A: InputAction> Copy for JustCancelled<A> {}
 
 /// Triggers when action switches its state from [`ActionState::Fired`] to [`ActionState::None`].
 ///
@@ -430,7 +430,7 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// # struct SecondaryAttack;
 /// ```
 #[derive(EntityEvent)]
-pub struct Completed<A: InputAction> {
+pub struct Complete<A: InputAction> {
     /// Entity that this event was triggered on.
     #[event_target]
     pub context: Entity,
@@ -451,7 +451,7 @@ pub struct Completed<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
-impl<A: InputAction> Debug for Completed<A> {
+impl<A: InputAction> Debug for Complete<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Completed")
             .field("value", &self.value)
@@ -462,10 +462,10 @@ impl<A: InputAction> Debug for Completed<A> {
     }
 }
 
-impl<A: InputAction> Clone for Completed<A> {
+impl<A: InputAction> Clone for Complete<A> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<A: InputAction> Copy for Completed<A> {}
+impl<A: InputAction> Copy for Complete<A> {}

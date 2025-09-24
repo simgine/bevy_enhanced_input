@@ -21,15 +21,15 @@ fn spawn(mut commands: Commands) {
     commands.spawn(player_bundle());
 }
 
-fn apply_movement(move_: On<Fired<Move>>) {
+fn apply_movement(move_: On<Fire<Move>>) {
     info!("moving: {}", move_.value);
 }
 
-fn attack(_on: On<Fired<Attack>>) {
+fn attack(_on: On<Fire<Attack>>) {
     info!("attacking");
 }
 
-fn open_inventory(open: On<Started<OpenInventory>>, mut commands: Commands) {
+fn open_inventory(open: On<Start<OpenInventory>>, mut commands: Commands) {
     info!("opening inventory");
     commands.entity(open.context).insert((
         ContextActivity::<Player>::INACTIVE,
@@ -37,11 +37,11 @@ fn open_inventory(open: On<Started<OpenInventory>>, mut commands: Commands) {
     ));
 }
 
-fn navigate_inventory(_on: On<Fired<NavigateInventory>>) {
+fn navigate_inventory(_on: On<Fire<NavigateInventory>>) {
     info!("navigating inventory");
 }
 
-fn close_inventory(close: On<Started<CloseInventory>>, mut commands: Commands) {
+fn close_inventory(close: On<Start<CloseInventory>>, mut commands: Commands) {
     info!("closing inventory");
     commands.entity(close.context).insert((
         ContextActivity::<Player>::ACTIVE,

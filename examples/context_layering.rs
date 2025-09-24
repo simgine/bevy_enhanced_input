@@ -38,15 +38,15 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-fn apply_movement(move_: On<Fired<Move>>) {
+fn apply_movement(move_: On<Fire<Move>>) {
     info!("moving: {}", move_.value);
 }
 
-fn jump(_on: On<Started<Jump>>) {
+fn jump(_on: On<Start<Jump>>) {
     info!("jumping");
 }
 
-fn enter_car(enter: On<Started<EnterCar>>, mut commands: Commands) {
+fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
     // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
     // preventing `Rotate` and `EnterWater` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
@@ -73,11 +73,11 @@ fn enter_car(enter: On<Started<EnterCar>>, mut commands: Commands) {
     ));
 }
 
-fn brake(_on: On<Fired<Brake>>) {
+fn brake(_on: On<Fire<Brake>>) {
     info!("braking");
 }
 
-fn exit_car(exit: On<Started<ExitCar>>, mut commands: Commands) {
+fn exit_car(exit: On<Start<ExitCar>>, mut commands: Commands) {
     info!("exiting car");
     commands
         .entity(exit.context)
