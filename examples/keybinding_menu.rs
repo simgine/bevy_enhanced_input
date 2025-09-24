@@ -579,7 +579,7 @@ fn player_bundle(settings: InputSettings) -> impl Bundle {
         actions!(
             Player[
                 (
-                    Action::<Move>::new(),
+                    Action::<Movement>::new(),
                     Bindings::spawn((
                         Cardinal {
                             north: settings.forward[0],
@@ -620,7 +620,7 @@ fn player_bundle(settings: InputSettings) -> impl Bundle {
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(bool)]

@@ -118,14 +118,14 @@ pub trait WithBundle<T> {
     /// # use bevy_enhanced_input::prelude::*;
     /// # let mut world = World::new();
     /// world.spawn((
-    ///     Action::<Move>::new(),
+    ///     Action::<Movement>::new(),
     ///     Negate::x(),
     ///     Bindings::spawn(Bidirectional::left_right_dpad()),
     /// ));
     ///
     /// #[derive(InputAction)]
     /// #[action_output(f32)]
-    /// struct Move;
+    /// struct Movement;
     /// ```
     fn with(self, bundle: T) -> Self::Output;
 }

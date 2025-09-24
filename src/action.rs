@@ -71,14 +71,14 @@ impl<A: InputAction> Action<A> {
 /// # use bevy_enhanced_input::prelude::*;
 /// #[derive(InputAction)]
 /// #[action_output(Vec2)]
-/// struct Move;
+/// struct Movement;
 /// ```
 pub trait InputAction: 'static {
     /// What type of value this action will output.
     ///
     /// - Use [`bool`] for button-like actions (e.g., `Jump`).
     /// - Use [`f32`] for single-axis actions (e.g., `Zoom`).
-    /// - For multi-axis actions, like `Move`, use [`Vec2`] or [`Vec3`].
+    /// - For multi-axis actions, like `Movement`, use [`Vec2`] or [`Vec3`].
     type Output: ActionOutput;
 }
 
@@ -302,7 +302,7 @@ impl ActionTime {
 ///     Player,
 ///     actions!(Player[
 ///         (
-///             Action::<Move>::new(),
+///             Action::<Movement>::new(),
 ///             ActionMock::new(ActionState::Fired, Vec2::Y, Duration::from_secs(2)),
 ///             Bindings::spawn(Cardinal::wasd_keys()), // Bindings will be ignored while mocked.
 ///         ),
@@ -312,7 +312,7 @@ impl ActionTime {
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(Vec2)]
-/// # struct Move;
+/// # struct Movement;
 /// ```
 ///
 /// Mock previously spawned jump action for the next frame:

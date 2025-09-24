@@ -40,7 +40,7 @@ fn setup(
         PlayerPhysics::default(),
         actions!(Player[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 SmoothNudge::default(),
                 Scale::splat(450.0),
@@ -58,9 +58,9 @@ fn setup(
     ));
 }
 
-fn apply_movement(move_: On<Fire<Move>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(move_.context).unwrap();
-    physics.velocity.x = move_.value;
+fn apply_movement(movement: On<Fire<Movement>>, mut query: Query<&mut PlayerPhysics>) {
+    let mut physics = query.get_mut(movement.context).unwrap();
+    physics.velocity.x = movement.value;
 }
 
 fn apply_jump(jump: On<Fire<Jump>>, mut query: Query<&mut PlayerPhysics>) {
@@ -103,7 +103,7 @@ struct PlayerPhysics {
 
 #[derive(Debug, InputAction)]
 #[action_output(f32)]
-struct Move;
+struct Movement;
 
 #[derive(Debug, InputAction)]
 #[action_output(bool)]

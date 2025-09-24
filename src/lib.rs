@@ -22,7 +22,7 @@ app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
 
 ## Core Concepts
 
-- **Actions** represent something a player can do, like "Jump", "Move", or "Open Menu". They are not tied to specific input.
+- **Actions** represent something a player can do, like "Jump", "Movement", or "Open Menu". They are not tied to specific input.
 - **Bindings** connect those actions to real input sources such as keyboard keys, mouse buttons, gamepad axes, etc.
 - **Contexts** represent a certain input state the player can be in, such as "On foot" or "In car". They associate actions with
   entities and define when those actions are evaluated.
@@ -117,12 +117,12 @@ world.spawn((
     Player,
     actions!(Player[
         (
-            Action::<Move>::new(),
+            Action::<Movement>::new(),
             // Modifier components at the action level.
             DeadZone::default(),    // Applies non-uniform normalization.
             SmoothNudge::default(), // Smoothes movement.
             bindings![
-                // Keyboard keys captured as `bool`, but the output of `Move` is defined as `Vec2`,
+                // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
                 // so you need to assign keys to axes using swizzle to reorder them and negation.
                 (KeyCode::KeyW, SwizzleAxis::YXZ),
                 (KeyCode::KeyA, Negate::all()),
@@ -142,7 +142,7 @@ struct Player;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 ```
 
 ### Presets
@@ -162,7 +162,7 @@ world.spawn((
     Player,
     actions!(Player[
         (
-            Action::<Move>::new(),
+            Action::<Movement>::new(),
             DeadZone::default(),
             SmoothNudge::default(),
             Bindings::spawn((
@@ -176,7 +176,7 @@ world.spawn((
 # struct Player;
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
-# struct Move;
+# struct Movement;
 ```
 
 You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
@@ -262,18 +262,18 @@ for more details.
 # let mut app = App::new();
 app.add_observer(apply_movement);
 
-/// Apply movement when `Move` action considered fired.
-fn apply_movement(move_: On<Fire<Move>>, mut players: Query<&mut Transform>) {
+/// Apply movement when `Movement` action considered fired.
+fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transform>) {
     // Read transform from the context entity.
-    let mut transform = players.get_mut(move_.context).unwrap();
+    let mut transform = players.get_mut(movement.context).unwrap();
 
-    // We defined the output of `Move` as `Vec2`,
+    // We defined the output of `Movement` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
-    transform.translation += move_.value.extend(0.0);
+    transform.translation += movement.value.extend(0.0);
 }
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
-# struct Move;
+# struct Movement;
 ```
 
 The event system is highly flexible. For example, you can use the [`Hold`] condition for an attack action, triggering strong attacks on
@@ -296,7 +296,7 @@ You can also use Bevy's change detection - these components marked as changed on
 # use bevy_enhanced_input::prelude::*;
 fn apply_input(
     jump_events: Single<&ActionEvents, With<Action<Jump>>>,
-    move_action: Single<&Action<Move>>,
+    movement_action: Single<&Action<Movement>>,
     mut player_transform: Single<&mut Transform, With<Player>>,
 ) {
     // Jumped this frame
@@ -304,9 +304,9 @@ fn apply_input(
         // User logic...
     }
 
-    // We defined the output of `Move` as `Vec2`,
+    // We defined the output of `Movement` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
-    player_transform.translation = move_action.extend(0.0);
+    player_transform.translation = movement_action.extend(0.0);
 }
 # #[derive(Component)]
 # struct Player;
@@ -315,7 +315,7 @@ fn apply_input(
 # struct Jump;
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
-# struct Move;
+# struct Movement;
 ```
 
 ## Removing contexts

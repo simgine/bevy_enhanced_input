@@ -148,7 +148,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # let mut world = World::new();
 /// world.spawn(actions!(Player[
 ///     (
-///         Action::<Move>::new(),
+///         Action::<Movement>::new(),
 ///         Bindings::spawn(Cardinal::wasd_keys()),
 ///     ),
 ///     (
@@ -161,7 +161,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(Vec2)]
-/// # struct Move;
+/// # struct Movement;
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
 /// # struct Jump;

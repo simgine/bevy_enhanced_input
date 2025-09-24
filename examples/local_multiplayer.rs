@@ -63,12 +63,12 @@ fn spawn(
     ));
 }
 
-fn apply_movement(move_: On<Fire<Move>>, mut players: Query<&mut Transform>) {
-    let mut transform = players.get_mut(move_.context).unwrap();
+fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transform>) {
+    let mut transform = players.get_mut(movement.context).unwrap();
 
     // Adjust axes for top-down movement.
-    transform.translation.z -= move_.value.x;
-    transform.translation.x -= move_.value.y;
+    transform.translation.z -= movement.value.x;
+    transform.translation.x -= movement.value.y;
 
     // Prevent from moving out of plane.
     transform.translation.z = transform.translation.z.clamp(-10.0, 10.0);
@@ -126,7 +126,7 @@ fn player_bundle(
         transform,
         actions!(
             Player[(
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 SmoothNudge::default(),
                 Scale::splat(0.4),
@@ -144,4 +144,4 @@ enum Player {
 
 #[derive(Debug, InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;

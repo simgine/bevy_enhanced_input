@@ -22,7 +22,7 @@ fn spawn(mut commands: Commands) {
         Player,
         actions!(Player[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
             ),
@@ -38,8 +38,8 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-fn apply_movement(move_: On<Fire<Move>>) {
-    info!("moving: {}", move_.value);
+fn apply_movement(movement: On<Fire<Movement>>) {
+    info!("moving: {}", movement.value);
 }
 
 fn jump(_on: On<Start<Jump>>) {
@@ -90,7 +90,7 @@ struct Player;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(bool)]

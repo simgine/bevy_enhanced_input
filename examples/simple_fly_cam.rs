@@ -38,7 +38,7 @@ fn setup(
         // Actions are related to specific context since a single entity can have multiple contexts.
         actions!(FlyCam[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 // Conditions and modifiers as components.
                 DeadZone::default(), // Apply non-uniform normalization that works for both digital and analog inputs, otherwise diagonal movement will be faster.
                 SmoothNudge::default(), // Make movement smooth and independent of the framerate. To only make it framerate-independent, use `DeltaScale`.
@@ -96,8 +96,8 @@ fn setup(
     ));
 }
 
-fn apply_movement(move_: On<Fire<Move>>, mut transforms: Query<&mut Transform>) {
-    let mut transform = transforms.get_mut(move_.context).unwrap();
+fn apply_movement(movement: On<Fire<Movement>>, mut transforms: Query<&mut Transform>) {
+    let mut transform = transforms.get_mut(movement.context).unwrap();
 
     // Move to the camera direction.
     let rotation = transform.rotation;
@@ -105,7 +105,7 @@ fn apply_movement(move_: On<Fire<Move>>, mut transforms: Query<&mut Transform>) 
     // Movement consists of X and -Z components, so swap Y and Z with negation.
     // We could do it with modifiers, but it wold be weird for an action to return
     // a `Vec3` like this, so we doing it inside the function.
-    let mut movement = move_.value.extend(0.0).xzy();
+    let mut movement = movement.value.extend(0.0).xzy();
     movement.z = -movement.z;
 
     transform.translation += rotation * movement
@@ -170,7 +170,7 @@ struct FlyCam;
 // The only attribute is `action_output`, which defines the output type.
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]

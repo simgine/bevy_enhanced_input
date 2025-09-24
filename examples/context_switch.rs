@@ -21,8 +21,8 @@ fn spawn(mut commands: Commands) {
     commands.spawn(player_bundle());
 }
 
-fn apply_movement(move_: On<Fire<Move>>) {
-    info!("moving: {}", move_.value);
+fn apply_movement(movement: On<Fire<Movement>>) {
+    info!("moving: {}", movement.value);
 }
 
 fn attack(_on: On<Fire<Attack>>) {
@@ -54,7 +54,7 @@ fn player_bundle() -> impl Bundle {
         Player,
         actions!(Player[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
             ),
@@ -97,7 +97,7 @@ struct Player;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(bool)]
