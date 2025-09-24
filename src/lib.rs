@@ -396,7 +396,7 @@ pub mod preset;
 
 pub mod prelude {
     pub use super::{
-        EnhancedInputPlugin, EnhancedInputSet,
+        EnhancedInputPlugin, EnhancedInputSystems,
         action::{
             Accumulation, Action, ActionMock, ActionOutput, ActionSettings, ActionState,
             ActionTime, InputAction, MockSpan,
@@ -508,13 +508,13 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_modifier::<SwizzleAxis>()
             .configure_sets(
                 PreUpdate,
-                (EnhancedInputSet::Prepare, EnhancedInputSet::Update)
+                (EnhancedInputSystems::Prepare, EnhancedInputSystems::Update)
                     .chain()
                     .after(InputSystems),
             )
             .add_systems(
                 PreUpdate,
-                input_reader::update_pending.in_set(EnhancedInputSet::Prepare),
+                input_reader::update_pending.in_set(EnhancedInputSystems::Prepare),
             );
     }
 
@@ -542,7 +542,7 @@ impl Plugin for EnhancedInputPlugin {
 
 /// Label for the system that updates input context instances.
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemSet)]
-pub enum EnhancedInputSet {
+pub enum EnhancedInputSystems {
     /// Updates list of pending inputs to ignore.
     ///
     /// Runs in [`PreUpdate`].

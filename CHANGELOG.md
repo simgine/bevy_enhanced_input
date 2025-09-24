@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0-rc.1] - Unreleased
+
+- Support Bevy 0.17.0-rc.1
+- Rename `EnhancedInputSet` to `EnhancedInputSystems`
+
 ## [0.18.2] - 2025-09-10
 
 ### Fixed

@@ -228,13 +228,13 @@ impl ScheduleContexts {
         app.init_resource::<ContextInstances<S>>()
             .configure_sets(
                 S::default(),
-                (EnhancedInputSet::Update, EnhancedInputSet::Apply).chain(),
+                (EnhancedInputSystems::Update, EnhancedInputSystems::Apply).chain(),
             )
             .add_systems(
                 S::default(),
                 (
-                    update_fn.in_set(EnhancedInputSet::Update),
-                    trigger_fn.in_set(EnhancedInputSet::Apply),
+                    update_fn.in_set(EnhancedInputSystems::Update),
+                    trigger_fn.in_set(EnhancedInputSystems::Apply),
                 ),
             );
     }
