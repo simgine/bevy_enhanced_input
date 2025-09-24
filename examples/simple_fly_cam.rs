@@ -93,7 +93,7 @@ fn setup(
     ));
 }
 
-fn apply_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Transform>) {
+fn apply_movement(trigger: On<Fired<Move>>, mut transforms: Query<&mut Transform>) {
     let mut transform = transforms.get_mut(add.entity).unwrap();
 
     // Move to the camera direction.
@@ -109,7 +109,7 @@ fn apply_movement(trigger: Trigger<Fired<Move>>, mut transforms: Query<&mut Tran
 }
 
 fn rotate(
-    trigger: Trigger<Fired<Rotate>>,
+    trigger: On<Fired<Rotate>>,
     mut transforms: Query<&mut Transform>,
     window: Single<&Window>,
 ) {
@@ -126,7 +126,7 @@ fn rotate(
     transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, 0.0);
 }
 
-fn zoom(trigger: Trigger<Fired<Zoom>>, mut projections: Query<&mut Projection>) {
+fn zoom(trigger: On<Fired<Zoom>>, mut projections: Query<&mut Projection>) {
     let mut projection = projections.get_mut(add.entity).unwrap();
     let Projection::Perspective(projection) = &mut *projection else {
         panic!("camera should be perspective");
@@ -134,11 +134,11 @@ fn zoom(trigger: Trigger<Fired<Zoom>>, mut projections: Query<&mut Projection>) 
     projection.fov = (projection.fov + trigger.value).clamp(FRAC_PI_8, FRAC_PI_2);
 }
 
-fn capture_cursor(_trigger: Trigger<Completed<CaptureCursor>>, mut window: Single<&mut Window>) {
+fn capture_cursor(_trigger: On<Completed<CaptureCursor>>, mut window: Single<&mut Window>) {
     grab_cursor(&mut window, true);
 }
 
-fn release_cursor(_trigger: Trigger<Completed<ReleaseCursor>>, mut window: Single<&mut Window>) {
+fn release_cursor(_trigger: On<Completed<ReleaseCursor>>, mut window: Single<&mut Window>) {
     grab_cursor(&mut window, false);
 }
 

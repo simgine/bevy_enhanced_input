@@ -38,15 +38,15 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-fn apply_movement(trigger: Trigger<Fired<Move>>) {
+fn apply_movement(trigger: On<Fired<Move>>) {
     info!("moving: {}", trigger.value);
 }
 
-fn jump(_trigger: Trigger<Started<Jump>>) {
+fn jump(_trigger: On<Started<Jump>>) {
     info!("jumping");
 }
 
-fn enter_car(trigger: Trigger<Started<EnterCar>>, mut commands: Commands) {
+fn enter_car(trigger: On<Started<EnterCar>>, mut commands: Commands) {
     // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
     // preventing `Rotate` and `EnterWater` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
@@ -73,11 +73,11 @@ fn enter_car(trigger: Trigger<Started<EnterCar>>, mut commands: Commands) {
     ));
 }
 
-fn brake(_trigger: Trigger<Fired<Brake>>) {
+fn brake(_trigger: On<Fired<Brake>>) {
     info!("braking");
 }
 
-fn exit_car(trigger: Trigger<Started<ExitCar>>, mut commands: Commands) {
+fn exit_car(trigger: On<Started<ExitCar>>, mut commands: Commands) {
     info!("exiting car");
     commands
         .entity(add.entity)

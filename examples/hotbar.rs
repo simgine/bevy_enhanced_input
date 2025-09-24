@@ -46,7 +46,7 @@ fn spawn(mut commands: Commands) {
 }
 
 fn equip(
-    trigger: Trigger<Started<EquipItem>>,
+    trigger: On<Started<EquipItem>>,
     actions: Query<&EquipHotbarIndex>,
     mut hotbars: Query<&mut Hotbar, With<Player>>,
 ) {

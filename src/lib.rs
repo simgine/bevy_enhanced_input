@@ -263,7 +263,7 @@ for more details.
 app.add_observer(apply_movement);
 
 /// Apply movement when `Move` action considered fired.
-fn apply_movement(trigger: Trigger<Fired<Move>>, mut players: Query<&mut Transform>) {
+fn apply_movement(trigger: On<Fired<Move>>, mut players: Query<&mut Transform>) {
     // Read transform from the context entity.
     let mut transform = players.get_mut(add.entity).unwrap();
 

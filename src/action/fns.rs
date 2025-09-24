@@ -12,7 +12,7 @@ use crate::prelude::*;
 #[component(immutable)]
 pub(crate) struct ActionFns {
     store_value: fn(&mut EntityMut, ActionValue),
-    trigger: fn(&mut Commands, Entity, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
+    on: fn(&mut Commands, Entity, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
 }
 
 impl ActionFns {
@@ -20,7 +20,7 @@ impl ActionFns {
     pub(super) fn new<A: InputAction>() -> Self {
         Self {
             store_value: store_value::<A>,
-            trigger: trigger::<A>,
+            on: on::<A>,
         }
     }
 
@@ -31,7 +31,7 @@ impl ActionFns {
 
     /// Triggers events based on [`ActionEvents`] for the action marker `A` for which this instance was created.
     #[allow(clippy::too_many_arguments)]
-    pub(crate) fn trigger(
+    pub(crate) fn on(
         &self,
         commands: &mut Commands,
         context: Entity,
@@ -41,7 +41,7 @@ impl ActionFns {
         value: ActionValue,
         time: ActionTime,
     ) {
-        (self.trigger)(commands, context, action, state, events, value, time);
+        (self.on)(commands, context, action, state, events, value, time);
     }
 }
 
@@ -53,7 +53,7 @@ fn store_value<A: InputAction>(action: &mut EntityMut, value: ActionValue) {
     **action = A::Output::unwrap_value(value);
 }
 
-fn trigger<A: InputAction>(
+fn on<A: InputAction>(
     commands: &mut Commands,
     context: Entity,
     action: Entity,
@@ -191,34 +191,34 @@ mod tests {
 
         world.init_resource::<TriggeredEvents>();
         world.add_observer(
-            |_trigger: Trigger<Fired<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_trigger: On<Fired<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::FIRED);
             },
         );
         world.add_observer(
-            |_trigger: Trigger<Started<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_trigger: On<Started<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::STARTED);
             },
         );
         world.add_observer(
-            |_trigger: Trigger<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_trigger: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::ONGOING);
             },
         );
         world.add_observer(
-            |_trigger: Trigger<Completed<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_trigger: On<Completed<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::COMPLETED);
             },
         );
         world.add_observer(
-            |_trigger: Trigger<Canceled<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_trigger: On<Canceled<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::CANCELED);
             },
         );
 
         let events = ActionEvents::new(initial_state, target_state);
         let fns = ActionFns::new::<Test>();
-        fns.trigger(
+        fns.on(
             &mut world.commands(),
             Entity::PLACEHOLDER,
             Entity::PLACEHOLDER,

@@ -324,7 +324,7 @@ pub(crate) fn reset_action<C: Component>(
     state.set_if_neq(Default::default());
     value.set_if_neq(ActionValue::zero(value.dim()));
 
-    fns.trigger(
+    fns.on(
         &mut commands,
         **action_of,
         add.entity,
@@ -617,7 +617,7 @@ fn apply<S: ScheduleLabel>(
             let state = *action.get::<ActionState>().unwrap();
             let events = *action.get::<ActionEvents>().unwrap();
             let time = *action.get::<ActionTime>().unwrap();
-            fns.trigger(
+            fns.on(
                 &mut commands,
                 context.id(),
                 action.id(),
