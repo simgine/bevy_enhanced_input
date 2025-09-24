@@ -437,6 +437,7 @@ pub mod prelude {
     pub use super::{
         EnhancedInputSet,
         action::events::{Cancelled, Completed, Fired, Started},
+        condition::{press::Pressed, release::Released},
     };
     pub use bevy_enhanced_input_macros::InputAction;
 }

@@ -245,7 +245,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// ));
 ///
 /// /// Triggered every frame while the key is held down.
-/// fn primary_fire(fire On<Fire<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
+/// fn primary_fire(fire: On<Fire<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -314,7 +314,7 @@ impl<A: InputAction> Copy for Fire<A> {}
 ///
 /// ```
 /// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::*;
+/// # use bevy_enhanced_input::prelude::{*, Cancel};
 /// # let mut app = App::new();
 /// app.add_observer(weak_attack);
 ///
