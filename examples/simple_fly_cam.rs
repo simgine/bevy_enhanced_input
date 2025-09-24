@@ -105,10 +105,10 @@ fn apply_movement(movement: On<Fire<Movement>>, mut transforms: Query<&mut Trans
     // Movement consists of X and -Z components, so swap Y and Z with negation.
     // We could do it with modifiers, but it wold be weird for an action to return
     // a `Vec3` like this, so we doing it inside the function.
-    let mut movement = movement.value.extend(0.0).xzy();
-    movement.z = -movement.z;
+    let mut velocity = movement.value.extend(0.0).xzy();
+    velocity.z = -velocity.z;
 
-    transform.translation += rotation * movement
+    transform.translation += rotation * velocity
 }
 
 fn rotate(

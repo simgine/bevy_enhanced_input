@@ -296,7 +296,7 @@ You can also use Bevy's change detection - these components marked as changed on
 # use bevy_enhanced_input::prelude::*;
 fn apply_input(
     jump_events: Single<&ActionEvents, With<Action<Jump>>>,
-    movement_action: Single<&Action<Movement>>,
+    movement: Single<&Action<Movement>>,
     mut player_transform: Single<&mut Transform, With<Player>>,
 ) {
     // Jumped this frame
@@ -306,7 +306,7 @@ fn apply_input(
 
     // We defined the output of `Movement` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
-    player_transform.translation = movement_action.extend(0.0);
+    player_transform.translation = movement.extend(0.0);
 }
 # #[derive(Component)]
 # struct Player;
