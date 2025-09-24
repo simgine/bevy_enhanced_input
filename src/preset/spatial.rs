@@ -76,6 +76,7 @@ where
             south: spatial.down,
             west: spatial.left,
         };
+
         move_as_ptr!(xy);
         SpawnableList::spawn(xy, world, entity);
 
@@ -84,6 +85,7 @@ where
             negative: spatial.forward,
         }
         .with(SwizzleAxis::ZYX);
+
         move_as_ptr!(z);
         SpawnableList::spawn(z, world, entity);
     }
