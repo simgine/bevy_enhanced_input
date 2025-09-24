@@ -191,27 +191,27 @@ mod tests {
 
         world.init_resource::<TriggeredEvents>();
         world.add_observer(
-            |_trigger: On<Fired<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Fired<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::FIRED);
             },
         );
         world.add_observer(
-            |_trigger: On<Started<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Started<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::STARTED);
             },
         );
         world.add_observer(
-            |_trigger: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::ONGOING);
             },
         );
         world.add_observer(
-            |_trigger: On<Completed<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Completed<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::COMPLETED);
             },
         );
         world.add_observer(
-            |_trigger: On<Canceled<Test>>, mut events: ResMut<TriggeredEvents>| {
+            |_on: On<Canceled<Test>>, mut events: ResMut<TriggeredEvents>| {
                 events.insert(ActionEvents::CANCELED);
             },
         );

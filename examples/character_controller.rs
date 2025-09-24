@@ -58,13 +58,13 @@ fn setup(
     ));
 }
 
-fn apply_movement(trigger: On<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(add.entity).unwrap();
-    physics.velocity.x = trigger.value;
+fn apply_movement(move_: On<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
+    let mut physics = query.get_mut(move_.context).unwrap();
+    physics.velocity.x = move_.value;
 }
 
-fn apply_jump(trigger: On<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(add.entity).unwrap();
+fn apply_jump(jump: On<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
+    let mut physics = query.get_mut(jump.context).unwrap();
     if physics.is_grounded {
         // Jump only if on the ground.
         physics.velocity.y = JUMP_VELOCITY;

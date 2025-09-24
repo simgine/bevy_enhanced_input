@@ -38,20 +38,20 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-fn apply_movement(trigger: On<Fired<Move>>) {
-    info!("moving: {}", trigger.value);
+fn apply_movement(move_: On<Fired<Move>>) {
+    info!("moving: {}", move_.value);
 }
 
-fn jump(_trigger: On<Started<Jump>>) {
+fn jump(_on: On<Started<Jump>>) {
     info!("jumping");
 }
 
-fn enter_car(trigger: On<Started<EnterCar>>, mut commands: Commands) {
+fn enter_car(enter: On<Started<EnterCar>>, mut commands: Commands) {
     // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
     // preventing `Rotate` and `EnterWater` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
-    commands.entity(add.entity).insert((
+    commands.entity(enter.context).insert((
         Driving,
         ContextPriority::<Driving>::new(1),
         actions!(Driving[
@@ -73,14 +73,14 @@ fn enter_car(trigger: On<Started<EnterCar>>, mut commands: Commands) {
     ));
 }
 
-fn brake(_trigger: On<Fired<Brake>>) {
+fn brake(_on: On<Fired<Brake>>) {
     info!("braking");
 }
 
-fn exit_car(trigger: On<Started<ExitCar>>, mut commands: Commands) {
+fn exit_car(exit: On<Started<ExitCar>>, mut commands: Commands) {
     info!("exiting car");
     commands
-        .entity(add.entity)
+        .entity(exit.context)
         .remove_with_requires::<Driving>() // Necessary to fully remove the context.
         .despawn_related::<Actions<Driving>>();
 }

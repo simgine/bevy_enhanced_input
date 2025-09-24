@@ -2,7 +2,10 @@
 
 use core::f32::consts::{FRAC_PI_2, FRAC_PI_8};
 
-use bevy::{prelude::*, window::CursorGrabMode};
+use bevy::{
+    prelude::*,
+    window::{CursorGrabMode, CursorOptions},
+};
 use bevy_enhanced_input::prelude::*;
 
 fn main() {
@@ -22,9 +25,9 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut window: Single<&mut Window>,
+    mut cursor_options: Single<&mut CursorOptions>,
 ) {
-    grab_cursor(&mut window, true);
+    grab_cursor(&mut cursor_options, true);
 
     // Spawn a camera with an input context.
     commands.spawn((
@@ -93,8 +96,8 @@ fn setup(
     ));
 }
 
-fn apply_movement(trigger: On<Fired<Move>>, mut transforms: Query<&mut Transform>) {
-    let mut transform = transforms.get_mut(add.entity).unwrap();
+fn apply_movement(move_: On<Fired<Move>>, mut transforms: Query<&mut Transform>) {
+    let mut transform = transforms.get_mut(move_.context).unwrap();
 
     // Move to the camera direction.
     let rotation = transform.rotation;
@@ -102,53 +105,59 @@ fn apply_movement(trigger: On<Fired<Move>>, mut transforms: Query<&mut Transform
     // Movement consists of X and -Z components, so swap Y and Z with negation.
     // We could do it with modifiers, but it wold be weird for an action to return
     // a `Vec3` like this, so we doing it inside the function.
-    let mut movement = trigger.value.extend(0.0).xzy();
+    let mut movement = move_.value.extend(0.0).xzy();
     movement.z = -movement.z;
 
     transform.translation += rotation * movement
 }
 
 fn rotate(
-    trigger: On<Fired<Rotate>>,
+    rotate: On<Fired<Rotate>>,
     mut transforms: Query<&mut Transform>,
-    window: Single<&Window>,
+    cursor_options: Single<&CursorOptions>,
 ) {
-    if window.cursor_options.visible {
+    if cursor_options.visible {
         return;
     }
 
-    let mut transform = transforms.get_mut(add.entity).unwrap();
+    let mut transform = transforms.get_mut(rotate.context).unwrap();
     let (mut yaw, mut pitch, _) = transform.rotation.to_euler(EulerRot::YXZ);
 
-    yaw += trigger.value.x.to_radians();
-    pitch += trigger.value.y.to_radians();
+    yaw += rotate.value.x.to_radians();
+    pitch += rotate.value.y.to_radians();
 
     transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, 0.0);
 }
 
-fn zoom(trigger: On<Fired<Zoom>>, mut projections: Query<&mut Projection>) {
-    let mut projection = projections.get_mut(add.entity).unwrap();
+fn zoom(zoom: On<Fired<Zoom>>, mut projections: Query<&mut Projection>) {
+    let mut projection = projections.get_mut(zoom.context).unwrap();
     let Projection::Perspective(projection) = &mut *projection else {
         panic!("camera should be perspective");
     };
-    projection.fov = (projection.fov + trigger.value).clamp(FRAC_PI_8, FRAC_PI_2);
+    projection.fov = (projection.fov + zoom.value).clamp(FRAC_PI_8, FRAC_PI_2);
 }
 
-fn capture_cursor(_trigger: On<Completed<CaptureCursor>>, mut window: Single<&mut Window>) {
-    grab_cursor(&mut window, true);
+fn capture_cursor(
+    _on: On<Completed<CaptureCursor>>,
+    mut cursor_options: Single<&mut CursorOptions>,
+) {
+    grab_cursor(&mut cursor_options, true);
 }
 
-fn release_cursor(_trigger: On<Completed<ReleaseCursor>>, mut window: Single<&mut Window>) {
-    grab_cursor(&mut window, false);
+fn release_cursor(
+    _on: On<Completed<ReleaseCursor>>,
+    mut cursor_options: Single<&mut CursorOptions>,
+) {
+    grab_cursor(&mut cursor_options, false);
 }
 
-fn grab_cursor(window: &mut Window, grab: bool) {
-    window.cursor_options.grab_mode = if grab {
+fn grab_cursor(cursor_options: &mut CursorOptions, grab: bool) {
+    cursor_options.grab_mode = if grab {
         CursorGrabMode::Confined
     } else {
         CursorGrabMode::None
     };
-    window.cursor_options.visible = !grab;
+    cursor_options.visible = !grab;
 }
 
 // Since it's possible to have multiple input contexts on a single entity,

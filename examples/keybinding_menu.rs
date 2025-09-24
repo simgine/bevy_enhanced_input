@@ -199,11 +199,11 @@ fn action_row(
 }
 
 fn delete_binding(
-    trigger: On<Pointer<Click>>,
+    click: On<Pointer<Click>>,
     mut binding_buttons: Query<(&Name, &mut BindingButton)>,
     delete_buttons: Query<&DeleteButton>,
 ) {
-    let delete_button = delete_buttons.get(add.entity).unwrap();
+    let delete_button = delete_buttons.get(click.entity).unwrap();
     let (name, mut binding_button) = binding_buttons
         .get_mut(delete_button.binding_button)
         .expect("delete button should point to a binding button");
@@ -212,17 +212,17 @@ fn delete_binding(
 }
 
 fn show_binding_dialog(
-    trigger: On<Pointer<Click>>,
+    click: On<Pointer<Click>>,
     mut commands: Commands,
     root_entity: Single<Entity, (With<Node>, Without<ChildOf>)>,
     names: Query<&Name>,
 ) {
-    let name = names.get(add.entity).unwrap();
+    let name = names.get(click.entity).unwrap();
     info!("starting binding for '{name}'");
 
     commands.entity(*root_entity).with_child((
         BindingDialog {
-            binding_button: add.entity,
+            binding_button: click.entity,
         },
         children![(
             Node {
@@ -234,7 +234,7 @@ fn show_binding_dialog(
             PANEL_BACKGROUND,
             children![(
                 TextLayout {
-                    justify: JustifyText::Center,
+                    justify: Justify::Center,
                     ..Default::default()
                 },
                 DARK_TEXT,
@@ -328,7 +328,7 @@ fn cancel_binding(mut commands: Commands, dialog: Single<Entity, With<BindingDia
 }
 
 fn replace_binding(
-    _trigger: On<Pointer<Click>>,
+    _on: On<Pointer<Click>>,
     mut commands: Commands,
     dialog: Single<(Entity, &ConflictDialog)>,
     mut buttons: Query<(&Name, &mut BindingButton)>,
@@ -350,7 +350,7 @@ fn replace_binding(
 }
 
 fn cancel_replace_binding(
-    _trigger: On<Pointer<Click>>,
+    _on: On<Pointer<Click>>,
     mut commands: Commands,
     dialog: Single<Entity, With<ConflictDialog>>,
 ) {
@@ -359,7 +359,7 @@ fn cancel_replace_binding(
 }
 
 fn apply(
-    _trigger: On<Pointer<Click>>,
+    _on: On<Pointer<Click>>,
     mut commands: Commands,
     mut settings: ResMut<InputSettings>,
     buttons: Query<(&BindingButton, &BindingInfo)>,
@@ -406,7 +406,7 @@ fn update_button_background(
 }
 
 fn reload_bindings(
-    _trigger: On<SettingsChanged>,
+    _on: On<SettingsChanged>,
     mut commands: Commands,
     settings: Res<InputSettings>,
     player: Single<Entity, With<Player>>,

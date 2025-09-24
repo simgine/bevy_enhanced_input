@@ -63,12 +63,12 @@ fn spawn(
     ));
 }
 
-fn apply_movement(trigger: On<Fired<Move>>, mut players: Query<&mut Transform>) {
-    let mut transform = players.get_mut(add.entity).unwrap();
+fn apply_movement(move_: On<Fired<Move>>, mut players: Query<&mut Transform>) {
+    let mut transform = players.get_mut(move_.context).unwrap();
 
     // Adjust axes for top-down movement.
-    transform.translation.z -= trigger.value.x;
-    transform.translation.x -= trigger.value.y;
+    transform.translation.z -= move_.value.x;
+    transform.translation.x -= move_.value.y;
 
     // Prevent from moving out of plane.
     transform.translation.z = transform.translation.z.clamp(-10.0, 10.0);

@@ -263,13 +263,13 @@ for more details.
 app.add_observer(apply_movement);
 
 /// Apply movement when `Move` action considered fired.
-fn apply_movement(trigger: On<Fired<Move>>, mut players: Query<&mut Transform>) {
+fn apply_movement(move_: On<Fired<Move>>, mut players: Query<&mut Transform>) {
     // Read transform from the context entity.
-    let mut transform = players.get_mut(add.entity).unwrap();
+    let mut transform = players.get_mut(move_.context).unwrap();
 
     // We defined the output of `Move` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
-    transform.translation += trigger.value.extend(0.0);
+    transform.translation += move_.value.extend(0.0);
 }
 # #[derive(InputAction)]
 # #[action_output(Vec2)]
