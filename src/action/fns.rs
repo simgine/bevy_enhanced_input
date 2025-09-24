@@ -71,6 +71,7 @@ fn trigger<A: InputAction>(
         match event {
             ActionEvents::STARTED => {
                 let event = Started::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
@@ -79,6 +80,7 @@ fn trigger<A: InputAction>(
             }
             ActionEvents::ONGOING => {
                 let event = Ongoing::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
@@ -88,6 +90,7 @@ fn trigger<A: InputAction>(
             }
             ActionEvents::FIRED => {
                 let event = Fired::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
@@ -98,6 +101,7 @@ fn trigger<A: InputAction>(
             }
             ActionEvents::CANCELED => {
                 let event = Canceled::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,
@@ -107,6 +111,7 @@ fn trigger<A: InputAction>(
             }
             ActionEvents::COMPLETED => {
                 let event = Completed::<A> {
+                    context,
                     action,
                     value: A::Output::unwrap_value(value),
                     state,

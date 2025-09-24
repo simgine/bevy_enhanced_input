@@ -103,8 +103,12 @@ impl ActionEvents {
 /// # #[action_output(bool)]
 /// # struct Throw;
 /// ```
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct Started<A: InputAction> {
+    /// Entity that this event was triggered on.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -176,8 +180,12 @@ impl<A: InputAction> Copy for Started<A> {}
 /// # #[action_output(bool)]
 /// # struct Heal;
 /// ```
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct Ongoing<A: InputAction> {
+    /// Entity that this event was triggered on.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -243,8 +251,12 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// # #[action_output(bool)]
 /// # struct PrimaryFire;
 /// ```
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct Fired<A: InputAction> {
+    /// Entity that this event was triggered on.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -319,8 +331,12 @@ impl<A: InputAction> Copy for Fired<A> {}
 /// # #[action_output(bool)]
 /// # struct SecondaryAttack;
 /// ```
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct Canceled<A: InputAction> {
+    /// Entity that this event was triggered on.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
@@ -413,8 +429,12 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// # #[action_output(bool)]
 /// # struct SecondaryAttack;
 /// ```
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct Completed<A: InputAction> {
+    /// Entity that this event was triggered on.
+    #[event_target]
+    pub context: Entity,
+
     /// Action that triggered this event.
     pub action: Entity,
 
