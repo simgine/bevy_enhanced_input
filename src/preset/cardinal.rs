@@ -83,7 +83,8 @@ impl<N: Bundle, E: Bundle, S: Bundle, W: Bundle> SpawnableList<BindingOf> for Ca
         let y = Bidirectional {
             positive: cardinal.north,
             negative: cardinal.south,
-        };
+        }
+        .with(SwizzleAxis::YXZ);
 
         move_as_ptr!(y);
         SpawnableList::spawn(y, world, entity);
