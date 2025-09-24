@@ -395,8 +395,6 @@ pub mod modifier;
 pub mod preset;
 
 pub mod prelude {
-    #[expect(deprecated, reason = "Exporting to improve migration")]
-    pub use super::EnhancedInputSet;
     pub use super::{
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{
@@ -431,6 +429,14 @@ pub mod prelude {
             smooth_nudge::*, swizzle_axis::*,
         },
         preset::{WithBundle, axial::*, bidirectional::*, cardinal::*, ordinal::*, spatial::*},
+    };
+    #[expect(
+        deprecated,
+        reason = "Exporting deprecated aliases to improve migration"
+    )]
+    pub use super::{
+        EnhancedInputSet,
+        action::events::{Cancelled, Completed, Fired, Started},
     };
     pub use bevy_enhanced_input_macros::InputAction;
 }

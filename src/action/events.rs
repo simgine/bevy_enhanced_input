@@ -119,6 +119,11 @@ pub struct Start<A: InputAction> {
     pub state: ActionState,
 }
 
+/// Outdated alias for [`Start`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Start` instead.")]
+pub type Started<A> = Start<A>;
+
 impl<A: InputAction> Debug for Start<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Started")
@@ -273,6 +278,11 @@ pub struct Fire<A: InputAction> {
     pub elapsed_secs: f32,
 }
 
+/// Outdated alias for [`Fire`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Fire` instead.")]
+pub type Fired<A> = Fire<A>;
+
 impl<A: InputAction> Debug for Fire<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Fired")
@@ -349,6 +359,11 @@ pub struct JustCancelled<A: InputAction> {
     /// Time that this action has been in [`ActionState::Ongoing`] state.
     pub elapsed_secs: f32,
 }
+
+/// Outdated alias for [`JustCancelled`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `JustCancelled` instead.")]
+pub type Cancelled<A> = JustCancelled<A>;
 
 impl<A: InputAction> Debug for JustCancelled<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -450,6 +465,11 @@ pub struct Complete<A: InputAction> {
     /// Total time this action has been in both [`ActionState::Ongoing`] and [`ActionState::Fired`].
     pub elapsed_secs: f32,
 }
+
+/// Outdated alias for [`Complete`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Complete` instead.")]
+pub type Completed<A> = Complete<A>;
 
 impl<A: InputAction> Debug for Complete<A> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {

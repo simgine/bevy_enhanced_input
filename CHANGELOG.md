@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `Press` to `JustPressed`
 - Rename `Release` to `JustReleased`
 - Rename `Fired` to `Fire`
+- Rename `Cancelled` to `Cancelled`
+- Rename `Completed` to `Complete`
+- Rename `Started` to `Start`
 
 ## [0.18.2] - 2025-09-10
 
