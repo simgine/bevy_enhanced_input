@@ -7,13 +7,13 @@ use crate::prelude::*;
 ///
 /// Holding the input will not cause further triggers.
 #[derive(Component, Reflect, Debug, Clone, Copy)]
-pub struct Press {
+pub struct JustPressed {
     /// Trigger threshold.
     pub actuation: f32,
     actuated: bool,
 }
 
-impl Press {
+impl JustPressed {
     #[must_use]
     pub const fn new(actuation: f32) -> Self {
         Self {
@@ -23,13 +23,13 @@ impl Press {
     }
 }
 
-impl Default for Press {
+impl Default for JustPressed {
     fn default() -> Self {
         Self::new(DEFAULT_ACTUATION)
     }
 }
 
-impl InputCondition for Press {
+impl InputCondition for JustPressed {
     fn evaluate(
         &mut self,
         _actions: &ActionsQuery,
@@ -57,7 +57,7 @@ mod tests {
         let (world, mut state) = context::init_world();
         let (time, actions) = state.get(&world);
 
-        let mut condition = Press::default();
+        let mut condition = JustPressed::default();
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
             ActionState::None

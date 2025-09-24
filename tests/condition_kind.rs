@@ -56,7 +56,7 @@ fn implicit() {
             let release = context
                 .spawn((
                     Action::<OnRelease>::new(),
-                    bevy_enhanced_input::prelude::Release::default(),
+                    JustReleased::default(),
                     bindings![OnRelease::KEY],
                 ))
                 .id();
@@ -132,7 +132,7 @@ fn blocker() {
             let release = context
                 .spawn((
                     Action::<OnRelease>::new(),
-                    bevy_enhanced_input::prelude::Release::default(),
+                    JustReleased::default(),
                     bindings![OnRelease::KEY],
                 ))
                 .id();

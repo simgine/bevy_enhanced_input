@@ -92,7 +92,7 @@ impl ActionEvents {
 /// /// Triggered only once on the first press, similar to `just_pressed` in `bevy_input`.
 /// ///
 /// /// It will not trigger again until the key is released and pressed again.
-/// fn throw(trigger: On<Fired<Throw>>, players: Query<(&Transform, &mut Health)>) {
+/// fn throw(throw: On<Fired<Throw>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -169,7 +169,7 @@ impl<A: InputAction> Copy for Started<A> {}
 ///
 /// /// Triggered continuously while the user is holding down the button,
 /// /// until the specified duration is reached.
-/// fn heal(trigger: On<Ongoing<Heal>>, players: Query<&mut Health>) {
+/// fn heal(heal: On<Ongoing<Heal>>, players: Query<&mut Health>) {
 ///     // ..
 /// }
 /// # #[derive(Component)]
@@ -240,7 +240,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// ));
 ///
 /// /// Triggered every frame while the key is held down.
-/// fn primary_fire(trigger: On<Fired<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
+/// fn primary_fire(fire On<Fired<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -320,7 +320,7 @@ impl<A: InputAction> Copy for Fired<A> {}
 /// ));
 ///
 /// /// Triggered if the user releases the key before 1.5 seconds.
-/// fn weak_attack(trigger: On<Canceled<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
+/// fn weak_attack(attack: On<Canceled<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -388,7 +388,7 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// ));
 ///
 /// /// Triggered only once when the user releases the key, similar to `just_released` in `bevy_input`.
-/// fn jump(trigger: On<Completed<Jump>>, players: Query<&mut Transform>) {
+/// fn jump(jump: On<Completed<Jump>>, players: Query<&mut Transform>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
@@ -418,7 +418,7 @@ impl<A: InputAction> Copy for Canceled<A> {}
 /// ));
 ///
 /// /// Triggered if the user releases the key before 1.5 seconds.
-/// fn strong_attack(trigger: On<Completed<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
+/// fn strong_attack(attack: On<Completed<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]

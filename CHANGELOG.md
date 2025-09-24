@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support Bevy 0.17.0-rc.1
 - Rename `EnhancedInputSet` to `EnhancedInputSystems`
+- Rename `Press` to `JustPressed`
+- Rename `Release` to `JustReleased`
+- Rename `Fired` to `Fire`
 
 ## [0.18.2] - 2025-09-10
 
