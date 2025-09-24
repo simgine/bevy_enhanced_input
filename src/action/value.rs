@@ -139,7 +139,7 @@ impl ActionValue {
 }
 
 /// A dimension discriminant for [`ActionValue`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Reflect, Ord, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub enum ActionValueDim {
