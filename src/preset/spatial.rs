@@ -1,5 +1,9 @@
-use bevy::{ptr::{move_as_ptr, MovingPtr}, ecs::{spawn::SpawnableList, }, prelude::*};
 use crate::prelude::*;
+use bevy::{
+    ecs::spawn::SpawnableList,
+    prelude::*,
+    ptr::{MovingPtr, move_as_ptr},
+};
 
 /// A preset to map 6 buttons as 3-dimensional input.
 #[derive(Debug, Clone, Copy)]
@@ -64,19 +68,20 @@ where
     U: Bundle,
     D: Bundle,
 {
-    fn spawn(self, world: &mut World, entity: Entity) {
+    fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
+        let spatial = this.read();
         let xy = Cardinal {
-            north: self.up,
-            east: self.right,
-            south: self.down,
-            west: self.left,
+            north: spatial.up,
+            east: spatial.right,
+            south: spatial.down,
+            west: spatial.left,
         };
         move_as_ptr!(xy);
         SpawnableList::spawn(xy, world, entity);
 
         let z = Bidirectional {
-            positive: self.backward,
-            negative: self.forward,
+            positive: spatial.backward,
+            negative: spatial.forward,
         };
         move_as_ptr!(z);
         SpawnableList::spawn(z.with(SwizzleAxis::ZYX), world, entity);

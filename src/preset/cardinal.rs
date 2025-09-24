@@ -1,4 +1,4 @@
-use bevy::{ecs::spawn::SpawnableList, prelude::*};
+use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
 
 use crate::prelude::*;
 
@@ -66,16 +66,17 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
 }
 
 impl<N: Bundle, E: Bundle, S: Bundle, W: Bundle> SpawnableList<BindingOf> for Cardinal<N, E, S, W> {
-    fn spawn(self, world: &mut World, entity: Entity) {
+    fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
+        let cardinal = this.read();
         let x = Bidirectional {
-            positive: self.east,
-            negative: self.west,
+            positive: cardinal.east,
+            negative: cardinal.west,
         };
         x.spawn(world, entity);
 
         let y = Bidirectional {
-            positive: self.north,
-            negative: self.south,
+            positive: cardinal.north,
+            negative: cardinal.south,
         };
         y.with(SwizzleAxis::YXZ).spawn(world, entity);
     }
