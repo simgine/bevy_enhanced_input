@@ -449,7 +449,7 @@ use context::{
     input_reader::{self, ConsumedInputs, PendingBindings},
 };
 use modifier::fns::ModifierRegistry;
-use prelude::*;
+use prelude::{Press, Release, *};
 
 /// Initializes contexts and feeds inputs to them.
 ///
@@ -469,9 +469,9 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_condition::<Down>()
             .add_input_condition::<Hold>()
             .add_input_condition::<HoldAndRelease>()
-            .add_input_condition::<JustPressed>()
+            .add_input_condition::<Press>()
             .add_input_condition::<Pulse>()
-            .add_input_condition::<JustReleased>()
+            .add_input_condition::<Release>()
             .add_input_condition::<Tap>()
             .add_input_condition::<Cooldown>()
             .add_input_modifier::<AccumulateBy>()

@@ -1,5 +1,5 @@
 use bevy::{ecs::spawn::SpawnWith, input::InputPlugin, prelude::*};
-use bevy_enhanced_input::prelude::*;
+use bevy_enhanced_input::prelude::{Release, *};
 use test_log::test;
 
 #[test]
@@ -56,7 +56,7 @@ fn implicit() {
             let release = context
                 .spawn((
                     Action::<OnRelease>::new(),
-                    JustReleased::default(),
+                    Release::default(),
                     bindings![OnRelease::KEY],
                 ))
                 .id();
@@ -132,7 +132,7 @@ fn blocker() {
             let release = context
                 .spawn((
                     Action::<OnRelease>::new(),
-                    JustReleased::default(),
+                    Release::default(),
                     bindings![OnRelease::KEY],
                 ))
                 .id();

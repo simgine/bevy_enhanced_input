@@ -2,7 +2,7 @@
 //! Press keys from the number row on the keyboard to trigger actions and observe the output in console.
 
 use bevy::{ecs::spawn::SpawnWith, log::LogPlugin, prelude::*};
-use bevy_enhanced_input::prelude::*;
+use bevy_enhanced_input::prelude::{Press, Release, *};
 
 fn main() {
     // Setup logging to display triggered events.
@@ -38,7 +38,7 @@ fn spawn(mut commands: Commands) {
             ));
             context.spawn((
                 Action::<TestPress>::new(),
-                JustPressed::default(),
+                Press::default(),
                 bindings![TestPress::KEY],
             ));
             context.spawn((
@@ -58,7 +58,7 @@ fn spawn(mut commands: Commands) {
             ));
             context.spawn((
                 Action::<TestRelease>::new(),
-                JustReleased::default(),
+                Release::default(),
                 bindings![TestRelease::KEY],
             ));
             context.spawn((

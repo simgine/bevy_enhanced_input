@@ -11,12 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support Bevy 0.17.0-rc.1
 - Rename `EnhancedInputSet` to `EnhancedInputSystems`
-- Rename `Press` to `JustPressed`
-- Rename `Release` to `JustReleased`
+- Rename `Pressed` to `Press`
+- Rename `Released` to `Release`
 - Rename `Fired` to `Fire`
-- Rename `Cancelled` to `Cancelled`
+- Rename `Cancelled` to `Cancel`
 - Rename `Completed` to `Complete`
 - Rename `Started` to `Start`
+- Note that `Press`, `Release`, and `Cancel` are part of both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*`.
+  To disambiguate, import `bevy_enhanced_input::prelude::{*, Press, Release, Cancel}`.
 
 ## [0.18.2] - 2025-09-10
 
