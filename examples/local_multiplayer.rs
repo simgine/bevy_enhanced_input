@@ -76,18 +76,18 @@ fn apply_movement(move_: On<Fired<Move>>, mut players: Query<&mut Transform>) {
 }
 
 fn update_gamepads(
-    mut event_reader: EventReader<GamepadConnectionEvent>,
+    mut connections: MessageReader<GamepadConnectionEvent>,
     mut players: Query<&mut GamepadDevice>,
 ) {
-    for event in event_reader.read() {
-        match event.connection {
+    for connection in connections.read() {
+        match connection.connection {
             GamepadConnection::Connected { .. } => {
                 // Assign to a player without a gamepad.
                 if let Some(mut gamepad) = players
                     .iter_mut()
                     .find(|gamepad| **gamepad == GamepadDevice::None)
                 {
-                    *gamepad = event.gamepad.into();
+                    *gamepad = connection.gamepad.into();
                 }
             }
             GamepadConnection::Disconnected => {
@@ -96,7 +96,7 @@ fn update_gamepads(
                 // detect which player don't have a gamepad.
                 if let Some(mut gamepad) = players
                     .iter_mut()
-                    .find(|gamepad| **gamepad == event.gamepad.into())
+                    .find(|gamepad| **gamepad == connection.gamepad.into())
                 {
                     *gamepad = GamepadDevice::None;
                 }

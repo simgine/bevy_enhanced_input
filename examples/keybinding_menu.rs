@@ -248,17 +248,17 @@ fn show_binding_dialog(
 
 fn bind(
     mut commands: Commands,
-    mut key_events: EventReader<KeyboardInput>,
-    mut mouse_button_events: EventReader<MouseButtonInput>,
+    mut key_messages: MessageReader<KeyboardInput>,
+    mut mouse_button_messages: MessageReader<MouseButtonInput>,
     dialog: Single<(Entity, &BindingDialog)>,
     root_entity: Single<Entity, (With<Node>, Without<ChildOf>)>,
     mut buttons: Query<(Entity, &Name, &mut BindingButton)>,
 ) {
-    let keys = key_events
+    let keys = key_messages
         .read()
         .filter(|event| event.state == ButtonState::Pressed)
         .map(|event| event.key_code.into());
-    let mouse_buttons = mouse_button_events
+    let mouse_buttons = mouse_button_messages
         .read()
         .filter(|event| event.state == ButtonState::Pressed)
         .map(|event| event.button.into());
