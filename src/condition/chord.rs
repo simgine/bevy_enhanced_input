@@ -10,7 +10,7 @@ use crate::prelude::*;
 ///
 /// # Examples
 ///
-/// To get action entities during spawning, you could use [`SpawnWith`](bevy::ecs::spawn::SpawnWith).
+/// To get action entities during spawning, you could use [`SpawnWith`].
 ///
 /// ```
 /// use bevy::{ecs::spawn::SpawnWith, prelude::*};

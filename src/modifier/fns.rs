@@ -34,18 +34,18 @@ impl InputModifierAppExt for App {
 }
 
 fn register_modifier<M: InputModifier + Component<Mutability = Mutable>>(
-    trigger: Trigger<OnAdd, M>,
+    add: On<Add, M>,
     mut modifiers: Query<&mut ModifierFns>,
 ) {
-    let mut fns = modifiers.get_mut(trigger.target()).unwrap();
+    let mut fns = modifiers.get_mut(add.entity).unwrap();
     fns.0.push(get_modifier::<M>);
 }
 
 fn unregister_modifier<M: InputModifier + Component<Mutability = Mutable>>(
-    trigger: Trigger<OnRemove, M>,
+    add: On<Remove, M>,
     mut modifiers: Query<&mut ModifierFns>,
 ) {
-    let mut fns = modifiers.get_mut(trigger.target()).unwrap();
+    let mut fns = modifiers.get_mut(add.entity).unwrap();
     let index = fns
         .iter()
         .position(|&f| ptr::fn_addr_eq(f, get_modifier::<M> as GetModifierFn))

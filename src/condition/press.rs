@@ -6,12 +6,20 @@ use crate::prelude::*;
 /// Like [`super::press::Down`] but returns [`ActionState::Fired`] only once until the next actuation.
 ///
 /// Holding the input will not cause further triggers.
+///
+/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
+/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Press}`.
 #[derive(Component, Reflect, Debug, Clone, Copy)]
 pub struct Press {
     /// Trigger threshold.
     pub actuation: f32,
     actuated: bool,
 }
+
+/// Outdated alias for [`Press`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Press` instead.")]
+pub type Pressed = Press;
 
 impl Press {
     #[must_use]

@@ -1,4 +1,8 @@
-use bevy::{ecs::spawn::SpawnableList, prelude::*};
+use bevy::{
+    ecs::spawn::SpawnableList,
+    prelude::*,
+    ptr::{MovingPtr, move_as_ptr},
+};
 
 use crate::prelude::*;
 
@@ -84,31 +88,34 @@ where
     W: Bundle,
     NW: Bundle,
 {
-    fn spawn(self, world: &mut World, entity: Entity) {
+    fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
+        let ordinal = this.read();
         let cardinal = Cardinal {
-            north: self.north,
-            east: self.east,
-            south: self.south,
-            west: self.west,
+            north: ordinal.north,
+            east: ordinal.east,
+            south: ordinal.south,
+            west: ordinal.west,
         };
-        cardinal.spawn(world, entity);
 
-        world.spawn((BindingOf(entity), self.north_east, SwizzleAxis::XXZ));
+        move_as_ptr!(cardinal);
+        SpawnableList::spawn(cardinal, world, entity);
+
+        world.spawn((BindingOf(entity), ordinal.north_east, SwizzleAxis::XXZ));
         world.spawn((
             BindingOf(entity),
-            self.south_east,
+            ordinal.south_east,
             SwizzleAxis::XXZ,
             Negate::y(),
         ));
         world.spawn((
             BindingOf(entity),
-            self.south_west,
+            ordinal.south_west,
             SwizzleAxis::XXZ,
             Negate::all(),
         ));
         world.spawn((
             BindingOf(entity),
-            self.north_west,
+            ordinal.north_west,
             SwizzleAxis::XXZ,
             Negate::x(),
         ));

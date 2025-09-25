@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0-rc.1] - 2025-09-24
+
+### Changed
+
+- Update to Bevy 0.17.0-rc.1.
+- Rename `EnhancedInputSet` to `EnhancedInputSystems`.
+- Use present tense for all event names:
+  - `Pressed` -> `Press`.
+  - `Released` -> `Release`.
+  - `Fired` -> `Fire`.
+  - `Cancelled` -> `Cancel`.
+  - `Completed` -> `Complete`.
+  - `Started` -> `Start`.
+  Note that `Press`, `Release`, and `Cancel` collide with names from `bevy_picking` and present in both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*`.
+  To disambiguate, import `bevy_enhanced_input::prelude::{*, Press, Release, Cancel}`.
+- Serde integration is now gated behind the `serialize` feature.
+
 ## [0.18.2] - 2025-09-10
 
 ### Fixed

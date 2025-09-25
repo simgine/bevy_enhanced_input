@@ -1,6 +1,6 @@
 [package]
 name = "bevy_enhanced_input"
-version = "0.18.2"
+version = "0.19.0-rc.1"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "Alice Cecile <alice.i.cecile@gmail.com>",
@@ -14,31 +14,39 @@ categories = ["game-development"]
 license = "MIT OR Apache-2.0"
 include = ["/src", "/LICENSE*"]
 
+[[example]]
+name = "keybinding_menu"
+required-features = ["serialize"]
+
+[features]
+serialize = ["bevy/serialize", "dep:serde"]
+
 [dependencies]
-bevy_enhanced_input_macros = { path = "macros", version = "0.18.2" }
-bevy = { version = "0.16.0", default-features = false, features = [
-  "serialize",
-] }
+bevy_enhanced_input_macros = { path = "macros", version = "0.19.0-rc.1" }
+bevy = { version = "0.17.0-rc.2", default-features = false }
 log = "0.4" # Directly depend on `log` like other `no_std` Bevy crates, since `bevy_log` currently requires `std`.
 smallvec = "1.15"
 variadics_please = "1.0"
-serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde = { version = "1.0", default-features = false, features = [
+  "derive",
+], optional = true }
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.16.0", default-features = false, features = [
+bevy = { version = "0.17.0-rc.2", default-features = false, features = [
   "bevy_gilrs",
   "bevy_log",
   "bevy_pbr",
   "bevy_ui_picking_backend",
-  "bevy_ui",
+  "bevy_ui_render",
   "bevy_window",
   "default_font",
   "tonemapping_luts",
   "x11",
+  "zstd_rust",
 ] }
 test-log = "0.2"
-ron = "0.8"
+ron = "0.10"
 
 [lints.clippy]
 type_complexity = "allow"

@@ -5,12 +5,20 @@ use crate::prelude::*;
 
 /// Returns [`ActionState::Ongoing`] when the input exceeds the actuation threshold and
 /// [`ActionState::Fired`] once when the input drops back below the actuation threshold.
+///
+/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
+/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Release}`.
 #[derive(Component, Reflect, Debug, Clone, Copy)]
 pub struct Release {
     /// Trigger threshold.
     pub actuation: f32,
     actuated: bool,
 }
+
+/// Outdated alias for [`Release`].
+#[doc(hidden)]
+#[deprecated(since = "0.19.0", note = "Use `Release` instead.")]
+pub type Released = Release;
 
 impl Release {
     #[must_use]

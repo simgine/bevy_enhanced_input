@@ -1,4 +1,4 @@
-use bevy::{ecs::spawn::SpawnableList, prelude::*};
+use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
 
 use crate::prelude::*;
 
@@ -41,9 +41,10 @@ impl Axial<Binding, Binding> {
 }
 
 impl<X: Bundle, Y: Bundle> SpawnableList<BindingOf> for Axial<X, Y> {
-    fn spawn(self, world: &mut World, entity: Entity) {
-        world.spawn((BindingOf(entity), self.x));
-        world.spawn((BindingOf(entity), self.y, SwizzleAxis::YXZ));
+    fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
+        let axial = this.read();
+        world.spawn((BindingOf(entity), axial.x));
+        world.spawn((BindingOf(entity), axial.y, SwizzleAxis::YXZ));
     }
 
     fn size_hint(&self) -> usize {

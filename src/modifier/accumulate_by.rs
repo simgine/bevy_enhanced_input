@@ -10,7 +10,7 @@ use crate::prelude::*;
 ///
 /// # Examples
 ///
-/// To get action entities during spawning, you could use [`SpawnWith`](bevy::ecs::spawn::SpawnWith).
+/// To get action entities during spawning, you could use [`SpawnWith`].
 ///
 /// ```
 /// use bevy::{ecs::spawn::SpawnWith, prelude::*};
@@ -26,7 +26,7 @@ use crate::prelude::*;
 ///
 ///     // Sums movement when `Accelerate` is pressed.
 ///     context.spawn((
-///         Action::<Move>::new(),
+///         Action::<Movement>::new(),
 ///         AccumulateBy::new(accelerate),
 ///         Bindings::spawn(Cardinal::wasd_keys().with(DeadZone::default())),
 ///     ));
@@ -41,7 +41,7 @@ use crate::prelude::*;
 ///
 /// #[derive(InputAction)]
 /// #[action_output(f32)]
-/// struct Move;
+/// struct Movement;
 /// ```
 #[derive(Component, Reflect, Debug, Clone, Copy)]
 pub struct AccumulateBy {

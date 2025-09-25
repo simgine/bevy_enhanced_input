@@ -21,29 +21,29 @@ fn spawn(mut commands: Commands) {
     commands.spawn(player_bundle());
 }
 
-fn apply_movement(trigger: Trigger<Fired<Move>>) {
-    info!("moving: {}", trigger.value);
+fn apply_movement(movement: On<Fire<Movement>>) {
+    info!("moving: {}", movement.value);
 }
 
-fn attack(_trigger: Trigger<Fired<Attack>>) {
+fn attack(_on: On<Fire<Attack>>) {
     info!("attacking");
 }
 
-fn open_inventory(trigger: Trigger<Started<OpenInventory>>, mut commands: Commands) {
+fn open_inventory(open: On<Start<OpenInventory>>, mut commands: Commands) {
     info!("opening inventory");
-    commands.entity(trigger.target()).insert((
+    commands.entity(open.context).insert((
         ContextActivity::<Player>::INACTIVE,
         ContextActivity::<Inventory>::ACTIVE,
     ));
 }
 
-fn navigate_inventory(_trigger: Trigger<Fired<NavigateInventory>>) {
+fn navigate_inventory(_on: On<Fire<NavigateInventory>>) {
     info!("navigating inventory");
 }
 
-fn close_inventory(trigger: Trigger<Started<CloseInventory>>, mut commands: Commands) {
+fn close_inventory(close: On<Start<CloseInventory>>, mut commands: Commands) {
     info!("closing inventory");
-    commands.entity(trigger.target()).insert((
+    commands.entity(close.context).insert((
         ContextActivity::<Player>::ACTIVE,
         ContextActivity::<Inventory>::INACTIVE,
     ));
@@ -54,7 +54,7 @@ fn player_bundle() -> impl Bundle {
         Player,
         actions!(Player[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
             ),
@@ -97,7 +97,7 @@ struct Player;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(bool)]

@@ -5,6 +5,7 @@ use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},
     prelude::*,
 };
+#[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -12,8 +13,10 @@ use crate::prelude::*;
 /// Action entity associated with this binding entity.
 ///
 /// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Component, Deref, Reflect, Debug, PartialEq, Eq, Clone)]
 #[relationship(relationship_target = Bindings)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct BindingOf(pub Entity);
 
 /// Binding entities associated with this action entity.

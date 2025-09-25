@@ -40,7 +40,7 @@ fn setup(
         PlayerPhysics::default(),
         actions!(Player[
             (
-                Action::<Move>::new(),
+                Action::<Movement>::new(),
                 DeadZone::default(),
                 SmoothNudge::default(),
                 Scale::splat(450.0),
@@ -58,13 +58,13 @@ fn setup(
     ));
 }
 
-fn apply_movement(trigger: Trigger<Fired<Move>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(trigger.target()).unwrap();
-    physics.velocity.x = trigger.value;
+fn apply_movement(movement: On<Fire<Movement>>, mut query: Query<&mut PlayerPhysics>) {
+    let mut physics = query.get_mut(movement.context).unwrap();
+    physics.velocity.x = movement.value;
 }
 
-fn apply_jump(trigger: Trigger<Fired<Jump>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(trigger.target()).unwrap();
+fn apply_jump(jump: On<Fire<Jump>>, mut query: Query<&mut PlayerPhysics>) {
+    let mut physics = query.get_mut(jump.context).unwrap();
     if physics.is_grounded {
         // Jump only if on the ground.
         physics.velocity.y = JUMP_VELOCITY;
@@ -103,7 +103,7 @@ struct PlayerPhysics {
 
 #[derive(Debug, InputAction)]
 #[action_output(f32)]
-struct Move;
+struct Movement;
 
 #[derive(Debug, InputAction)]
 #[action_output(bool)]

@@ -46,12 +46,12 @@ fn spawn(mut commands: Commands) {
 }
 
 fn equip(
-    trigger: Trigger<Started<EquipItem>>,
+    equip: On<Start<EquipItem>>,
     actions: Query<&EquipHotbarIndex>,
     mut hotbars: Query<&mut Hotbar, With<Player>>,
 ) {
-    let equip_index = actions.get(trigger.event().action).unwrap();
-    let mut hotbar = hotbars.get_mut(trigger.target()).unwrap();
+    let equip_index = actions.get(equip.event().action).unwrap();
+    let mut hotbar = hotbars.get_mut(equip.context).unwrap();
 
     hotbar.equipped = equip_index.0;
 

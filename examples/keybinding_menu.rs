@@ -199,11 +199,11 @@ fn action_row(
 }
 
 fn delete_binding(
-    trigger: Trigger<Pointer<Click>>,
+    click: On<Pointer<Click>>,
     mut binding_buttons: Query<(&Name, &mut BindingButton)>,
     delete_buttons: Query<&DeleteButton>,
 ) {
-    let delete_button = delete_buttons.get(trigger.target()).unwrap();
+    let delete_button = delete_buttons.get(click.entity).unwrap();
     let (name, mut binding_button) = binding_buttons
         .get_mut(delete_button.binding_button)
         .expect("delete button should point to a binding button");
@@ -212,17 +212,17 @@ fn delete_binding(
 }
 
 fn show_binding_dialog(
-    trigger: Trigger<Pointer<Click>>,
+    click: On<Pointer<Click>>,
     mut commands: Commands,
     root_entity: Single<Entity, (With<Node>, Without<ChildOf>)>,
     names: Query<&Name>,
 ) {
-    let name = names.get(trigger.target()).unwrap();
+    let name = names.get(click.entity).unwrap();
     info!("starting binding for '{name}'");
 
     commands.entity(*root_entity).with_child((
         BindingDialog {
-            binding_button: trigger.target(),
+            binding_button: click.entity,
         },
         children![(
             Node {
@@ -234,7 +234,7 @@ fn show_binding_dialog(
             PANEL_BACKGROUND,
             children![(
                 TextLayout {
-                    justify: JustifyText::Center,
+                    justify: Justify::Center,
                     ..Default::default()
                 },
                 DARK_TEXT,
@@ -248,17 +248,17 @@ fn show_binding_dialog(
 
 fn bind(
     mut commands: Commands,
-    mut key_events: EventReader<KeyboardInput>,
-    mut mouse_button_events: EventReader<MouseButtonInput>,
+    mut keyboard_inputs: MessageReader<KeyboardInput>,
+    mut mouse_button_inputs: MessageReader<MouseButtonInput>,
     dialog: Single<(Entity, &BindingDialog)>,
     root_entity: Single<Entity, (With<Node>, Without<ChildOf>)>,
     mut buttons: Query<(Entity, &Name, &mut BindingButton)>,
 ) {
-    let keys = key_events
+    let keys = keyboard_inputs
         .read()
         .filter(|event| event.state == ButtonState::Pressed)
         .map(|event| event.key_code.into());
-    let mouse_buttons = mouse_button_events
+    let mouse_buttons = mouse_button_inputs
         .read()
         .filter(|event| event.state == ButtonState::Pressed)
         .map(|event| event.button.into());
@@ -328,7 +328,7 @@ fn cancel_binding(mut commands: Commands, dialog: Single<Entity, With<BindingDia
 }
 
 fn replace_binding(
-    _trigger: Trigger<Pointer<Click>>,
+    _on: On<Pointer<Click>>,
     mut commands: Commands,
     dialog: Single<(Entity, &ConflictDialog)>,
     mut buttons: Query<(&Name, &mut BindingButton)>,
@@ -350,7 +350,7 @@ fn replace_binding(
 }
 
 fn cancel_replace_binding(
-    _trigger: Trigger<Pointer<Click>>,
+    _on: On<Pointer<Click>>,
     mut commands: Commands,
     dialog: Single<Entity, With<ConflictDialog>>,
 ) {
@@ -359,7 +359,7 @@ fn cancel_replace_binding(
 }
 
 fn apply(
-    _trigger: Trigger<Pointer<Click>>,
+    _on: On<Pointer<Click>>,
     mut commands: Commands,
     mut settings: ResMut<InputSettings>,
     buttons: Query<(&BindingButton, &BindingInfo)>,
@@ -406,7 +406,7 @@ fn update_button_background(
 }
 
 fn reload_bindings(
-    _trigger: Trigger<SettingsChanged>,
+    _on: On<SettingsChanged>,
     mut commands: Commands,
     settings: Res<InputSettings>,
     player: Single<Entity, With<Player>>,
@@ -576,7 +576,7 @@ fn player_bundle(settings: InputSettings) -> impl Bundle {
         actions!(
             Player[
                 (
-                    Action::<Move>::new(),
+                    Action::<Movement>::new(),
                     Bindings::spawn((
                         Cardinal {
                             north: settings.forward[0],
@@ -617,7 +617,7 @@ fn player_bundle(settings: InputSettings) -> impl Bundle {
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
-struct Move;
+struct Movement;
 
 #[derive(InputAction)]
 #[action_output(bool)]
