@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.18.2] - 2025-09-10
 
+### Added
+
+- ActionOf now implements `Component::map_entities`
+
 ### Fixed
 
 - `DuplicateRegistration` error when `ContextActivity` or `ContextPriority` are set as required context components by user.

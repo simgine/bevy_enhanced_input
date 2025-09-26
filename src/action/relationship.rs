@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 pub struct ActionOf<C: Component> {
     #[deref]
     #[relationship]
+    #[entities]
     entity: Entity,
     #[reflect(ignore)]
     marker: PhantomData<C>,
