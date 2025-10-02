@@ -1,7 +1,7 @@
 use core::any;
 
 use bevy::prelude::*;
-use log::debug;
+use log::{debug, warn};
 
 use crate::prelude::{Cancel, *};
 
@@ -46,11 +46,21 @@ impl ActionFns {
 }
 
 fn store_value<A: InputAction>(action: &mut EntityMut, value: ActionValue) {
+    let dim = value.dim();
+    if dim != A::Output::DIM {
+        warn!(
+            "action `{}` (`{}`) expects `{:?}`, but got `{dim:?}`",
+            any::type_name::<A>(),
+            action.id(),
+            A::Output::DIM
+        );
+    }
+
     let mut action = action
         .get_mut::<Action<A>>()
         .expect("entity should be an action");
 
-    **action = A::Output::unwrap_value(value);
+    **action = value.into();
 }
 
 fn trigger<A: InputAction>(
@@ -64,7 +74,7 @@ fn trigger<A: InputAction>(
 ) {
     for (name, event) in events.iter_names() {
         debug!(
-            "triggering `{name}` from `{}` for `{context}`",
+            "triggering `{name}` for `{}` (`{action}`) for context `{context}`",
             any::type_name::<A>()
         );
 
@@ -73,7 +83,7 @@ fn trigger<A: InputAction>(
                 let event = Start::<A> {
                     context,
                     action,
-                    value: A::Output::unwrap_value(value),
+                    value: value.into(),
                     state,
                 };
                 commands.trigger(event);
@@ -82,7 +92,7 @@ fn trigger<A: InputAction>(
                 let event = Ongoing::<A> {
                     context,
                     action,
-                    value: A::Output::unwrap_value(value),
+                    value: value.into(),
                     state,
                     elapsed_secs: time.elapsed_secs,
                 };
@@ -92,7 +102,7 @@ fn trigger<A: InputAction>(
                 let event = Fire::<A> {
                     context,
                     action,
-                    value: A::Output::unwrap_value(value),
+                    value: value.into(),
                     state,
                     fired_secs: time.fired_secs,
                     elapsed_secs: time.elapsed_secs,
@@ -103,7 +113,7 @@ fn trigger<A: InputAction>(
                 let event = Cancel::<A> {
                     context,
                     action,
-                    value: A::Output::unwrap_value(value),
+                    value: value.into(),
                     state,
                     elapsed_secs: time.elapsed_secs,
                 };
@@ -113,7 +123,7 @@ fn trigger<A: InputAction>(
                 let event = Complete::<A> {
                     context,
                     action,
-                    value: A::Output::unwrap_value(value),
+                    value: value.into(),
                     state,
                     fired_secs: time.fired_secs,
                     elapsed_secs: time.elapsed_secs,
