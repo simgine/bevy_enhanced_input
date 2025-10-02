@@ -29,9 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Serde integration is now gated behind the `serialize` feature.
 - Warn on dimension mismatch instead of panicking.
 
-### Fixed
+### Removed
 
-- `ActionOutput::unwrap_value`.
+- `ActionOutput::unwrap_value`. Use `From` impl instead.
 
 ## [0.18.2] - 2025-09-10
 
