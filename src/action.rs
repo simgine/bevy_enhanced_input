@@ -84,65 +84,28 @@ pub trait InputAction: 'static {
 
 /// Type which can be used as [`InputAction::Output`].
 pub trait ActionOutput:
-    Into<ActionValue> + Default + Send + Sync + Debug + Clone + Copy + PartialEq
+    From<ActionValue> + Default + Send + Sync + Debug + Clone + Copy + PartialEq
 {
     /// Dimension of this output.
     ///
     /// Used for [`ActionValue`] initialization.
     const DIM: ActionValueDim;
-
-    /// Converts the value into the action output type.
-    ///
-    /// Used to write the value into [`Action<C>`].
-    ///
-    /// # Panics
-    ///
-    /// Panics if the value represents a different type.
-    fn unwrap_value(value: ActionValue) -> Self;
 }
 
 impl ActionOutput for bool {
     const DIM: ActionValueDim = ActionValueDim::Bool;
-
-    fn unwrap_value(value: ActionValue) -> Self {
-        let ActionValue::Bool(value) = value else {
-            panic!("output value should be bool");
-        };
-        value
-    }
 }
 
 impl ActionOutput for f32 {
     const DIM: ActionValueDim = ActionValueDim::Axis1D;
-
-    fn unwrap_value(value: ActionValue) -> Self {
-        let ActionValue::Axis1D(value) = value else {
-            panic!("output value should be axis 1D");
-        };
-        value
-    }
 }
 
 impl ActionOutput for Vec2 {
     const DIM: ActionValueDim = ActionValueDim::Axis2D;
-
-    fn unwrap_value(value: ActionValue) -> Self {
-        let ActionValue::Axis2D(value) = value else {
-            panic!("output value should be axis 2D");
-        };
-        value
-    }
 }
 
 impl ActionOutput for Vec3 {
     const DIM: ActionValueDim = ActionValueDim::Axis3D;
-
-    fn unwrap_value(value: ActionValue) -> Self {
-        let ActionValue::Axis3D(value) = value else {
-            panic!("output value should be axis 3D");
-        };
-        value
-    }
 }
 
 /// Behavior configuration for [`Action<C>`].

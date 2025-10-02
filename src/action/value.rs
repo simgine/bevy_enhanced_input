@@ -185,6 +185,30 @@ impl From<(f32, f32, f32)> for ActionValue {
     }
 }
 
+impl From<ActionValue> for bool {
+    fn from(value: ActionValue) -> Self {
+        value.as_bool()
+    }
+}
+
+impl From<ActionValue> for f32 {
+    fn from(value: ActionValue) -> Self {
+        value.as_axis1d()
+    }
+}
+
+impl From<ActionValue> for Vec2 {
+    fn from(value: ActionValue) -> Self {
+        value.as_axis2d()
+    }
+}
+
+impl From<ActionValue> for Vec3 {
+    fn from(value: ActionValue) -> Self {
+        value.as_axis3d()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
