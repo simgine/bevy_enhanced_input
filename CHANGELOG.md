@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update to Bevy 0.17.0-rc.1.
+- Update to Bevy 0.17.0.
 - Rename `EnhancedInputSet` to `EnhancedInputSystems`.
 - Use present tense for all event names:
   - `Pressed` -> `Press`.
