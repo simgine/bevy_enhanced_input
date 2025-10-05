@@ -243,7 +243,7 @@ We provide both push-style (via observers) and pull-style (by checking component
 
 ### Push-style
 
-It's recommended to use the observer API, especially for actions that trigger rarely. Don't worry about losing parallelism - running
+For most cases it's better to use observer API, especially for actions that trigger rarely. Don't worry about losing parallelism - running
 a system has its own overhead, so for small logic, it's actually faster to execute it outside a system. Just avoid heavy logic in
 action observers.
 
@@ -279,9 +279,14 @@ fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transfor
 The event system is highly flexible. For example, you can use the [`Hold`] condition for an attack action, triggering strong attacks on
 [`Complete`] events and regular attacks on [`Cancel`] events.
 
+This approach can be mixed with the pull-style API if you need to access values of other actions in your observer.
+
 ### Pull-style
 
-You can simply query [`Action<C>`] in a system to get the action value in a strongly typed form.
+Sometimes you may want to access multiple actions at the same time. Or check an action state
+during other gameplay logic. For cases like you can use pull-style API.
+
+Since actions just entities, you can query [`Action<C>`] in a system to get the action value in a strongly typed form.
 Alternatively, you can query [`ActionValue`] in its dynamically typed form.
 
 To access the action state, use the [`ActionState`] component. State transitions from the last action evaluation are recorded
@@ -290,6 +295,8 @@ in the [`ActionEvents`] component, which lets you detect when an action has just
 Timing information provided via [`ActionTime`] component.
 
 You can also use Bevy's change detection - these components marked as changed only if their values actually change.
+
+For singleplayer games you can use `Single` for a convenient access:
 
 ```
 # use bevy::prelude::*;
@@ -307,6 +314,45 @@ fn apply_input(
     // We defined the output of `Movement` as `Vec2`,
     // but since translation expects `Vec3`, we extend it to 3 axes.
     player_transform.translation = movement.extend(0.0);
+}
+# #[derive(Component)]
+# struct Player;
+# #[derive(InputAction)]
+# #[action_output(bool)]
+# struct Jump;
+# #[derive(InputAction)]
+# #[action_output(Vec2)]
+# struct Movement;
+```
+
+For games with multiple contexts you can query for specific action or
+iterate over action contexts.
+
+```
+# use bevy::prelude::*;
+# use bevy_enhanced_input::prelude::*;
+fn multiplayer_movement(
+    jumps: Query<&ActionEvents, With<Action<Jump>>>,
+    movements: Query<&Action<Movement>>,
+    mut players: Query<(&mut Transform, &Actions<Player>)>,
+) {
+    for (mut transform, actions) in &mut players {
+        let Some(jump_events) = jumps.iter_many(actions).next() else {
+            continue;
+        };
+        let Some(movement) = movements.iter_many(actions).next() else {
+            continue;
+        };
+
+        // Jumped this frame
+        if jump_events.contains(ActionEvents::STARTED) {
+            // User logic...
+        }
+
+        // We defined the output of `Movement` as `Vec2`,
+        // but since translation expects `Vec3`, we extend it to 3 axes.
+        transform.translation = movement.extend(0.0);
+    }
 }
 # #[derive(Component)]
 # struct Player;
