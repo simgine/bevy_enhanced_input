@@ -283,7 +283,7 @@ This approach can be mixed with the pull-style API if you need to access values 
 
 ### Pull-style
 
-Sometimes you may want to access multiple actions at the same time. Or check an action state
+Sometimes you may want to access multiple actions at the same time, or check an action state
 during other gameplay logic. For cases like you can use pull-style API.
 
 Since actions just entities, you can query [`Action<C>`] in a system to get the action value in a strongly typed form.
