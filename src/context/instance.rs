@@ -1,8 +1,4 @@
-use core::{
-    any::{self, TypeId},
-    cmp::Reverse,
-    marker::PhantomData,
-};
+use core::{any::TypeId, cmp::Reverse, marker::PhantomData};
 
 use bevy::{
     ecs::{
@@ -54,7 +50,7 @@ impl<S: ScheduleLabel> ContextInstances<S> {
 /// Meta information for context on an entity.
 pub(crate) struct ContextInstance {
     pub(super) entity: Entity,
-    pub(super) name: &'static str,
+    pub(super) name: ShortName<'static>,
     type_id: TypeId,
     priority: usize,
     is_active: fn(&Self, &FilteredEntityRef) -> bool,
@@ -68,7 +64,7 @@ impl ContextInstance {
     fn new<C: Component>(entity: Entity, priority: usize) -> Self {
         Self {
             entity,
-            name: any::type_name::<C>(),
+            name: ShortName::of::<C>(),
             type_id: TypeId::of::<C>(),
             priority,
             is_active: Self::is_active_typed::<C>,

@@ -1,5 +1,3 @@
-use core::any;
-
 use bevy::prelude::*;
 use log::{debug, warn};
 
@@ -50,7 +48,7 @@ fn store_value<A: InputAction>(action: &mut EntityMut, value: ActionValue) {
     if dim != A::Output::DIM {
         warn!(
             "action `{}` (`{}`) expects `{:?}`, but got `{dim:?}`",
-            any::type_name::<A>(),
+            ShortName::of::<A>(),
             action.id(),
             A::Output::DIM
         );
@@ -75,7 +73,7 @@ fn trigger<A: InputAction>(
     for (name, event) in events.iter_names() {
         debug!(
             "triggering `{name}` for `{}` (`{action}`) for context `{context}`",
-            any::type_name::<A>()
+            ShortName::of::<A>()
         );
 
         match event {
