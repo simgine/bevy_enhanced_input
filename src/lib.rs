@@ -106,7 +106,8 @@ Then, during [`EnhancedInputSet::Apply`], the value from [`ActionValue`] is writ
 However, you might want to apply preprocessing first - for example, invert values, apply sensitivity, or remap axes. This is
 where [input modifiers](crate::modifier) come in. They are components that implement the [`InputModifier`] trait and can
 be attached to both actions and bindings. Binding-level modifiers are applied first, followed by action-level modifiers.
-Use action-level modifiers as global modifiers that are applied to all bindings of the action.
+Within a single level, modifiers are evaluated in their insertion order. Use action-level modifiers as global modifiers that
+are applied to all bindings of the action.
 
 ```
 use bevy::prelude::*;
@@ -188,8 +189,8 @@ Instead of hardcoded states like "pressed" or "released", all actions use an abs
 which determine when the action is triggered. This allows you to define flexible behaviors, such as "hold for 1 second".
 
 Input conditions are components that implement [`InputCondition`] trait. Similar to modifiers, you can attach them to
-both actions and bindings. They also evaluated during [`EnhancedInputSet::Update`] right after modifiers and update
-[`ActionState`] on the associated action entity.
+both actions and bindings. They also evaluated during [`EnhancedInputSet::Update`] right after modifiers in their insertion
+order and update [`ActionState`] on the associated action entity.
 
 If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,
 meaning it will trigger on any non-zero input value.
