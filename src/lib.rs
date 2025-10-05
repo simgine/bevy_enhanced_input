@@ -331,7 +331,7 @@ iterate over action contexts.
 ```
 # use bevy::prelude::*;
 # use bevy_enhanced_input::prelude::*;
-fn multiplayer_movement(
+fn apply_input(
     jumps: Query<&ActionEvents, With<Action<Jump>>>,
     movements: Query<&Action<Movement>>,
     mut players: Query<(&mut Transform, &Actions<Player>)>,
