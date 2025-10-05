@@ -4,7 +4,7 @@ pub mod time;
 mod trigger_tracker;
 
 use core::{
-    any::{self, TypeId},
+    any::TypeId,
     cmp::{Ordering, Reverse},
     marker::PhantomData,
 };
@@ -76,8 +76,8 @@ impl InputContextAppExt for App {
     fn add_input_context_to<S: ScheduleLabel + Default, C: Component>(&mut self) -> &mut Self {
         debug!(
             "registering `{}` for `{}`",
-            any::type_name::<C>(),
-            any::type_name::<S>(),
+            ShortName::of::<C>(),
+            ShortName::of::<S>(),
         );
 
         let actions_id = self.world_mut().register_component::<Actions<C>>();
@@ -90,7 +90,7 @@ impl InputContextAppExt for App {
             debug_assert!(
                 !contexts.actions_ids.contains(&actions_id),
                 "context `{}` shouldn't be added more then once",
-                any::type_name::<C>()
+                ShortName::of::<C>()
             );
             contexts.actions_ids.push(actions_id);
             contexts.activity_ids.push(activity_id);
@@ -172,7 +172,7 @@ impl ScheduleContexts {
         conditions: &ConditionRegistry,
         modifiers: &ModifierRegistry,
     ) {
-        debug!("setting up systems for `{}`", any::type_name::<S>());
+        debug!("setting up systems for `{}`", ShortName::of::<S>());
 
         let update_fn = (
             ParamBuilder,
@@ -246,11 +246,7 @@ fn register<C: Component, S: ScheduleLabel>(
     mut instances: ResMut<ContextInstances<S>>,
     contexts: Query<&ContextPriority<C>, Allow<Disabled>>,
 ) {
-    debug!(
-        "registering `{}` to `{}`",
-        any::type_name::<C>(),
-        add.entity,
-    );
+    debug!("registering `{}` to `{}`", ShortName::of::<C>(), add.entity);
 
     let priority = **contexts.get(add.entity).unwrap();
     instances.add::<C>(add.entity, priority);
@@ -262,7 +258,7 @@ fn unregister<C: Component, S: ScheduleLabel>(
 ) {
     debug!(
         "unregistering `{}` from `{}`",
-        any::type_name::<C>(),
+        ShortName::of::<C>(),
         add.entity,
     );
 
@@ -282,7 +278,7 @@ fn deactivate<C: Component>(
 
     debug!(
         "setting activity of `{}` to `{}`",
-        any::type_name::<C>(),
+        ShortName::of::<C>(),
         *active,
     );
 
@@ -435,6 +431,7 @@ fn update<S: ScheduleLabel>(
             mock,
         )) = actions_iter.fetch_next()
         {
+            let action_name = ShortName(action_name);
             let (new_state, new_value) = if !context_active {
                 trace!("skipping updating `{action_name}` due to inactive context");
                 let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
