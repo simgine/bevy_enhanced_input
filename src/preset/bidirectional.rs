@@ -64,8 +64,8 @@ impl Bidirectional<Binding, Binding> {
     #[must_use]
     pub fn up_down_arrow() -> Self {
         Self {
-            positive: KeyCode::ArrowRight.into(),
-            negative: KeyCode::ArrowLeft.into(),
+            positive: KeyCode::ArrowUp.into(),
+            negative: KeyCode::ArrowDown.into(),
         }
     }
 
