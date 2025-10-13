@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use `ShortName` for logging.
 
+### Fixed
+
+- `Bidirectional::up_down_arrow()` was using left and right arrows.
+
 ## [0.19.0] - 2025-10-02
 
 ### Added
