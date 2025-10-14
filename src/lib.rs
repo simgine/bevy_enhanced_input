@@ -36,14 +36,33 @@ The behavior of each action can be further customized using the [`ActionSettings
 
 ### Bindings
 
-Bindings are represented by entities with the [`Binding`] component. It can be constructed from various input types, such as
-[`KeyCode`], [`MouseButton`], [`GamepadAxis`], etc. Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
-we provide the [`bindings!`] macro to spawn related bindings. But unlike [`ActionOf<C>`], it's not generic, since each action is represented
-by a separate entity.
+Bindings define how actions are triggered by input sources that your player might press, like keyboard keys or gamepad buttons.
+
+We provide support for a variety of input sources out of the box, including:
+- Keyboard keys via [`KeyCode`]
+- Mouse buttons via [`MouseButton`]
+- Mouse wheel via [`MouseWheel`](bevy::input::mouse::MouseWheel)
+- Gamepad buttons via [`GamepadButton`]
+- Gamepad axes via [`GamepadAxis`]
+
+Inside of this crate, bindings are represented by entities with the [`Binding`] component.
+Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
+we provide the [`bindings!`] macro to spawn related bindings.
 
 ```
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
+
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
 
 let mut app = App::new();
 app.add_plugins(EnhancedInputPlugin);
@@ -64,16 +83,6 @@ world.spawn((
     ])
 ));
 
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Jump;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Fire;
 ```
 
 By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
