@@ -151,6 +151,9 @@ For example, the [`DeadZone`] modifier can be used to ignore small movements of 
 
 See the module docs for [input conditions](crate::condition) and [input modifiers](crate::modifier) for more details.
 
+These complex input patterns can be tedious to set up manually, especially for common use cases like character movement.
+To simplify this, we provide a number of [presets](crate::preset) that bundle common bindings and modifiers together.
+
 ## Reacting to actions
 
 Up to this point, we've explained how to define actions and link them to users inputs,
