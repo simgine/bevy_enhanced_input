@@ -7,7 +7,7 @@ and are evaluated in the order of their context's [`ContextPriority`],
 then by the order in which the actions were added to the context,
 with the first action having the highest priority.
 
-## Removing contexts
+# Removing contexts
 
 If you despawn an entity with its context, the actions and bindings will also be despawned.
 However, if you only want to remove a context from an entity, you must remove the required components

@@ -3,7 +3,7 @@ A powerful observer-based input manager for Bevy.
 
 The design of this crate is heavily inspired by
 [Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine),
-but adapted to Bevy's ECS architecture and idioms. Thanks!
+but adapted to Bevy's ECS architecture and idioms.
 
 ## Core Concepts
 
@@ -14,7 +14,7 @@ This crate introduces three main concepts:
 - **Contexts** represent a certain input state the player can be in, such as "On foot" or "In car". They associate actions with
   entities and define when those actions are evaluated.
 
-  In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
+In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
 
 ### Actions
 
@@ -93,9 +93,10 @@ context entity.
 Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship,
 where `C` is your context type, and can be quickly bound to them using the [`actions!`] macro.
 
-Inside of this crate, contexts are stored using regular components, commonly on a `Player` entity.
+Inside of this crate, contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
 Depending on your type of game, you may have a single global context
-or multiple contexts for different gameplay states.
+or multiple contexts for different gameplay states. For games with multiple entities driven by a single context it's
+common to create a "controller" entity which applies the input to the desired entity.
 
 Contexts can be activated or deactivated using the [`ContextActivity`] component.
 By default, contexts are active when the component is present.
@@ -153,7 +154,7 @@ Most users find the push-style API more ergonomic and easier to reason about,
 but the pull-style API can allow for more complex checks and interactions between the state of multiple actions.
 
 Ultimately, the choice between these two approaches depends on your specific use case and preferences,
-with performance playing a relatively minor role unless you have a very large number of acting entities.
+with performance playing a relatively minor role unless you have a very large number of acting entities or if you have a complex logic for your action reaction.
 
 ### Push-style
 
