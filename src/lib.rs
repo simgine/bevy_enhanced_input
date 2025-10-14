@@ -5,7 +5,7 @@ The design of this crate is heavily inspired by
 [Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine),
 but adapted to Bevy's ECS architecture and idioms.
 
-## Core Concepts
+# Core Concepts
 
 This crate introduces three main concepts:
 
@@ -16,7 +16,7 @@ This crate introduces three main concepts:
 
 In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
 
-### Actions
+## Actions
 
 Each action represents a different in-game behavior.
 To create a new action, you will need to define a new struct and implement the [`InputAction`] trait for it,
@@ -34,7 +34,7 @@ and can be quickly bound to them using the [`actions!`] macro.
 
 The behavior of each action can be further customized using the [`ActionSettings`] component.
 
-### Bindings
+## Bindings
 
 Bindings define how actions are triggered by input sources that your player might press, like keyboard keys or gamepad buttons.
 
@@ -88,7 +88,7 @@ world.spawn((
 By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
 context entity.
 
-### Contexts
+## Contexts
 
 Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship,
 where `C` is your context type, and can be quickly bound to them using the [`actions!`] macro.
@@ -110,7 +110,7 @@ Context actions will be evaluated in the schedule associated at context registra
 schedule will be evaluated in their spawning order, but you can override it by adding the [`ContextPriority`] component.
 You can also activate or deactivate contexts by inserting [`ContextActivity`] component.
 
-### Putting it all together
+## Putting it all together
 
 Let's summarize how contexts, actions, and bindings relate to each other in the ECS world.
 
@@ -156,7 +156,7 @@ but the pull-style API can allow for more complex checks and interactions betwee
 Ultimately, the choice between these two approaches depends on your specific use case and preferences,
 with performance playing a relatively minor role unless you have a very large number of acting entities or if you have a complex logic for your action reaction.
 
-### Push-style
+## Push-style
 
 When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
 These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
@@ -286,7 +286,7 @@ fn apply_input(
 # struct Movement;
 ```
 
-## Next steps
+# Next steps
 
 While this is enough to allow you to understand the examples and get started, there are a number of other useful features to learn about.
 Each of these is complex to deserve their own section:
@@ -297,7 +297,7 @@ Each of these is complex to deserve their own section:
 - [mocking](crate::action::ActionMock) for simulating input in tests, cutscenes or as part of replicated network state
 - [the details of working with contexts](crate::context) (e.g. managing multiple players or gameplay states)
 
-## Input and UI
+# Input and UI
 
 Currently, we don't integrate `bevy_input_focus` directly. But we provide [`ActionSources`] resource
 that could be used to prevents actions from triggering during UI interactions. See its docs for details.
