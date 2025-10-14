@@ -7,15 +7,16 @@ but adapted to Bevy's ECS architecture and idioms. Thanks!
 
 ## Core Concepts
 
+This crate introduces three main concepts:
+
 - **Actions** represent something a player can do, like "Jump", "Movement", or "Open Menu". They are not tied to specific input.
 - **Bindings** connect those actions to real input sources such as keyboard keys, mouse buttons, gamepad axes, etc.
 - **Contexts** represent a certain input state the player can be in, such as "On foot" or "In car". They associate actions with
   entities and define when those actions are evaluated.
 
-Contexts are regular components. Depending on your type of game, you may have a single global context
-or multiple contexts for different gameplay states. Contexts can be layered, and any number of them can be active at the same time.
-To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
-evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
+  In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
+
+### Actions
 
 Actions are represented by entities with the [`Action<A>`] component, where `A` is a user-defined marker that implements the
 [`InputAction`] trait, which defines [`InputAction::Output`] type - the value the action produces. It could be [`bool`], [`f32`],
@@ -23,11 +24,14 @@ Actions are represented by entities with the [`Action<A>`] component, where `A` 
 similar to [`related!`], but for actions. The relationship is generic over `C` because a single entity can have multiple associated
 contexts.
 
+Actions also have [`ActionSettings`] component that customizes their behavior.
+
+### Bindings
+
 Bindings are represented by entities with the [`Binding`] component. It can be constructed from various input types, such as
 [`KeyCode`], [`MouseButton`], [`GamepadAxis`], etc. Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
 we provide the [`bindings!`] macro to spawn related bindings. But unlike [`ActionOf<C>`], it's not generic, since each action is represented
 by a separate entity.
-
 
 ```
 use bevy::prelude::*;
@@ -67,11 +71,16 @@ struct Fire;
 By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
 context entity.
 
+### Contexts
+
+Contexts are regular components. Depending on your type of game, you may have a single global context
+or multiple contexts for different gameplay states. Contexts can be layered, and any number of them can be active at the same time.
+To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
+evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
+
 Context actions will be evaluated in the schedule associated at context registration. Contexts registered in the same
 schedule will be evaluated in their spawning order, but you can override it by adding the [`ContextPriority`] component.
 You can also activate or deactivate contexts by inserting [`ContextActivity`] component.
-
-Actions also have [`ActionSettings`] component that customizes their behavior.
 
 ## Input modifiers
 
