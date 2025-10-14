@@ -18,6 +18,8 @@ be attached to both actions and bindings. Binding-level modifiers are applied fi
 Within a single level, modifiers are evaluated in their insertion order. Use action-level modifiers as global modifiers that
 are applied to all bindings of the action.
 
+You can see how this works by examining this expanded example, taken from the [`preset`](crate::preset) module docs:
+
 ```
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -54,6 +56,8 @@ struct Player;
 #[action_output(Vec2)]
 struct Movement;
 ```
+
+As discussed in the [`preset`](crate::preset) module, this can be simplified substantially using presets like [`Cardinal`](crate::Cardinal) and [`Axial`](crate::Axial)!
 */
 
 pub mod accumulate_by;

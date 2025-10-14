@@ -1,10 +1,48 @@
 /*!
-Some bindings are very common. It would be inconvenient to bind WASD keys and analog sticks manually, like in the example above,
-every time. To solve this, we provide [presets](crate::preset) - structs that implement [`SpawnableList`] and store bindings that
-will be spawned with predefined modifiers. To spawn them, you need to to call [`SpawnRelated::spawn`] implemented for [`Bindings`]
-directly instead of the [`bindings!`] macro.
+Preset bindings for common input binding patterns.
 
-For example, you can use [`Cardinal`] and [`Axial`] presets to simplify the example above.
+Consider a common pattern of moving a character using keyboard keys and a gamepad stick.
+With the help of [modifiers](crate::modifier) you can achieve this as follows:
+
+```
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+let mut world = World::new();
+world.spawn((
+    Player,
+    actions!(Player[
+        (
+            Action::<Movement>::new(),
+            // Modifier components at the action level.
+            DeadZone::default(),    // Applies non-uniform normalization.
+            SmoothNudge::default(), // Smoothes movement.
+            bindings![
+                // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
+                // so you need to assign keys to axes using swizzle to reorder them and negation.
+                (KeyCode::KeyW, SwizzleAxis::YXZ),
+                (KeyCode::KeyA, Negate::all()),
+                (KeyCode::KeyS, Negate::all(), SwizzleAxis::YXZ),
+                KeyCode::KeyD,
+                // In Bevy sticks split by axes and captured as 1-dimensional inputs,
+                // so Y stick needs to be sweezled into Y axis.
+                GamepadAxis::LeftStickX,
+                (GamepadAxis::LeftStickY, SwizzleAxis::YXZ),
+            ]
+        ),
+    ]),
+));
+
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Movement;
+```
+
+However, this is quite onerous! It would be inconvenient to bind WASD keys and analog sticks manually, like in the example above,
+every time. You can use [`Cardinal`](crate::Cardinal) and [`Axial`](crate::Axial) presets to simplify the example above.
 
 ```
 use bevy::prelude::*;
@@ -36,16 +74,21 @@ world.spawn((
 
 You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
 
-## Implementation details
+# Implementation details
 
-Each of these preset helpers is defined using a [`SpawnableList`](bevy::ecs::spawn::SpawnableList).
+Each of the preset types defined in this module generates a list of binding entities with the appropriate components
+attached to them.
+
+To achieve this, each preset type implements the [`SpawnableList`](bevy::ecs::spawn::SpawnableList) trait.
 Similar to other [`SpawnableList`](bevy::ecs::spawn::SpawnableList)s in Bevy, like [`SpawnWith`](bevy::ecs::spawn::SpawnWith)
-or [`SpawnIter`](bevy::ecs::spawn::SpawnIter), you need to call [`SpawnRelated::spawn`](bevy::prelude::SpawnRelated)
-implemented for [`Bindings`](crate::prelude::Bindings) directly instead of using the [`bindings!`](crate::prelude::bindings) macro.
+or [`SpawnIter`](bevy::ecs::spawn::SpawnIter), you need to call [`Bindings::spawn`](bevy::prelude::SpawnRelated)
+from the [`SpawnRelated`](bevy::prelude::SpawnRelated) trait to generate the binding entities.
+
+You cannot use the [`bindings!`](crate::prelude::bindings) macro.
 
 # Examples
 
-With additional bindings.
+Adding additional bindings:
 
 ```
 # use bevy::prelude::*;
@@ -59,7 +102,7 @@ Bindings::spawn((
 ));
 ```
 
-Initializing fields.
+Initializing fields:
 
 ```
 # use bevy::prelude::*;
@@ -74,7 +117,7 @@ Bindings::spawn((
 ));
 ```
 
-Loading from settings.
+Loading from settings:
 
 ```
 # use bevy::prelude::*;
