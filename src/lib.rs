@@ -142,25 +142,38 @@ These patterns make it easy to manage complex input schemes in a structured but 
 and support complex scenarios like multiple players, different gameplay states, customizable controls,
 and computer-controlled entities that take the same actions as players.
 
-## Reacting on actions
+## Reacting to actions
 
-Up to this point, we've only defined actions and contexts but haven't reacted to them yet.
-We provide both push-style (via observers) and pull-style (by checking components) APIs.
+Up to this point, we've explained how to define actions and link them to users inputs,
+but haven't explained how you might actually react to those actions in your game logic.
+
+We provide two flavors of API for this: a push-style API based on observers and a pull-style API based on querying action components.
+
+Most users find the push-style API more ergonomic and easier to reason about,
+but the pull-style API can allow for more complex checks and interactions between the state of multiple actions.
+
+Ultimately, the choice between these two approaches depends on your specific use case and preferences,
+with performance playing a relatively minor role unless you have a very large number of acting entities.
 
 ### Push-style
 
-For most cases it's better to use observer API, especially for actions that trigger rarely. Don't worry about losing parallelism - running
-a system has its own overhead, so for small logic, it's actually faster to execute it outside a system. Just avoid heavy logic in
-action observers.
+When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
+These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
+updated during [`EnhancedInputSystems::Apply`].
 
-During [`EnhancedInputSet::Apply`], events are triggered based on transitions of [`ActionState`], such as
-[`Started<A>`], [`Fired<A>`], and others, where `A` is your action type. This includes transitions between identical states.
-For a full list of transition events, see the [`ActionEvents`] component documentation.
-Just like with the [`ActionState`], their meaning depends on the assigned [input conditions](crate::condition),
+There are a number of different [`ActionEvents`], but the most commonly used are:
+- [`Start<A>`]: The action has started triggering (e.g. button pressed).
+- [`Fire<A>`]: The action is currently triggering (e.g. button held).
+- [`Complete<A>`]: The action has stopped triggering (e.g. button released after being held).
+- [`Cancel<A>`]: The action was interrupted (e.g. by another action with higher priority).
 
-The event target will be the entity with the context component, and the output type will match the action's [`InputAction::Output`].
-Events also include additional data, such as timings and state. See the documentation for each [event type](crate::action::events)
-for more details.
+These events are targeted at the entity with the context component,
+and will include information about the input values based on the [`InputAction::Output`],
+as well as additional metadata such as timing information.
+See the documentation for each [event type](crate::action::events) for more details.
+
+Each of these events can be observed using the [`On<E>`] system parameter in a Bevy observer,
+responding to changes as they occur during command flushes.
 
 ```
 use bevy::prelude::*;
