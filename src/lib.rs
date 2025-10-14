@@ -137,6 +137,20 @@ These patterns make it easy to manage complex input schemes in a structured but 
 and support complex scenarios like multiple players, different gameplay states, customizable controls,
 and computer-controlled entities that take the same actions as players.
 
+## More sophisticated input patterns
+
+While we can bind actions directly to input sources like buttons, further customization or preprocessing is often needed.
+Not all inputs are "buttonlike": we may want to only trigger an action when a button is held for a certain duration,
+or when a joystick is moved beyond a certain threshold.
+
+There are two main ways to achieve this: using input conditions and input modifiers:
+- Input conditions define when an action is considered to be triggered based on the state of its bindings.
+For example, the [`Hold`] condition can be used to trigger an action only when a button is held down for a specified duration.
+- Input modifiers transform the raw input values from bindings before they are processed by the action.
+For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
+
+See the module docs for [input conditions](crate::condition) and [input modifiers](crate::modifier) for more details.
+
 ## Reacting to actions
 
 Up to this point, we've explained how to define actions and link them to users inputs,
@@ -160,6 +174,11 @@ There are a number of different [`ActionEvents`], but the most commonly used are
 - [`Start<A>`]: The action has started triggering (e.g. button pressed).
 - [`Fire<A>`]: The action is currently triggering (e.g. button held).
 - [`Complete<A>`]: The action has stopped triggering (e.g. button released after being held).
+
+The exact meaning of each [action event](crate::action::events) depends on the attached [input conditions](crate::condition).
+For example, with the [`Down`] condition, [`Fire<A>`] triggers when the user holds the button.
+But with [`HoldAndRelease`] it will trigger when user releases the button after holding it for the specified amount of time.
+
 These events are targeted at the entity with the context component,
 and will include information about the input values based on the [`InputAction::Output`],
 as well as additional metadata such as timing information.
