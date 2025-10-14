@@ -1,6 +1,9 @@
 /*!
-Input manager for [Bevy](https://bevyengine.org), inspired by
-[Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine).
+A powerful observer-based input manager for Bevy.
+
+The design of this crate is heavily inspired by
+[Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine),
+but adapted to Bevy's ECS architecture and idioms. Thanks!
 
 # Quick start
 
