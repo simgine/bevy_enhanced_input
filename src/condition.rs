@@ -10,6 +10,8 @@ order and update [`ActionState`] on the associated action entity.
 If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,
 meaning it will trigger on any non-zero input value.
 
+# Examples
+
 ```
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;

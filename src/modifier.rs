@@ -18,6 +18,8 @@ be attached to both actions and bindings. Binding-level modifiers are applied fi
 Within a single level, modifiers are evaluated in their insertion order. Use action-level modifiers as global modifiers that
 are applied to all bindings of the action.
 
+# Examples
+
 You can see how this works by examining this expanded example, taken from the [`preset`](crate::preset) module docs:
 
 ```
