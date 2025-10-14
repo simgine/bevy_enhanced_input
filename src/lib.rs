@@ -96,7 +96,7 @@ Contexts can be activated or deactivated using the [`ContextActivity`] component
 By default, contexts are active when the component is present.
 When active, all actions associated with the context are evaluated.
 
-Contexts can be layered, causing one context to rely on another's presence, and any number of them can be active at the same time.
+Contexts can be [layered](crate::context::ContextPriority), causing one context to rely on another's presence, and any number of them can be active at the same time.
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 
