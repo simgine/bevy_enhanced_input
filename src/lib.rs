@@ -5,24 +5,6 @@ The design of this crate is heavily inspired by
 [Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine),
 but adapted to Bevy's ECS architecture and idioms. Thanks!
 
-# Quick start
-
-## Prelude
-
-We provide a [`prelude`] module, which exports most of the typically used traits and types.
-
-## Plugins
-
-Add [`EnhancedInputPlugin`] to your app:
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-let mut app = App::new();
-app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
-```
-
 ## Core Concepts
 
 - **Actions** represent something a player can do, like "Jump", "Movement", or "Open Menu". They are not tied to specific input.
