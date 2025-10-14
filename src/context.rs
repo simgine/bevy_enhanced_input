@@ -4,8 +4,11 @@ They allow you to define when actions are active and which inputs they respond t
 
 Actions are checked only if their context is active,
 and are evaluated in the order of their context's [`ContextPriority`],
-then by the order in which the actions were added to the context,
+then mainly by the order in which the actions were added to the context,
 with the first action having the highest priority.
+
+Further details on how to order actions due to their inputs being consumed
+can be found in the documentation for [`ActionSettings::consume_input`].
 
 # Removing contexts
 
