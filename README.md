@@ -7,7 +7,7 @@
 
 A powerful observer-based input manager for [Bevy](https://bevyengine.org), allowing you to bind keys and other inputs to in-game actions.
 
-The design of this crate was inspired by [Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine). Thanks!
+The design of this crate was inspired by [Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine) plugin.
 
 ## Getting Started
 
