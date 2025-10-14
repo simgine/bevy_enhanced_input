@@ -1,3 +1,51 @@
+/*!
+Instead of hardcoded states like "pressed" or "released", all actions use an abstract [`ActionState`] component
+(which is a required component of [`Action<C>`]). Its meaning depends on the assigned [input conditions](crate::condition),
+which determine when the action is triggered. This allows you to define flexible behaviors, such as "hold for 1 second".
+
+Input conditions are components that implement [`InputCondition`] trait. Similar to modifiers, you can attach them to
+both actions and bindings. They also evaluated during [`EnhancedInputSet::Update`] right after modifiers in their insertion
+order and update [`ActionState`] on the associated action entity.
+
+If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,
+meaning it will trigger on any non-zero input value.
+
+```
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+#[derive(Component)]
+struct Player;
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
+
+let mut world = World::new();
+world.spawn((
+    Player,
+    actions!(Player[
+        (
+            // The action will trigger only if held for 1 second.
+            Action::<Jump>::new(),
+            Hold::new(1.0),
+            bindings![KeyCode::Space, GamepadButton::South],
+        ),
+        (
+            Action::<Fire>::new(),
+            Pulse::new(0.5), // The action will trigger every 0.5 seconds while held.
+            bindings![
+                (GamepadButton::RightTrigger2, Down::new(0.3)), // Additionally the right trigger only counts if its value is greater than 0.3.
+                MouseButton::Left,
+            ]
+        ),
+    ])
+));
+```
+*/
+
 pub mod block_by;
 pub mod chord;
 pub mod cooldown;

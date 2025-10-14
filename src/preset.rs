@@ -1,6 +1,44 @@
 /*!
-[`SpawnableList`](bevy::ecs::spawn::SpawnableList)s with common modifiers.
+Some bindings are very common. It would be inconvenient to bind WASD keys and analog sticks manually, like in the example above,
+every time. To solve this, we provide [presets](crate::preset) - structs that implement [`SpawnableList`] and store bindings that
+will be spawned with predefined modifiers. To spawn them, you need to to call [`SpawnRelated::spawn`] implemented for [`Bindings`]
+directly instead of the [`bindings!`] macro.
 
+For example, you can use [`Cardinal`] and [`Axial`] presets to simplify the example above.
+
+```
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+let mut world = World::new();
+
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Movement;
+
+world.spawn((
+    Player,
+    actions!(Player[
+        (
+            Action::<Movement>::new(),
+            DeadZone::default(),
+            SmoothNudge::default(),
+            Bindings::spawn((
+                Cardinal::wasd_keys(),
+                Axial::left_stick(),
+            )),
+        ),
+    ]),
+));
+```
+
+You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
+
+## Implementation details
+
+Each of these preset helpers is defined using a [`SpawnableList`](bevy::ecs::spawn::SpawnableList).
 Similar to other [`SpawnableList`](bevy::ecs::spawn::SpawnableList)s in Bevy, like [`SpawnWith`](bevy::ecs::spawn::SpawnWith)
 or [`SpawnIter`](bevy::ecs::spawn::SpawnIter), you need to call [`SpawnRelated::spawn`](bevy::prelude::SpawnRelated)
 implemented for [`Bindings`](crate::prelude::Bindings) directly instead of using the [`bindings!`](crate::prelude::bindings) macro.

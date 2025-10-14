@@ -142,161 +142,6 @@ These patterns make it easy to manage complex input schemes in a structured but 
 and support complex scenarios like multiple players, different gameplay states, customizable controls,
 and computer-controlled entities that take the same actions as players.
 
-## Input modifiers
-
-Action values are stored in two forms:
-- In a typed form, as the [`Action<C>`] component.
-- In a dynamically typed form, as the [`ActionValue`], which is one of the required components of [`Action<C>`].
-  Its variant depends on the [`InputAction::Output`].
-
-During [`EnhancedInputSet::Update`], input is read for each [`Binding`] as an [`ActionValue`], with the variant depending
-on the input source. This value is then converted into the [`ActionValue`] on the associated action entity. For example,
-key inputs are captured as [`bool`], but if the action's output type is [`Vec2`], the value will be assigned to the X axis
-as `0.0` or `1.0`. See [`Binding`] for details on how each source is captured, and [`ActionValue::convert`] for how values
-are transformed.
-
-Then, during [`EnhancedInputSet::Apply`], the value from [`ActionValue`] is written into [`Action<C>`].
-
-However, you might want to apply preprocessing first - for example, invert values, apply sensitivity, or remap axes. This is
-where [input modifiers](crate::modifier) come in. They are components that implement the [`InputModifier`] trait and can
-be attached to both actions and bindings. Binding-level modifiers are applied first, followed by action-level modifiers.
-Within a single level, modifiers are evaluated in their insertion order. Use action-level modifiers as global modifiers that
-are applied to all bindings of the action.
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            Action::<Movement>::new(),
-            // Modifier components at the action level.
-            DeadZone::default(),    // Applies non-uniform normalization.
-            SmoothNudge::default(), // Smoothes movement.
-            bindings![
-                // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
-                // so you need to assign keys to axes using swizzle to reorder them and negation.
-                (KeyCode::KeyW, SwizzleAxis::YXZ),
-                (KeyCode::KeyA, Negate::all()),
-                (KeyCode::KeyS, Negate::all(), SwizzleAxis::YXZ),
-                KeyCode::KeyD,
-                // In Bevy sticks split by axes and captured as 1-dimensional inputs,
-                // so Y stick needs to be sweezled into Y axis.
-                GamepadAxis::LeftStickX,
-                (GamepadAxis::LeftStickY, SwizzleAxis::YXZ),
-            ]
-        ),
-    ]),
-));
-
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(Vec2)]
-struct Movement;
-```
-
-### Presets
-
-Some bindings are very common. It would be inconvenient to bind WASD keys and analog sticks manually, like in the example above,
-every time. To solve this, we provide [presets](crate::preset) - structs that implement [`SpawnableList`] and store bindings that
-will be spawned with predefined modifiers. To spawn them, you need to to call [`SpawnRelated::spawn`] implemented for [`Bindings`]
-directly instead of the [`bindings!`] macro.
-
-For example, you can use [`Cardinal`] and [`Axial`] presets to simplify the example above.
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-let mut world = World::new();
-
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(Vec2)]
-struct Movement;
-
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            Action::<Movement>::new(),
-            DeadZone::default(),
-            SmoothNudge::default(),
-            Bindings::spawn((
-                Cardinal::wasd_keys(),
-                Axial::left_stick(),
-            )),
-        ),
-    ]),
-));
-```
-
-You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
-
-## Input conditions
-
-Instead of hardcoded states like "pressed" or "released", all actions use an abstract [`ActionState`] component
-(which is a required component of [`Action<C>`]). Its meaning depends on the assigned [input conditions](crate::condition),
-which determine when the action is triggered. This allows you to define flexible behaviors, such as "hold for 1 second".
-
-Input conditions are components that implement [`InputCondition`] trait. Similar to modifiers, you can attach them to
-both actions and bindings. They also evaluated during [`EnhancedInputSet::Update`] right after modifiers in their insertion
-order and update [`ActionState`] on the associated action entity.
-
-If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,
-meaning it will trigger on any non-zero input value.
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-#[derive(Component)]
-struct Player;
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Jump;
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Fire;
-
-let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            // The action will trigger only if held for 1 second.
-            Action::<Jump>::new(),
-            Hold::new(1.0),
-            bindings![KeyCode::Space, GamepadButton::South],
-        ),
-        (
-            Action::<Fire>::new(),
-            Pulse::new(0.5), // The action will trigger every 0.5 seconds while held.
-            bindings![
-                (GamepadButton::RightTrigger2, Down::new(0.3)), // Additionally the right trigger only counts if its value is greater than 0.3.
-                MouseButton::Left,
-            ]
-        ),
-    ])
-));
-
-```
-
-## Mocking
-
-You can also mock actions using the [`ActionMock`] component. When it's present on an action with [`ActionMock::enabled`], it will drive
-the [`ActionState`] and [`ActionValue`] for the specified [`MockSpan`] duration. During this time, all bindings for this action will be ignored.
-For more details, see the [`ActionMock`] documentation.
-
-If you only need mocking, you can disable [`InputPlugin`](bevy::input::InputPlugin) entirely. However, `bevy_input` is a required dependency
-because we use its input types.
-
 ## Reacting on actions
 
 Up to this point, we've only defined actions and contexts but haven't reacted to them yet.
@@ -427,45 +272,16 @@ fn apply_input(
 # struct Movement;
 ```
 
-## Removing contexts
+## Next steps
 
-If you despawn an entity with its context, the actions and bindings will also be despawned.
-However, if you only want to remove a context from an entity, you must remove the required components
-**and** manually despawn its actions.
+While this is enough to allow you to understand the examples and get started, there are a number of other useful features to learn about.
+Each of these is complex to deserve their own section:
 
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
-let mut player = world.spawn((
-    OnFoot,
-    actions!(OnFoot[
-        (Action::<Jump>::new(), bindings![KeyCode::Space, GamepadButton::South]),
-        (Action::<Fire>::new(), bindings![MouseButton::Left, GamepadButton::RightTrigger2]),
-    ])
-));
-
-player
-    .remove_with_requires::<OnFoot>()
-    .despawn_related::<Actions<OnFoot>>();
-
-assert_eq!(world.entities().len(), 1, "only the player entity should be left");
-# #[derive(Component)]
-# struct OnFoot;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Fire;
-```
-
-Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically
-despawn related entities when their relationship targets (like [`Actions<C>`]) are removed. For this reason, [`Actions<C>`]
-is not a required component for `C`. See [#20252](https://github.com/bevyengine/bevy/issues/20252) for more details.
-
-When an action is despawned, it automatically transitions its state to [`ActionState::None`] with [`ActionValue::zero`],
-triggering the corresponding events. Depending on your use case, using [`ContextActivity`] might be more convenient than removal.
+- [input modifiers](crate::modifier) for combining and transforming input values (e.g. applying dead zones or sensitivity or creating chords)
+- [input conditions](crate::condition) for defining when actions are triggered (e.g. on press, release, hold, tap, etc.)
+- [presets](crate::preset) for common bindings and modifiers (e.g. WASD keys and gamepad sticks for movement)
+- [mocking](crate::action::ActionMock) for simulating input in tests, cutscenes or as part of replicated network state
+- [the details of working with contexts](crate::context) (e.g. managing multiple players or gameplay states)
 
 ## Input and UI
 
