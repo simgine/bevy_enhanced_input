@@ -33,11 +33,11 @@ by a separate entity.
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-# let mut app = App::new();
-# app.add_plugins(EnhancedInputPlugin);
+let mut app = App::new();
+app.add_plugins(EnhancedInputPlugin);
 app.add_input_context::<Player>();
 
-# let mut world = World::new();
+let mut world = World::new();
 world.spawn((
     Player,
     actions!(Player[
@@ -98,7 +98,7 @@ are applied to all bindings of the action.
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-# let mut world = World::new();
+let mut world = World::new();
 world.spawn((
     Player,
     actions!(Player[
@@ -141,9 +141,17 @@ directly instead of the [`bindings!`] macro.
 For example, you can use [`Cardinal`] and [`Axial`] presets to simplify the example above.
 
 ```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+let mut world = World::new();
+
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Movement;
+
 world.spawn((
     Player,
     actions!(Player[
@@ -158,11 +166,6 @@ world.spawn((
         ),
     ]),
 ));
-# #[derive(Component)]
-# struct Player;
-# #[derive(InputAction)]
-# #[action_output(Vec2)]
-# struct Movement;
 ```
 
 You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
@@ -181,9 +184,19 @@ If no conditions are attached, the action behaves like with [`Down`] condition w
 meaning it will trigger on any non-zero input value.
 
 ```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+#[derive(Component)]
+struct Player;
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
+
+let mut world = World::new();
 world.spawn((
     Player,
     actions!(Player[
@@ -203,14 +216,7 @@ world.spawn((
         ),
     ])
 ));
-# #[derive(Component)]
-# struct Player;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Fire;
+
 ```
 
 ## Mocking
@@ -243,10 +249,15 @@ Events also include additional data, such as timings and state. See the document
 for more details.
 
 ```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut app = App::new();
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+let mut app = App::new();
 app.add_observer(apply_movement);
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Movement;
 
 /// Apply movement when `Movement` action considered fired.
 fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transform>) {
@@ -257,9 +268,6 @@ fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transfor
     // but since translation expects `Vec3`, we extend it to 3 axes.
     transform.translation += movement.value.extend(0.0);
 }
-# #[derive(InputAction)]
-# #[action_output(Vec2)]
-# struct Movement;
 ```
 
 The event system is highly flexible. For example, you can use the [`Hold`] condition for an attack action, triggering strong attacks on
