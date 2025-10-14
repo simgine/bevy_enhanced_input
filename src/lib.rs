@@ -90,14 +90,57 @@ context entity.
 
 ### Contexts
 
-Contexts are regular components. Depending on your type of game, you may have a single global context
-or multiple contexts for different gameplay states. Contexts can be layered, and any number of them can be active at the same time.
+Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship,
+where `C` is your context type, and can be quickly bound to them using the [`actions!`] macro.
+
+Inside of this crate, contexts are stored using regular components, commonly on a `Player` entity.
+Depending on your type of game, you may have a single global context
+or multiple contexts for different gameplay states.
+
+Contexts can be activated or deactivated using the [`ContextActivity`] component.
+By default, contexts are active when the component is present.
+When active, all actions associated with the context are evaluated.
+
+Contexts can be layered, causing one context to rely on another's presence, and any number of them can be active at the same time.
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 
 Context actions will be evaluated in the schedule associated at context registration. Contexts registered in the same
 schedule will be evaluated in their spawning order, but you can override it by adding the [`ContextPriority`] component.
 You can also activate or deactivate contexts by inserting [`ContextActivity`] component.
+
+### Putting it all together
+
+Let's summarize how contexts, actions, and bindings relate to each other in the ECS world.
+
+You start with an entity that has a context component, such as `Player` with `OnFoot` context.
+This context is an ordinary component, registered as an input context using
+[`App::add_input_context`](InputContextAppExt::add_input_context).
+
+Then, for each of the actions that you might want the player to be able to take while "on foot",
+you define a new action type `A` that implements the [`InputAction`] trait.
+These actions are represented as entities with the [`Action<A>`] component,
+and are associated with the context entity via the [`ActionOf<C>`] relationship,
+spawned using the [`actions!`] macro.
+
+Finally, for each action, you define one or more bindings that specify which input sources
+will trigger the action. These bindings are represented as entities with the [`Binding`] component,
+and are associated with the action entity via the [`BindingOf`] relationship,
+spawned using the [`bindings!`] macro.
+
+If we wanted to add a new context for when the player is in a vehicle, we would create a new context component `InVehicle`
+and register it as an input context. We would then define new actions specific to vehicle control,
+such as `Accelerate` and `Brake`, and associate them with the `InVehicle` context entity.
+
+If we wanted to add another action to the `OnFoot` context, such as `Crouch`, we would define a new action type `Crouch`
+and associate it with the `OnFoot` context for our player entity.
+
+And if we wanted to add a new key binding for the `Jump` action, such as the "J" key,
+we would simply add a new binding to the existing `Jump` action on our player entity.
+
+These patterns make it easy to manage complex input schemes in a structured but flexible way,
+and support complex scenarios like multiple players, different gameplay states, customizable controls,
+and computer-controlled entities that take the same actions as players.
 
 ## Input modifiers
 
