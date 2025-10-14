@@ -160,8 +160,6 @@ There are a number of different [`ActionEvents`], but the most commonly used are
 - [`Start<A>`]: The action has started triggering (e.g. button pressed).
 - [`Fire<A>`]: The action is currently triggering (e.g. button held).
 - [`Complete<A>`]: The action has stopped triggering (e.g. button released after being held).
-- [`Cancel<A>`]: The action was interrupted (e.g. by another action with higher priority).
-
 These events are targeted at the entity with the context component,
 and will include information about the input values based on the [`InputAction::Output`],
 as well as additional metadata such as timing information.
