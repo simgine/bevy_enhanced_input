@@ -18,13 +18,21 @@ This crate introduces three main concepts:
 
 ### Actions
 
-Actions are represented by entities with the [`Action<A>`] component, where `A` is a user-defined marker that implements the
-[`InputAction`] trait, which defines [`InputAction::Output`] type - the value the action produces. It could be [`bool`], [`f32`],
-[`Vec2`] or [`Vec3`]. Actions associated with contexts via [`ActionOf`] relationship. We provide the [`actions!`] macro, which is
-similar to [`related!`], but for actions. The relationship is generic over `C` because a single entity can have multiple associated
-contexts.
+Each action represents a different in-game behavior.
+To create a new action, you will need to define a new struct and implement the [`InputAction`] trait for it,
+typically using the provided [`InputAction`] derive macro.
 
-Actions also have [`ActionSettings`] component that customizes their behavior.
+The action's output type is defined by the [`InputAction::Output`] associated type,
+which can be one of [`bool`], [`f32`], [`Vec2`], or [`Vec3`]. This type determines
+the kind of value the action will produce when triggered.
+For example, a "Jump" action might produce a `bool` indicating whether the jump button is pressed,
+while a "Movement" action might produce a `Vec2` representing the direction and magnitude of movement input.
+
+Inside of this crate, actions are stored as entities with the [`Action<A>`] component, where `A` is your [`InputAction`] type.
+These are associated to contexts via the [`ActionOf<C>`] relationship, where `C` is your context type,
+and can be quickly bound to them using the [`actions!`] macro.
+
+The behavior of each action can be further customized using the [`ActionSettings`] component.
 
 ### Bindings
 
