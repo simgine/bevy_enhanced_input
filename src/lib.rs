@@ -36,14 +36,8 @@ The behavior of each action can be further customized using the [`ActionSettings
 
 ## Bindings
 
-Bindings define how actions are triggered by input sources that your player might press, like keyboard keys or gamepad buttons.
-
-We provide support for a variety of input sources out of the box, including:
-- Keyboard keys via [`KeyCode`]
-- Mouse buttons via [`MouseButton`]
-- Mouse wheel via [`MouseWheel`](bevy::input::mouse::MouseWheel)
-- Gamepad buttons via [`GamepadButton`]
-- Gamepad axes via [`GamepadAxis`]
+Bindings define how actions are triggered by input sources (e.g. mouse movement or keyboard buttons) that your player might press, like keyboard keys or gamepad buttons.
+We provide support for a variety of input sources out of the box: see the [`Binding`] enum for a full list.
 
 Inside of this crate, bindings are represented by entities with the [`Binding`] component.
 Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
