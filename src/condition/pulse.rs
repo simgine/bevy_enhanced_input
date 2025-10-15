@@ -22,6 +22,10 @@ pub struct Pulse {
     pub initial_delay: f32,
     held_duration: Duration,
 
+    /// Tracks if the initial delay will reset when [`ActionValue`] changes.
+    pub reset_on_change: bool,
+    last_value: Option<ActionValue>,
+
     /// Trigger threshold.
     pub actuation: f32,
 
@@ -45,6 +49,8 @@ impl Pulse {
             trigger_on_start: true,
             initial_delay: 0.,
             held_duration: Duration::from_millis(0),
+            reset_on_change: false,
+            last_value: None,
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
             timer: Timer::from_seconds(interval, TimerMode::Repeating),
@@ -105,6 +111,13 @@ impl InputCondition for Pulse {
                 should_fire |= self.trigger_on_start;
             }
 
+            if let Some(last_value) = self.last_value {
+                if self.reset_on_change && last_value != value {
+                    self.held_duration = Duration::ZERO;
+                }
+            }
+            self.last_value = Some(value);
+
             self.timer.tick(time.delta_kind(self.time_kind));
             self.held_duration += time.delta();
             if self.held_duration.as_secs_f32() >= self.initial_delay {
@@ -122,7 +135,7 @@ impl InputCondition for Pulse {
                 ActionState::None
             }
         } else {
-            self.held_duration = Duration::from_secs_f32(0.);
+            self.held_duration = Duration::ZERO;
             self.timer.reset();
             self.trigger_count = 0;
             self.started_actuation = false;
