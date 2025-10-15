@@ -102,7 +102,7 @@ impl InputCondition for Pulse {
             }
 
             self.timer.tick(time.delta_kind(self.time_kind));
-            if self.timer.elapsed_secs() >= self.initial_delay {
+            if time.elapsed_secs() >= self.initial_delay {
                 should_fire |= self.timer.just_finished();
             }
 
