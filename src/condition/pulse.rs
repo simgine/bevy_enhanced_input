@@ -106,6 +106,7 @@ impl InputCondition for Pulse {
             }
 
             self.timer.tick(time.delta_kind(self.time_kind));
+            self.held_duration += time.delta();
             if self.held_duration.as_secs_f32() >= self.initial_delay {
                 should_fire |= self.timer.just_finished();
             }
