@@ -16,6 +16,9 @@ pub struct Pulse {
     /// Whether to trigger when the input first exceeds the actuation threshold or wait for the first interval.
     pub trigger_on_start: bool,
 
+    /// Initial delay before the first pulse in seconds.
+    pub initial_delay: f32,
+
     /// Trigger threshold.
     pub actuation: f32,
 
@@ -37,6 +40,7 @@ impl Pulse {
         Self {
             trigger_limit: 0,
             trigger_on_start: true,
+            initial_delay: 0.,
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
             timer: Timer::from_seconds(interval, TimerMode::Repeating),
@@ -54,6 +58,12 @@ impl Pulse {
     #[must_use]
     pub fn trigger_on_start(mut self, trigger_on_start: bool) -> Self {
         self.trigger_on_start = trigger_on_start;
+        self
+    }
+
+    #[must_use]
+    pub fn with_initial_delay(mut self, initial_delay: f32) -> Self {
+        self.initial_delay = initial_delay;
         self
     }
 
@@ -92,7 +102,9 @@ impl InputCondition for Pulse {
             }
 
             self.timer.tick(time.delta_kind(self.time_kind));
-            should_fire |= self.timer.just_finished();
+            if self.timer.elapsed_secs() >= self.initial_delay {
+                should_fire |= self.timer.just_finished();
+            }
 
             if self.trigger_limit == 0 || self.trigger_count < self.trigger_limit {
                 if should_fire {
