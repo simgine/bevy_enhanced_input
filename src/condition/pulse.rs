@@ -1,3 +1,5 @@
+use core::time::Duration;
+
 use bevy::prelude::*;
 
 use super::DEFAULT_ACTUATION;
@@ -18,6 +20,7 @@ pub struct Pulse {
 
     /// Initial delay before the first pulse in seconds.
     pub initial_delay: f32,
+    held_duration: Duration,
 
     /// Trigger threshold.
     pub actuation: f32,
@@ -41,6 +44,7 @@ impl Pulse {
             trigger_limit: 0,
             trigger_on_start: true,
             initial_delay: 0.,
+            held_duration: Duration::from_millis(0),
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
             timer: Timer::from_seconds(interval, TimerMode::Repeating),
@@ -102,7 +106,7 @@ impl InputCondition for Pulse {
             }
 
             self.timer.tick(time.delta_kind(self.time_kind));
-            if time.elapsed_secs() >= self.initial_delay {
+            if self.held_duration.as_secs_f32() >= self.initial_delay {
                 should_fire |= self.timer.just_finished();
             }
 
@@ -117,6 +121,7 @@ impl InputCondition for Pulse {
                 ActionState::None
             }
         } else {
+            self.held_duration = Duration::from_secs_f32(0.);
             self.timer.reset();
             self.trigger_count = 0;
             self.started_actuation = false;
