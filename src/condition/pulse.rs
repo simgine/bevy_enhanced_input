@@ -78,6 +78,12 @@ impl Pulse {
     }
 
     #[must_use]
+    pub fn reset_on_change(mut self, reset_on_change: bool) -> Self {
+        self.reset_on_change = reset_on_change;
+        self
+    }
+
+    #[must_use]
     pub fn with_actuation(mut self, actuation: f32) -> Self {
         self.actuation = actuation;
         self
