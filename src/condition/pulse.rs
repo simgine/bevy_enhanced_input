@@ -112,9 +112,7 @@ impl InputCondition for Pulse {
                 return self.held_duration.as_secs_f32() >= initial_delay;
             });
 
-            if initial_delay_valid {
-                should_fire |= self.timer.just_finished();
-            }
+            should_fire |= initial_delay_valid && self.timer.just_finished();
 
             if self.trigger_limit == 0 || self.trigger_count < self.trigger_limit {
                 if should_fire {
@@ -235,14 +233,29 @@ mod tests {
 
     #[test]
     fn with_initial_delay() {
-        let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (mut world, mut state) = context::init_world();
 
         let mut condition = Pulse::new(0.5).with_initial_delay(1.0);
+
+        let (time, actions) = state.get(&world);
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.5.into()),
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Fired,
+        );
+
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(500));
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
             ActionState::None,
         );
+
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(500));
+        let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             ActionState::Fired,
