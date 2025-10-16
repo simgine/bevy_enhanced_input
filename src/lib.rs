@@ -145,10 +145,11 @@ Not all inputs are "buttonlike": we may want to only trigger an action when a bu
 or when a joystick is moved beyond a certain threshold.
 
 There are two main ways to achieve this: using input conditions and input modifiers:
+
 - Input conditions define when an action is considered to be triggered based on the state of its bindings.
-For example, the [`Hold`] condition can be used to trigger an action only when a button is held down for a specified duration.
+  For example, the [`Hold`] condition can be used to trigger an action only when a button is held down for a specified duration.
 - Input modifiers transform the raw input values from bindings before they are processed by the action.
-For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
+  For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
 
 When no input conditions are attached to an action or its bindings,
 the action behaves as if it has a [`Down`] condition with a zero actuation threshold.
