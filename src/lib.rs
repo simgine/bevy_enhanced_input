@@ -179,7 +179,7 @@ When an action is triggered, we can notify your game logic using Bevy's [`Event`
 These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
 updated during [`EnhancedInputSystems::Apply`].
 
-There are a number of different [`ActionEvents`], but the most commonly used are:
+There are a number of different [action events](crate::action::events), but the most commonly used are:
 - [`Start<A>`]: The action has started triggering (e.g. button pressed).
 - [`Fire<A>`]: The action is currently triggering (e.g. button held).
 - [`Complete<A>`]: The action has stopped triggering (e.g. button released after being held).
