@@ -52,8 +52,7 @@ context entity.
 
 ## Contexts
 
-Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship,
-where `C` is your context type, and can be quickly bound to them using the [`actions!`] macro.
+Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship mentioned earlier.
 
 Inside of this crate, contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
 Depending on your type of game, you may have a single global context
