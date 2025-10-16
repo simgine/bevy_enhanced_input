@@ -67,10 +67,6 @@ Contexts can be [layered](crate::context::ContextPriority), defining a priority 
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 
-Context actions will be evaluated in the schedule associated at context registration. Contexts registered in the same
-schedule will be evaluated in their spawning order, but you can override it by adding the [`ContextPriority`] component.
-You can also activate or deactivate contexts by inserting [`ContextActivity`] component.
-
 ## Putting it all together
 
 Let's summarize how contexts, actions, and bindings relate to each other in the ECS world.
