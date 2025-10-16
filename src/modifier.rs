@@ -26,6 +26,13 @@ You can see how this works by examining this expanded example, taken from the [`
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Movement;
+
 let mut world = World::new();
 world.spawn((
     Player,
@@ -50,13 +57,6 @@ world.spawn((
         ),
     ]),
 ));
-
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(Vec2)]
-struct Movement;
 ```
 
 As discussed in the [`preset`](crate::preset) module, this can be simplified substantially using presets like [`Cardinal`](crate::Cardinal) and [`Axial`](crate::Axial)!

@@ -17,9 +17,21 @@ However, if you only want to remove a context from an entity, you must remove th
 **and** manually despawn its actions.
 
 ```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+#[derive(Component)]
+struct OnFoot;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
+
+let mut world = World::new();
 let mut player = world.spawn((
     OnFoot,
     actions!(OnFoot[
@@ -33,14 +45,6 @@ player
     .despawn_related::<Actions<OnFoot>>();
 
 assert_eq!(world.entities().len(), 1, "only the player entity should be left");
-# #[derive(Component)]
-# struct OnFoot;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Fire;
 ```
 
 Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically

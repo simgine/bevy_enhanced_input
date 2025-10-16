@@ -8,6 +8,13 @@ With the help of [modifiers](crate::modifier) you can achieve this as follows:
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Movement;
+
 let mut world = World::new();
 world.spawn((
     Player,
@@ -32,13 +39,6 @@ world.spawn((
         ),
     ]),
 ));
-
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(Vec2)]
-struct Movement;
 ```
 
 However, this is quite onerous! It would be inconvenient to bind WASD keys and analog sticks manually, like in the example above,
