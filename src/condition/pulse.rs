@@ -19,12 +19,8 @@ pub struct Pulse {
     pub trigger_on_start: bool,
 
     /// Initial delay before the first pulse in seconds.
-    pub initial_delay: f32,
+    pub initial_delay: Option<f32>,
     held_duration: Duration,
-
-    /// Tracks if the initial delay will reset when [`ActionValue`] changes.
-    pub reset_on_change: bool,
-    last_value: Option<ActionValue>,
 
     /// Trigger threshold.
     pub actuation: f32,
@@ -47,10 +43,8 @@ impl Pulse {
         Self {
             trigger_limit: 0,
             trigger_on_start: true,
-            initial_delay: 0.,
+            initial_delay: None,
             held_duration: Duration::from_millis(0),
-            reset_on_change: false,
-            last_value: None,
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
             timer: Timer::from_seconds(interval, TimerMode::Repeating),
@@ -73,13 +67,7 @@ impl Pulse {
 
     #[must_use]
     pub fn with_initial_delay(mut self, initial_delay: f32) -> Self {
-        self.initial_delay = initial_delay;
-        self
-    }
-
-    #[must_use]
-    pub fn reset_on_change(mut self, reset_on_change: bool) -> Self {
-        self.reset_on_change = reset_on_change;
+        self.initial_delay = Some(initial_delay);
         self
     }
 
@@ -117,16 +105,12 @@ impl InputCondition for Pulse {
                 should_fire |= self.trigger_on_start;
             }
 
-            if let Some(last_value) = self.last_value {
-                if self.reset_on_change && last_value != value {
-                    self.held_duration = Duration::ZERO;
-                }
-            }
-            self.last_value = Some(value);
-
             self.timer.tick(time.delta_kind(self.time_kind));
             self.held_duration += time.delta();
-            if self.held_duration.as_secs_f32() >= self.initial_delay {
+
+            if let Some(initial_delay) = self.initial_delay
+                && self.held_duration.as_secs_f32() >= initial_delay
+            {
                 should_fire |= self.timer.just_finished();
             }
 
@@ -244,6 +228,22 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             ActionState::Ongoing,
+        );
+    }
+
+    #[test]
+    fn with_initial_delay() {
+        let (world, mut state) = context::init_world();
+        let (time, actions) = state.get(&world);
+
+        let mut condition = Pulse::new(0.5).with_initial_delay(1.0);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 0.5.into()),
+            ActionState::None,
+        );
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Fired,
         );
     }
 
