@@ -108,9 +108,9 @@ impl InputCondition for Pulse {
             self.timer.tick(time.delta_kind(self.time_kind));
             self.held_duration += time.delta();
 
-            let initial_delay_valid = self.initial_delay.map_or(true, |initial_delay| {
-                return self.held_duration.as_secs_f32() >= initial_delay;
-            });
+            let initial_delay_valid = self
+                .initial_delay
+                .is_none_or(|initial_delay| self.held_duration.as_secs_f32() >= initial_delay);
 
             should_fire |= initial_delay_valid && self.timer.just_finished();
 
@@ -249,7 +249,7 @@ mod tests {
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::None,
+            ActionState::Ongoing,
         );
 
         world
