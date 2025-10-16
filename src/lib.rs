@@ -53,11 +53,11 @@ context entity.
 ## Contexts
 
 Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship mentioned earlier.
-
-Inside of this crate, contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
 Depending on your type of game, you may have a single global context
 or multiple contexts for different gameplay states. For games with multiple entities driven by a single context it's
 common to create a "controller" entity which applies the input to the desired entity.
+
+Inside of this crate, contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
 
 Contexts can be activated or deactivated using the [`ContextActivity`] component.
 By default, contexts are active when the component is present.
