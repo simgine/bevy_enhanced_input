@@ -18,9 +18,11 @@ use bevy_enhanced_input::prelude::*;
 
 #[derive(Component)]
 struct Player;
+
 #[derive(InputAction)]
 #[action_output(bool)]
 struct Jump;
+
 #[derive(InputAction)]
 #[action_output(bool)]
 struct Fire;
