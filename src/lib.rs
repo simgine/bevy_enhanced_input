@@ -47,42 +47,6 @@ Inside of this crate, bindings are represented by entities with the [`Binding`] 
 Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
 we provide the [`bindings!`] macro to spawn related bindings.
 
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Jump;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Fire;
-
-let mut app = App::new();
-app.add_plugins(EnhancedInputPlugin);
-app.add_input_context::<Player>();
-
-let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            Action::<Jump>::new(),
-            bindings![KeyCode::Space, GamepadButton::South],
-        ),
-        (
-            Action::<Fire>::new(),
-            bindings![MouseButton::Left, GamepadButton::RightTrigger2],
-        ),
-    ])
-));
-
-```
-
 By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
 context entity.
 
@@ -126,6 +90,44 @@ Finally, for each action, you define one or more bindings that specify which inp
 will trigger the action. These bindings are represented as entities with the [`Binding`] component,
 and are associated with the action entity via the [`BindingOf`] relationship,
 spawned using the [`bindings!`] macro.
+
+Here's a complete example that demonstrates these concepts in action.
+
+```
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
+
+let mut app = App::new();
+app.add_plugins(EnhancedInputPlugin);
+app.add_input_context::<Player>();
+
+let mut world = World::new();
+world.spawn((
+    Player,
+    actions!(Player[
+        (
+            Action::<Jump>::new(),
+            bindings![KeyCode::Space, GamepadButton::South],
+        ),
+        (
+            Action::<Fire>::new(),
+            bindings![MouseButton::Left, GamepadButton::RightTrigger2],
+        ),
+    ])
+));
+
+```
 
 If we wanted to add a new context for when the player is in a vehicle, we would create a new context component `InVehicle`
 and register it as an input context. We would then define new actions specific to vehicle control,
