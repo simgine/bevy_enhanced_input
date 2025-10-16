@@ -173,7 +173,7 @@ but the pull-style API can allow for more complex checks and interactions betwee
 Ultimately, the choice between these two approaches depends on your specific use case and preferences,
 with performance playing a relatively minor role unless you have a very large number of acting entities or if you have a complex logic for your action reaction.
 
-## Push-style
+### Push-style
 
 When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
 These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
