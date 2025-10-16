@@ -12,22 +12,23 @@ are transformed.
 
 Then, during [`EnhancedInputSet::Apply`], the value from [`ActionValue`] is written into [`Action<C>`].
 
-However, you might want to apply preprocessing first - for example, invert values, apply sensitivity, or remap axes. This is
-where [input modifiers](crate::modifier) come in. They are components that implement the [`InputModifier`] trait and can
-be attached to both actions and bindings. Binding-level modifiers are applied first, followed by action-level modifiers.
-Within a single level, modifiers are evaluated in their insertion order. Use action-level modifiers as global modifiers that
-are applied to all bindings of the action.
+Modifiers are added as components to either the binding or the action entity.
+If they are attached to the action entity, they affect all bindings of the action
+and are applied after all binding-level modifiers.
+Within a single level, modifiers are evaluated in their insertion order.
 
-# Examples
+Applying bindings at the input level allows you to have different behaviors for different input sources.
+You may want to have a dead zone for analog sticks, but not for keyboard keys,
+or scale sensitivity differently for mouse and gamepad inputs.
 
-You can see how this works by examining this expanded example, taken from the [`preset`](crate::preset) module docs:
+# Example
 
 ```
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
 #[derive(Component)]
-struct Player;
+struct FlyCam;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
@@ -35,31 +36,23 @@ struct Movement;
 
 let mut world = World::new();
 world.spawn((
-    Player,
-    actions!(Player[
+    Camera3d::default(),
+    Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+    FlyCam,
+    actions!(FlyCam[
         (
             Action::<Movement>::new(),
-            // Modifier components at the action level.
-            DeadZone::default(),    // Applies non-uniform normalization.
-            SmoothNudge::default(), // Smoothes movement.
-            bindings![
-                // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
-                // so you need to assign keys to axes using swizzle to reorder them and negation.
-                (KeyCode::KeyW, SwizzleAxis::YXZ),
-                (KeyCode::KeyA, Negate::all()),
-                (KeyCode::KeyS, Negate::all(), SwizzleAxis::YXZ),
-                KeyCode::KeyD,
-                // In Bevy sticks split by axes and captured as 1-dimensional inputs,
-                // so Y stick needs to be sweezled into Y axis.
-                GamepadAxis::LeftStickX,
-                (GamepadAxis::LeftStickY, SwizzleAxis::YXZ),
-            ]
+            DeadZone::default(),
+            SmoothNudge::default(),
+            // This example uses the preset bindings
+            Bindings::spawn((
+                Axial::left_stick(),
+                Cardinal::wasd_keys(),
+            )),
         ),
     ]),
 ));
 ```
-
-As discussed in the [`preset`](crate::preset) module, this can be simplified substantially using presets like [`Cardinal`](crate::Cardinal) and [`Axial`](crate::Axial)!
 */
 
 pub mod accumulate_by;
