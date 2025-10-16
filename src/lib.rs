@@ -155,6 +155,9 @@ For example, the [`Hold`] condition can be used to trigger an action only when a
 - Input modifiers transform the raw input values from bindings before they are processed by the action.
 For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
 
+When no input conditions are attached to an action or its bindings,
+the action behaves as if it has a [`Down`] condition with a zero actuation threshold.
+
 See the module docs for [input conditions](crate::condition) and [input modifiers](crate::modifier) for more details.
 
 These complex input patterns can be tedious to set up manually, especially for common use cases like character movement.
