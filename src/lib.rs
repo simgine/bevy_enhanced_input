@@ -28,15 +28,14 @@ the kind of value the action will produce when triggered.
 For example, a "Jump" action might produce a `bool` indicating whether the jump button is pressed,
 while a "Movement" action might produce a `Vec2` representing the direction and magnitude of movement input.
 
-When actions are triggered, the "consume" the input values from their bindings.
-This means that if multiple actions are bound to the same input source (e.g., the same key),
-the action that is evaluated first will take precedence, and the others will not receive the input value.
-
 Inside of this crate, actions are stored as entities with the [`Action<A>`] component, where `A` is your [`InputAction`] type.
 These are associated to contexts via the [`ActionOf<C>`] relationship, where `C` is your context type,
 and can be quickly bound to them using the [`actions!`] macro.
 
-The behavior of each action can be further customized using the [`ActionSettings`] component.
+By default, when actions are triggered, they "consume" the input values from their bindings.
+This means that if multiple actions are bound to the same input source (e.g., the same key),
+the action that is evaluated first will take precedence, and the others will not receive the input value.
+This behavior (and other action-specific configuration) can be further customized using the [`ActionSettings`] component.
 
 ## Bindings
 
