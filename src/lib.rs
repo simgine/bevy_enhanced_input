@@ -28,7 +28,7 @@ the kind of value the action will produce when triggered.
 For example, a "Jump" action might produce a `bool` indicating whether the jump button is pressed,
 while a "Movement" action might produce a `Vec2` representing the direction and magnitude of movement input.
 
-Inside of this crate, actions are stored as entities with the [`Action<A>`] component, where `A` is your [`InputAction`] type.
+Actions are stored as entities with the [`Action<A>`] component, where `A` is your [`InputAction`] type.
 These are associated to contexts via the [`ActionOf<C>`] relationship, where `C` is your context type,
 and can be quickly bound to them using the [`actions!`] macro.
 
@@ -42,7 +42,7 @@ This behavior (and other action-specific configuration) can be further customize
 Bindings define how actions are triggered by input sources (e.g. mouse movement or keyboard buttons) that your player might press, like keyboard keys or gamepad buttons.
 We provide support for a variety of input sources out of the box: see the [`Binding`] enum for a full list.
 
-Inside of this crate, bindings are represented by entities with the [`Binding`] component.
+Bindings are represented by entities with the [`Binding`] component.
 Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
 we provide the [`bindings!`] macro to spawn related bindings.
 
@@ -56,7 +56,7 @@ Depending on your type of game, you may have a single global context
 or multiple contexts for different gameplay states. For games with multiple entities driven by a single context it's
 common to create a "controller" entity which applies the input to the desired entity.
 
-Inside of this crate, contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
+Contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
 
 Contexts can be activated or deactivated using the [`ContextActivity`] component.
 By default, contexts are active when the component is present.
