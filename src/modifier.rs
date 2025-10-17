@@ -31,23 +31,23 @@ use bevy_enhanced_input::prelude::*;
 struct FlyCam;
 
 #[derive(InputAction)]
-#[action_output(Vec2)]
-struct Movement;
+#[action_output(f32)]
+struct Zoom;
 
 let mut world = World::new();
 world.spawn((
     Camera3d::default(),
-    Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
     FlyCam,
     actions!(FlyCam[
         (
-            Action::<Movement>::new(),
-            DeadZone::default(),
-            SmoothNudge::default(),
-            // This example uses the preset bindings
+            Action::<Zoom>::new(),
+            // Apply scale at the action level for all bindings.
+            Scale::splat(0.1),
             Bindings::spawn((
-                Axial::left_stick(),
-                Cardinal::wasd_keys(),
+                // In Bevy, vertical scrolling maps to the Y axis,
+                // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
+                Spawn((Binding::mouse_wheel(), SwizzleAxis::YXZ)),
+                Bidirectional::up_down_dpad(),
             )),
         ),
     ]),
