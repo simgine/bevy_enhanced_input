@@ -252,6 +252,9 @@ impl ActionTime {
 ///
 /// See also [`ExternallyMocked`](crate::context::ExternallyMocked) to manually control the action data.
 ///
+/// If you only need mocking, you can disable [`InputPlugin`](bevy::input::InputPlugin) entirely.
+/// However, `bevy_input` is a required dependency because we use its input types elsewhere in this crate.
+///
 /// # Examples
 ///
 /// Spawn and move up for 2 seconds:

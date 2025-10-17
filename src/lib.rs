@@ -1,58 +1,112 @@
 /*!
-Input manager for [Bevy](https://bevyengine.org), inspired by
-[Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine).
+A powerful observer-based input manager for Bevy.
 
-# Quick start
+The design of this crate is heavily inspired by
+[Unreal Engine Enhanced Input](https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine),
+but adapted to Bevy's ECS architecture and idioms.
 
-## Prelude
+# Core Concepts
 
-We provide a [`prelude`] module, which exports most of the typically used traits and types.
-
-## Plugins
-
-Add [`EnhancedInputPlugin`] to your app:
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-let mut app = App::new();
-app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
-```
-
-## Core Concepts
+This crate introduces three main concepts:
 
 - **Actions** represent something a player can do, like "Jump", "Movement", or "Open Menu". They are not tied to specific input.
 - **Bindings** connect those actions to real input sources such as keyboard keys, mouse buttons, gamepad axes, etc.
 - **Contexts** represent a certain input state the player can be in, such as "On foot" or "In car". They associate actions with
   entities and define when those actions are evaluated.
 
-Contexts are regular components. Depending on your type of game, you may have a single global context
-or multiple contexts for different gameplay states. Contexts can be layered, and any number of them can be active at the same time.
+In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
+
+## Actions
+
+Each action represents a different in-game behavior.
+To create a new action, you will need to define a new struct and implement the [`InputAction`] trait for it,
+typically using the provided [`InputAction`] derive macro.
+
+The action's output type is defined by the [`InputAction::Output`] associated type,
+which can be one of [`bool`], [`f32`], [`Vec2`], or [`Vec3`]. This type determines
+the kind of value the action will produce when triggered.
+For example, a "Jump" action might produce a `bool` indicating whether the jump button is pressed,
+while a "Movement" action might produce a `Vec2` representing the direction and magnitude of movement input.
+
+Actions are stored as entities with the [`Action<A>`] component, where `A` is your [`InputAction`] type.
+These are associated to contexts via the [`ActionOf<C>`] relationship, where `C` is your context type,
+and can be quickly bound to them using the [`actions!`] macro.
+
+By default, when actions are triggered, they "consume" the input values from their bindings.
+This means that if multiple actions are bound to the same input source (e.g., the same key),
+the action that is evaluated first will take precedence, and the others will not receive the input value.
+This behavior (and other action-specific configuration) can be further customized using the [`ActionSettings`] component.
+
+## Bindings
+
+Bindings define how actions are triggered by input sources (e.g. mouse movement or keyboard buttons) that your player might press, like keyboard keys or gamepad buttons.
+We provide support for a variety of input sources out of the box: see the [`Binding`] enum for a full list.
+
+Bindings are represented by entities with the [`Binding`] component.
+Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
+we provide the [`bindings!`] macro to spawn related bindings.
+
+By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
+context entity.
+
+## Contexts
+
+Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship mentioned earlier.
+Depending on your type of game, you may have a single global context
+or multiple contexts for different gameplay states. For games with multiple entities driven by a single context it's
+common to create a "controller" entity which applies the input to the desired entity.
+
+Contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
+
+Contexts can be activated or deactivated using the [`ContextActivity`] component.
+By default, contexts are active when the component is present.
+When active, all actions associated with the context are evaluated.
+
+By default contexts evaluated in their spawn order, but you can also control this with [`ContextPriority`].
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 
-Actions are represented by entities with the [`Action<A>`] component, where `A` is a user-defined marker that implements the
-[`InputAction`] trait, which defines [`InputAction::Output`] type - the value the action produces. It could be [`bool`], [`f32`],
-[`Vec2`] or [`Vec3`]. Actions associated with contexts via [`ActionOf`] relationship. We provide the [`actions!`] macro, which is
-similar to [`related!`], but for actions. The relationship is generic over `C` because a single entity can have multiple associated
-contexts.
+## Putting it all together
 
-Bindings are represented by entities with the [`Binding`] component. It can be constructed from various input types, such as
-[`KeyCode`], [`MouseButton`], [`GamepadAxis`], etc. Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
-we provide the [`bindings!`] macro to spawn related bindings. But unlike [`ActionOf<C>`], it's not generic, since each action is represented
-by a separate entity.
+Let's summarize how contexts, actions, and bindings relate to each other in the ECS world.
 
+You start with an entity that has a context component, such as `Player` with `OnFoot` context.
+This context is an ordinary component, registered as an input context using
+[`App::add_input_context`](InputContextAppExt::add_input_context).
+
+Then, for each of the actions that you might want the player to be able to take while "on foot",
+you define a new action type `A` that implements the [`InputAction`] trait.
+These actions are represented as entities with the [`Action<A>`] component,
+and are associated with the context entity via the [`ActionOf<C>`] relationship,
+spawned using the [`actions!`] macro.
+
+Finally, for each action, you define one or more bindings that specify which input sources
+will trigger the action. These bindings are represented as entities with the [`Binding`] component,
+and are associated with the action entity via the [`BindingOf`] relationship,
+spawned using the [`bindings!`] macro.
+
+Here's a complete example that demonstrates these concepts in action.
 
 ```
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-# let mut app = App::new();
-# app.add_plugins(EnhancedInputPlugin);
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
+
+let mut app = App::new();
+app.add_plugins(EnhancedInputPlugin);
 app.add_input_context::<Player>();
 
-# let mut world = World::new();
+let mut world = World::new();
 world.spawn((
     Player,
     actions!(Player[
@@ -67,201 +121,88 @@ world.spawn((
     ])
 ));
 
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Jump;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Fire;
 ```
 
-By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
-context entity.
+If we wanted to add a new context for when the player is in a vehicle, we would create a new context component `InVehicle`
+and register it as an input context. We would then define new actions specific to vehicle control,
+such as `Accelerate` and `Brake`, and associate them with the `InVehicle` context entity.
 
-Context actions will be evaluated in the schedule associated at context registration. Contexts registered in the same
-schedule will be evaluated in their spawning order, but you can override it by adding the [`ContextPriority`] component.
-You can also activate or deactivate contexts by inserting [`ContextActivity`] component.
+If we wanted to add another action to the `OnFoot` context, such as `Crouch`, we would define a new action type `Crouch`
+and associate it with the `OnFoot` context for our player entity.
 
-Actions also have [`ActionSettings`] component that customizes their behavior.
+And if we wanted to add a new key binding for the `Jump` action, such as the "J" key,
+we would simply add a new binding to the existing `Jump` action on our player entity.
 
-## Input modifiers
+These patterns make it easy to manage complex input schemes in a structured but flexible way,
+and support complex scenarios like multiple players, different gameplay states, customizable controls,
+and computer-controlled entities that take the same actions as players.
 
-Action values are stored in two forms:
-- In a typed form, as the [`Action<C>`] component.
-- In a dynamically typed form, as the [`ActionValue`], which is one of the required components of [`Action<C>`].
-  Its variant depends on the [`InputAction::Output`].
+## More sophisticated input patterns
 
-During [`EnhancedInputSet::Update`], input is read for each [`Binding`] as an [`ActionValue`], with the variant depending
-on the input source. This value is then converted into the [`ActionValue`] on the associated action entity. For example,
-key inputs are captured as [`bool`], but if the action's output type is [`Vec2`], the value will be assigned to the X axis
-as `0.0` or `1.0`. See [`Binding`] for details on how each source is captured, and [`ActionValue::convert`] for how values
-are transformed.
+While we can bind actions directly to input sources like buttons, further customization or preprocessing is often needed.
+Not all inputs are "buttonlike": we may want to only trigger an action when a button is held for a certain duration,
+or when a joystick is moved beyond a certain threshold.
 
-Then, during [`EnhancedInputSet::Apply`], the value from [`ActionValue`] is written into [`Action<C>`].
+There are two main ways to achieve this: using input conditions and input modifiers:
 
-However, you might want to apply preprocessing first - for example, invert values, apply sensitivity, or remap axes. This is
-where [input modifiers](crate::modifier) come in. They are components that implement the [`InputModifier`] trait and can
-be attached to both actions and bindings. Binding-level modifiers are applied first, followed by action-level modifiers.
-Within a single level, modifiers are evaluated in their insertion order. Use action-level modifiers as global modifiers that
-are applied to all bindings of the action.
+- Input conditions define when an action is considered to be triggered based on the state of its bindings.
+    - For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
+    - When no input conditions are attached to an action or its bindings, the action behaves as if it has a [`Down`] condition with a zero actuation threshold.
+- Input modifiers transform the raw input values from bindings before they are processed by the action.
+    - For example, the [`Hold`] condition can be used to trigger an action only when a button is held down for a specified duration.
+    - When no input modifiers are attached, the raw input value is passed through unchanged.
+
+See the module docs for [input conditions](crate::condition) and [input modifiers](crate::modifier) for more details.
+
+These complex input patterns can be tedious to set up manually, especially for common use cases like character movement.
+To simplify this, we provide a number of [presets](crate::preset) that bundle common bindings and modifiers together.
+
+## Reacting to actions
+
+Up to this point, we've explained how to define actions and link them to users inputs,
+but haven't explained how you might actually react to those actions in your game logic.
+
+We provide two flavors of API for this: a push-style API based on observers and a pull-style API based on querying action components.
+
+Most users find the push-style API more ergonomic and easier to reason about,
+but the pull-style API can allow for more complex checks and interactions between the state of multiple actions.
+
+Ultimately, the choice between these two approaches depends on your specific use case and preferences,
+with performance playing a relatively minor role unless you have a very large number of acting entities or if you have a complex logic for your action reaction.
+
+### Push-style
+
+When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
+These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
+updated during [`EnhancedInputSystems::Apply`].
+
+There are a number of different [action events](crate::action::events), but the most commonly used are:
+- [`Start<A>`]: The action has started triggering (e.g. button pressed).
+- [`Fire<A>`]: The action is currently triggering (e.g. button held).
+- [`Complete<A>`]: The action has stopped triggering (e.g. button released after being held).
+
+The exact meaning of each [action event](crate::action::events) depends on the attached [input conditions](crate::condition).
+For example, with the [`Down`] condition, [`Fire<A>`] triggers when the user holds the button.
+But with [`HoldAndRelease`] it will trigger when user releases the button after holding it for the specified amount of time.
+
+These events are targeted at the entity with the context component,
+and will include information about the input values based on the [`InputAction::Output`],
+as well as additional metadata such as timing information.
+See the documentation for each [event type](crate::action::events) for more details.
+
+Each of these events can be observed using the [`On<E>`] system parameter in a Bevy observer,
+responding to changes as they occur during command flushes.
 
 ```
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-# let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            Action::<Movement>::new(),
-            // Modifier components at the action level.
-            DeadZone::default(),    // Applies non-uniform normalization.
-            SmoothNudge::default(), // Smoothes movement.
-            bindings![
-                // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
-                // so you need to assign keys to axes using swizzle to reorder them and negation.
-                (KeyCode::KeyW, SwizzleAxis::YXZ),
-                (KeyCode::KeyA, Negate::all()),
-                (KeyCode::KeyS, Negate::all(), SwizzleAxis::YXZ),
-                KeyCode::KeyD,
-                // In Bevy sticks split by axes and captured as 1-dimensional inputs,
-                // so Y stick needs to be sweezled into Y axis.
-                GamepadAxis::LeftStickX,
-                (GamepadAxis::LeftStickY, SwizzleAxis::YXZ),
-            ]
-        ),
-    ]),
-));
-
-#[derive(Component)]
-struct Player;
+let mut app = App::new();
+app.add_observer(apply_movement);
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
 struct Movement;
-```
-
-### Presets
-
-Some bindings are very common. It would be inconvenient to bind WASD keys and analog sticks manually, like in the example above,
-every time. To solve this, we provide [presets](crate::preset) - structs that implement [`SpawnableList`] and store bindings that
-will be spawned with predefined modifiers. To spawn them, you need to to call [`SpawnRelated::spawn`] implemented for [`Bindings`]
-directly instead of the [`bindings!`] macro.
-
-For example, you can use [`Cardinal`] and [`Axial`] presets to simplify the example above.
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            Action::<Movement>::new(),
-            DeadZone::default(),
-            SmoothNudge::default(),
-            Bindings::spawn((
-                Cardinal::wasd_keys(),
-                Axial::left_stick(),
-            )),
-        ),
-    ]),
-));
-# #[derive(Component)]
-# struct Player;
-# #[derive(InputAction)]
-# #[action_output(Vec2)]
-# struct Movement;
-```
-
-You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
-
-## Input conditions
-
-Instead of hardcoded states like "pressed" or "released", all actions use an abstract [`ActionState`] component
-(which is a required component of [`Action<C>`]). Its meaning depends on the assigned [input conditions](crate::condition),
-which determine when the action is triggered. This allows you to define flexible behaviors, such as "hold for 1 second".
-
-Input conditions are components that implement [`InputCondition`] trait. Similar to modifiers, you can attach them to
-both actions and bindings. They also evaluated during [`EnhancedInputSet::Update`] right after modifiers in their insertion
-order and update [`ActionState`] on the associated action entity.
-
-If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,
-meaning it will trigger on any non-zero input value.
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            // The action will trigger only if held for 1 second.
-            Action::<Jump>::new(),
-            Hold::new(1.0),
-            bindings![KeyCode::Space, GamepadButton::South],
-        ),
-        (
-            Action::<Fire>::new(),
-            Pulse::new(0.5), // The action will trigger every 0.5 seconds while held.
-            bindings![
-                (GamepadButton::RightTrigger2, Down::new(0.3)), // Additionally the right trigger only counts if its value is greater than 0.3.
-                MouseButton::Left,
-            ]
-        ),
-    ])
-));
-# #[derive(Component)]
-# struct Player;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Fire;
-```
-
-## Mocking
-
-You can also mock actions using the [`ActionMock`] component. When it's present on an action with [`ActionMock::enabled`], it will drive
-the [`ActionState`] and [`ActionValue`] for the specified [`MockSpan`] duration. During this time, all bindings for this action will be ignored.
-For more details, see the [`ActionMock`] documentation.
-
-If you only need mocking, you can disable [`InputPlugin`](bevy::input::InputPlugin) entirely. However, `bevy_input` is a required dependency
-because we use its input types.
-
-## Reacting on actions
-
-Up to this point, we've only defined actions and contexts but haven't reacted to them yet.
-We provide both push-style (via observers) and pull-style (by checking components) APIs.
-
-### Push-style
-
-For most cases it's better to use observer API, especially for actions that trigger rarely. Don't worry about losing parallelism - running
-a system has its own overhead, so for small logic, it's actually faster to execute it outside a system. Just avoid heavy logic in
-action observers.
-
-During [`EnhancedInputSet::Apply`], events are triggered based on transitions of [`ActionState`], such as
-[`Started<A>`], [`Fired<A>`], and others, where `A` is your action type. This includes transitions between identical states.
-For a full list of transition events, see the [`ActionEvents`] component documentation.
-Just like with the [`ActionState`], their meaning depends on the assigned [input conditions](crate::condition),
-
-The event target will be the entity with the context component, and the output type will match the action's [`InputAction::Output`].
-Events also include additional data, such as timings and state. See the documentation for each [event type](crate::action::events)
-for more details.
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut app = App::new();
-app.add_observer(apply_movement);
 
 /// Apply movement when `Movement` action considered fired.
 fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transform>) {
@@ -272,9 +213,6 @@ fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transfor
     // but since translation expects `Vec3`, we extend it to 3 axes.
     transform.translation += movement.value.extend(0.0);
 }
-# #[derive(InputAction)]
-# #[action_output(Vec2)]
-# struct Movement;
 ```
 
 The event system is highly flexible. For example, you can use the [`Hold`] condition for an attack action, triggering strong attacks on
@@ -297,7 +235,7 @@ Timing information provided via [`ActionTime`] component.
 
 You can also use Bevy's change detection - these components marked as changed only if their values actually change.
 
-For single-player games you can use `Single` for convenient access:
+For single-player games you can use [`Single`] for convenient access:
 
 ```
 # use bevy::prelude::*;
@@ -365,47 +303,18 @@ fn apply_input(
 # struct Movement;
 ```
 
-## Removing contexts
+# Next steps
 
-If you despawn an entity with its context, the actions and bindings will also be despawned.
-However, if you only want to remove a context from an entity, you must remove the required components
-**and** manually despawn its actions.
+While this is enough to allow you to understand the examples and get started, there are a number of other useful features to learn about.
+Each of these is complex to deserve their own section:
 
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# let mut world = World::new();
-let mut player = world.spawn((
-    OnFoot,
-    actions!(OnFoot[
-        (Action::<Jump>::new(), bindings![KeyCode::Space, GamepadButton::South]),
-        (Action::<Fire>::new(), bindings![MouseButton::Left, GamepadButton::RightTrigger2]),
-    ])
-));
+- [input modifiers](crate::modifier) for combining and transforming input values (e.g. applying dead zones or sensitivity or creating chords)
+- [input conditions](crate::condition) for defining when actions are triggered (e.g. on press, release, hold, tap, etc.)
+- [presets](crate::preset) for common bindings and modifiers (e.g. WASD keys and gamepad sticks for movement)
+- [mocking](crate::action::ActionMock) for simulating input in tests, cutscenes or as part of replicated network state
+- [the details of working with contexts](crate::context) (e.g. managing multiple players or gameplay states)
 
-player
-    .remove_with_requires::<OnFoot>()
-    .despawn_related::<Actions<OnFoot>>();
-
-assert_eq!(world.entities().len(), 1, "only the player entity should be left");
-# #[derive(Component)]
-# struct OnFoot;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Fire;
-```
-
-Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically
-despawn related entities when their relationship targets (like [`Actions<C>`]) are removed. For this reason, [`Actions<C>`]
-is not a required component for `C`. See [#20252](https://github.com/bevyengine/bevy/issues/20252) for more details.
-
-When an action is despawned, it automatically transitions its state to [`ActionState::None`] with [`ActionValue::zero`],
-triggering the corresponding events. Depending on your use case, using [`ContextActivity`] might be more convenient than removal.
-
-## Input and UI
+# Input and UI
 
 Currently, we don't integrate `bevy_input_focus` directly. But we provide [`ActionSources`] resource
 that could be used to prevents actions from triggering during UI interactions. See its docs for details.

@@ -1,3 +1,60 @@
+/*!
+Contexts are a way to group actions and manage their evaluation order.
+They allow you to define when actions are active and which inputs they respond to.
+
+Actions are checked only if their context is active,
+and are evaluated in the order of their context's [`ContextPriority`],
+then mainly by the order in which the actions were added to the context,
+with the first action having the highest priority.
+
+Further details on how to order actions due to their inputs being consumed
+can be found in the documentation for [`ActionSettings::consume_input`].
+
+# Removing contexts
+
+If you despawn an entity with its context, the actions and bindings will also be despawned.
+However, if you only want to remove a context from an entity, you must remove the required components
+**and** manually despawn its actions.
+
+```
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+#[derive(Component)]
+struct OnFoot;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Jump;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Fire;
+
+let mut world = World::new();
+let mut player = world.spawn((
+    OnFoot,
+    actions!(OnFoot[
+        (Action::<Jump>::new(), bindings![KeyCode::Space, GamepadButton::South]),
+        (Action::<Fire>::new(), bindings![MouseButton::Left, GamepadButton::RightTrigger2]),
+    ])
+));
+
+player
+    .remove_with_requires::<OnFoot>()
+    .despawn_related::<Actions<OnFoot>>();
+
+assert_eq!(world.entities().len(), 1, "only the player entity should be left");
+```
+
+Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically
+despawn related entities when their relationship targets (like [`Actions<C>`]) are removed. For this reason, [`Actions<C>`]
+is not a required component for `C`. See [#20252](https://github.com/bevyengine/bevy/issues/20252) for more details.
+
+When an action is despawned, it automatically transitions its state to [`ActionState::None`] with [`ActionValue::zero`],
+triggering the corresponding events. Depending on your use case, using [`ContextActivity`] might be more convenient than removal.
+*/
+
 pub mod input_reader;
 mod instance;
 pub mod time;
