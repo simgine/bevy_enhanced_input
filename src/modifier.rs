@@ -21,7 +21,13 @@ Applying bindings at the input level allows you to have different behaviors for 
 You may want to have a dead zone for analog sticks, but not for keyboard keys,
 or scale sensitivity differently for mouse and gamepad inputs.
 
+Creating common modifier configurations can be repetitive.
+To simplify this, we've provided several [preset modifiers](crate::preset) that cover common use cases.
+
 # Example
+
+This example uses the preset modifiers to quickly create and bind a zoom action for a fly camera,
+and tweaks it further using both action and input-level modifiers.
 
 ```
 use bevy::prelude::*;
