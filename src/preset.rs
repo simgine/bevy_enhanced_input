@@ -72,8 +72,6 @@ world.spawn((
 ));
 ```
 
-You can also assign custom bindings or attach additional modifiers, see the [preset] module for more details.
-
 # Implementation details
 
 Each of the preset types defined in this module generates a list of binding entities with the appropriate components

@@ -6,7 +6,7 @@ Action values are stored in two forms:
 
 During [`EnhancedInputSet::Update`], input is read for each [`Binding`] as an [`ActionValue`], with the variant depending
 on the input source. This value is then converted into the [`ActionValue`] on the associated action entity. For example,
-key inputs are captured as [`bool`], but if the action's output type is [`Vec2`], the value will be assigned to the X axis
+key inputs are captured as [`bool`], but if the action's output type is [`Vec2`](bevy::math::Vec2), the value will be assigned to the X axis
 as `0.0` or `1.0`. See [`Binding`] for details on how each source is captured, and [`ActionValue::convert`] for how values
 are transformed.
 
