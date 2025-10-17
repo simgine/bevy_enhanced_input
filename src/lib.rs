@@ -236,7 +236,7 @@ Timing information provided via [`ActionTime`] component.
 
 You can also use Bevy's change detection - these components marked as changed only if their values actually change.
 
-For single-player games you can use `Single` for convenient access:
+For single-player games you can use [`Single`] for convenient access:
 
 ```
 # use bevy::prelude::*;
