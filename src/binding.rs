@@ -240,7 +240,6 @@ fn on_insert(mut world: DeferredWorld, ctx: HookContext) {
                 "`{}` has binding `{binding:?}`, but it is not associated with any action",
                 ctx.entity
             );
-            return;
         }
     }
 }
