@@ -163,8 +163,8 @@ impl InputContextAppExt for App {
 
         self.add_observer(register::<C, S>)
             .add_observer(unregister::<C, S>)
-            .add_observer(reset_action::<C>)
-            .add_observer(deactivate::<C>);
+            .add_observer(deactivate::<C>)
+            .add_observer(reset_action::<C>);
 
         self
     }
