@@ -15,7 +15,7 @@ Check out the [crate docs](https://docs.rs/bevy_enhanced_input) for an overview 
 and all of the information needed to quickly integrate this into your game.
 
 The examples in the repo are also a useful to learn from.
-[simple_fly_cam.rs](examples/simple_fly_cam.rs) should be a good starting point.
+[basic_action_management.rs](examples/basic_action_management.rs) should be a good starting point.
 
 ## Getting help
 
