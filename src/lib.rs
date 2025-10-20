@@ -370,7 +370,7 @@ pub mod prelude {
         },
         bindings,
         condition::{
-            ConditionKind, InputCondition, block_by::*, chord::*, cooldown::*, down::*,
+            ConditionKind, InputCondition, block_by::*, chord::*, combo::*, cooldown::*, down::*,
             fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
             release::*, tap::*,
         },
@@ -423,6 +423,7 @@ impl Plugin for EnhancedInputPlugin {
             .init_resource::<ModifierRegistry>()
             .add_input_condition::<BlockBy>()
             .add_input_condition::<Chord>()
+            .add_input_condition::<Combo>()
             .add_input_condition::<Down>()
             .add_input_condition::<Hold>()
             .add_input_condition::<HoldAndRelease>()
