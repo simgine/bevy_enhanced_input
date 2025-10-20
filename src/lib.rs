@@ -410,7 +410,7 @@ use prelude::{Press, Release, *};
 
 /// Initializes contexts and feeds inputs to them.
 ///
-/// See also [`EnhancedInputSet`].
+/// See also [`EnhancedInputSystems`].
 pub struct EnhancedInputPlugin;
 
 impl Plugin for EnhancedInputPlugin {

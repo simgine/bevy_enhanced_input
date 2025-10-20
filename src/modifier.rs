@@ -4,13 +4,13 @@ Action values are stored in two forms:
 - In a dynamically typed form, as the [`ActionValue`], which is one of the required components of [`Action<C>`].
   Its variant depends on the [`InputAction::Output`].
 
-During [`EnhancedInputSet::Update`], input is read for each [`Binding`] as an [`ActionValue`], with the variant depending
+During [`EnhancedInputSystems::Update`], input is read for each [`Binding`] as an [`ActionValue`], with the variant depending
 on the input source. This value is then converted into the [`ActionValue`] on the associated action entity. For example,
 key inputs are captured as [`bool`], but if the action's output type is [`Vec2`](bevy::math::Vec2), the value will be assigned to the X axis
 as `0.0` or `1.0`. See [`Binding`] for details on how each source is captured, and [`ActionValue::convert`] for how values
 are transformed.
 
-Then, during [`EnhancedInputSet::Apply`], the value from [`ActionValue`] is written into [`Action<C>`].
+Then, during [`EnhancedInputSystems::Apply`], the value from [`ActionValue`] is written into [`Action<C>`].
 
 Modifiers are added as components to either the binding or the action entity.
 If they are attached to the action entity, they affect all bindings of the action

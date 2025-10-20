@@ -4,7 +4,7 @@ Instead of hardcoded states like "pressed" or "released", all actions use an abs
 which determine when the action is triggered. This allows you to define flexible behaviors, such as "hold for 1 second".
 
 Input conditions are components that implement [`InputCondition`] trait. Similar to modifiers, you can attach them to
-both actions and bindings. They also evaluated during [`EnhancedInputSet::Update`] right after modifiers in their insertion
+both actions and bindings. They also evaluated during [`EnhancedInputSystems::Update`] right after modifiers in their insertion
 order and update [`ActionState`] on the associated action entity.
 
 If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,

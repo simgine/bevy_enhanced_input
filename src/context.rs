@@ -394,7 +394,7 @@ pub(crate) fn reset_action<C: Component>(
     }
 }
 
-/// Marks an [`Action<C>`] as manually mocked, skipping the [`EnhancedInputSet::Update`] logic for it.
+/// Marks an [`Action<C>`] as manually mocked, skipping the [`EnhancedInputSystems::Update`] logic for it.
 ///
 /// This allows modifying any action data without its values being overridden during evaluation.
 ///
