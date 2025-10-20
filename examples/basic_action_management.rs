@@ -1,4 +1,8 @@
-//! Simple fly camera with a single context.
+//! Demonstrates basic mapping between inputs and actions.
+//!
+//! This example uses a simple fly camera with a single context
+//! to demonstrate how to set up actions, define keybinds and respond to actions
+//! to modify the state of your application.
 
 use core::f32::consts::{FRAC_PI_2, FRAC_PI_8};
 
