@@ -1,4 +1,8 @@
-//! Two players that use the same context type, but with different bindings.
+//! Demonstrates how to set up local multiplayer input handling.
+//!
+//! The same context ([`Player`]) is used for both players, but each player has their own unique entity.
+//! This allows us to enable or disable players independently and reuse the same entity for gameplay,
+//! and assign unique input bindings to each player.
 
 use bevy::{
     input::gamepad::{GamepadConnection, GamepadConnectionEvent},
