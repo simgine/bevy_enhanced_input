@@ -1,3 +1,58 @@
+//! Actions represent high-level user intents, such as "Jump" or "Move Forward".
+//!
+//! Each action is represented by a new type that implements the [`InputAction`] trait.
+//! The trait defines the output type of the action, via the [`InputAction::Output`] associated type.
+//! Actions can output different types of values, such as `bool` for button-like actions
+//! (e.g., "Jump"), `f32` for single-axis actions (e.g., "Zoom"), or `Vec2`/`Vec3` for multi-axis actions
+//! (like "Movement").
+//!
+//! Actions belong to [contexts](crate::context) that group related actions together,
+//! allowing you to enable and disable actions based on the current game state.
+//!
+//! They are spawned as entities with the [`Action<C>`] component, where `C` is the action type,
+//! and related to the context entity via the [`ActionOf<C>`] relationship.
+//!
+//! In turn, actions have input mappings defined by [bindings](crate::binding) entities,
+//! which are related to the action entity via the [`BindingOf`] relationship.
+//!
+//! ## Responding to actions
+//!
+//! When an action is evaluated, it produces various [action events](events) that indicate
+//! changes in the action's state.
+//!
+//! These are entity-targeted [`Events`](bevy::ecs::event::Event) that you can listen for in observers,
+//! performing the same gameplay logic regardless of the underlying input device or binding.
+//!
+//! The exact semantic meaning of these events (and [`ActionState`], discussed below),
+//! depends on the [conditions](crate::condition) defined on the action
+//! or the input bindings for that action.
+//!
+//! ## Checking the state of actions
+//!
+//! The current state of an action can be accessed using the [`ActionState`] component,
+//! which indicates whether the action is inactive, ongoing, or fired.
+//!
+//! The [`ActionValue`] component holds the current value of the action,
+//! allowing you to access the latest input state for the action,
+//! while the [`ActionTime`] component provides timing information,
+//! such as how long the action has been active.
+//!
+//! This "pull-style" approach allows you to query the state of actions at any point in your game logic,
+//! allowing you to combine multiple actions or create complex behaviors based on the current input state.
+//!
+//! ## Configuring actions
+//!
+//! The behavior of actions can be customized using the [`ActionSettings`] component,
+//! which allows you to define accumulation behavior, input consumption, and reset requirements.
+//!
+//! The behavior of actions can also be modified via [modifiers](crate::modifier) that
+//! transform the action value during evaluation.
+//!
+//! ## Manually firing actions
+//!
+//! In addition to responding to user input, you can also manually set the state and value of actions
+//! using the [`ActionMock`] component. This is useful for simulating input during cutscenes,
+//! testing, AI-controlled players, tool-assisted speedruns or other scenarios where you want to control the action state directly.
 pub mod events;
 pub mod fns;
 pub mod relationship;
