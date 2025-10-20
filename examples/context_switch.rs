@@ -1,4 +1,13 @@
-//! One context completely replaces another.
+//! Demonstrates the use of context switching in input handling.
+//!
+//! When a context switch action is triggered, the active context changes,
+//! enabling a different set of actions and bindings.
+//! This is done by setting the [`ContextActivity`] component on each context entity,
+//! enabling or disabling them as needed.
+//!
+//! In this example, the player can move and attack in the [`Player`] context.
+//! Pressing the [`OpenInventory`] action switches to the [`Inventory`] context,
+//! where the player can navigate the inventory and close it to return to the [`Player`] context.
 
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;

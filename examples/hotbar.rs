@@ -1,5 +1,9 @@
-//! An Example showing how to implement a Minecraft-like hotbar.
-//! Press keys from the number row on the keyboard to equip different items.
+//! Demonstrates how to implement a Minecraft-style hotbar system using actions.
+//!
+//! Each hotbar slot is modelled as a distinct entity,
+//! sharing a common [`EquipItem`] action but recording which slot they correspond to
+//! via the [`EquipHotbarIndex`] component.
+//! Each of these actions is bound to a different key from the number row on the keyboard.
 
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -69,6 +73,7 @@ struct Player;
 #[action_output(bool)]
 struct EquipItem;
 
+/// The index of the hotbar slot to equip when the [`EquipItem`] action is triggered for this entity.
 #[derive(Component)]
 struct EquipHotbarIndex(usize);
 
