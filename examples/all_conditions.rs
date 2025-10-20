@@ -1,4 +1,8 @@
 //! Demonstrates all available input conditions.
+//!
+//! Input conditions determine when an action is considered "triggered" based on the input state.
+//! Read more about them in the [condition module documentation](bevy_enhanced_input::condition).
+//!
 //! Press keys from the number row on the keyboard to trigger actions and observe the output in console.
 
 use bevy::{ecs::spawn::SpawnWith, log::LogPlugin, prelude::*};
