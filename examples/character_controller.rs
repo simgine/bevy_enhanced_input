@@ -83,9 +83,9 @@ fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut Pla
         transform.translation.x = transform.translation.x.clamp(-MAX_X, MAX_X);
 
         // Check for ground collision.
-        const GROUDED_Y: f32 = GROUND_LEVEL + PLAYER.y / 2.0;
-        if transform.translation.y <= GROUDED_Y {
-            transform.translation.y = GROUDED_Y;
+        const GROUNDED_Y: f32 = GROUND_LEVEL + PLAYER.y / 2.0;
+        if transform.translation.y <= GROUNDED_Y {
+            transform.translation.y = GROUNDED_Y;
             physics.velocity.y = 0.0;
             physics.is_grounded = true;
         }
