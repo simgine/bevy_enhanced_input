@@ -1,3 +1,6 @@
+//! Demonstrates how to create a simple platforming 2D character controller
+//! using actions with both keyboard and gamepad controls.
+
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
