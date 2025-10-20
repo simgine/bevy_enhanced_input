@@ -1,3 +1,16 @@
+//! Input bindings define which physical inputs map to an action.
+//!
+//! These are bound to actions using the [`BindingOf`] relationship,
+//! which can be created using the [`bindings!`] macro, spawned underneath an [action entity](crate::action).
+//!
+//! Inputs can be modified using [input modifiers](crate::modifier) to alter the input value captured,
+//! or [input conditions](crate::condition) to change when the action is triggered.
+//!
+//! When defining input bindings, you may find the collection of [preset bindings](crate::preset) useful
+//! to reduce boilerplate and demonstrate common input patterns and transformations.
+//!
+//! For an exhaustive list of available input devices, see the [`Binding`] enum.
+
 pub mod mod_keys;
 pub mod relationship;
 
