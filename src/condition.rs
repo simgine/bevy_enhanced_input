@@ -52,6 +52,7 @@ world.spawn((
 
 pub mod block_by;
 pub mod chord;
+pub mod combo;
 pub mod cooldown;
 pub mod down;
 pub mod fns;

@@ -94,6 +94,15 @@ fn spawn(mut commands: Commands) {
                 Cooldown::new(1.0),
                 bindings![TestCooldown::KEY],
             ));
+
+            let combo_step = context
+                .spawn((Action::<ComboStep>::new(), bindings![ComboStep::KEY]))
+                .id();
+
+            context.spawn((
+                Action::<TestCombo>::new(),
+                Combo::default().with_step(combo_step).with_step(combo_step),
+            ));
         })),
     ));
 }
@@ -200,3 +209,15 @@ struct TestCooldown;
 impl TestCooldown {
     const KEY: KeyCode = KeyCode::Equal;
 }
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct ComboStep;
+
+impl ComboStep {
+    const KEY: KeyCode = KeyCode::Space;
+}
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct TestCombo;
