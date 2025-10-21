@@ -16,7 +16,7 @@ This crate introduces three main concepts:
 
 In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
 
-## Actions
+## [Actions](action)
 
 Each action represents a different in-game behavior.
 To create a new action, you will need to define a new struct and implement the [`InputAction`] trait for it,
@@ -37,7 +37,7 @@ This means that if multiple actions are bound to the same input source (e.g., th
 the action that is evaluated first will take precedence, and the others will not receive the input value.
 This behavior (and other action-specific configuration) can be further customized using the [`ActionSettings`] component.
 
-## Bindings
+## [Bindings](binding)
 
 Bindings define how actions are triggered by input sources (e.g. mouse movement or keyboard buttons) that your player might press, like keyboard keys or gamepad buttons.
 We provide support for a variety of input sources out of the box: see the [`Binding`] enum for a full list.
@@ -49,7 +49,7 @@ we provide the [`bindings!`] macro to spawn related bindings.
 By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
 context entity.
 
-## Contexts
+## [Contexts](context)
 
 Contexts define when actions are evaluated. They are associated with action entities via the [`Actions<C>`] relationship mentioned earlier.
 Depending on your type of game, you may have a single global context
@@ -169,7 +169,7 @@ but the pull-style API can allow for more complex checks and interactions betwee
 Ultimately, the choice between these two approaches depends on your specific use case and preferences,
 with performance playing a relatively minor role unless you have a very large number of acting entities or if you have a complex logic for your action reaction.
 
-### Push-style
+### Push-style: responding to action events
 
 When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
 These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
@@ -219,7 +219,7 @@ The event system is highly flexible. For example, you can use the [`Hold`] condi
 
 This approach can be mixed with the pull-style API if you need to access values of other actions in your observer.
 
-### Pull-style
+### Pull-style: polling action state
 
 Sometimes you may want to access multiple actions at the same time, or check an action state
 during other gameplay logic. For cases like you can use pull-style API.
