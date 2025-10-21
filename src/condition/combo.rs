@@ -14,8 +14,8 @@ cancel action.
 After the first step, returns [`ActionState::Ongoing`] until the last step.
 Once all steps are completed, returns [`ActionState::Fired`] once, then resets.
 
-Requires using [`SpawnRelated::spawn`] because you need to pass [`Entity`]
-for step and cancel actions.
+Requires using [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
+because you need to pass [`Entity`] for step and cancel actions.
 
 # Examples
 
