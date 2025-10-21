@@ -103,11 +103,10 @@ struct Jump;
 struct Fire;
 
 let mut app = App::new();
-app.add_plugins(EnhancedInputPlugin);
-app.add_input_context::<Player>();
+app.add_plugins(EnhancedInputPlugin)
+    .add_input_context::<Player>();
 
-let mut world = World::new();
-world.spawn((
+app.world_mut().spawn((
     Player,
     actions!(Player[
         (
@@ -120,7 +119,6 @@ world.spawn((
         ),
     ])
 ));
-
 ```
 
 If we wanted to add a new context for when the player is in a vehicle, we would create a new context component `InVehicle`
