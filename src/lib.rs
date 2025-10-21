@@ -170,7 +170,7 @@ but the pull-style API can allow for more complex checks and interactions betwee
 Ultimately, the choice between these two approaches depends on your specific use case and preferences,
 with performance playing a relatively minor role unless you have a very large number of acting entities or if you have a complex logic for your action reaction.
 
-### Push-style
+### Push-style: responding to action events
 
 When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
 These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
@@ -220,7 +220,7 @@ The event system is highly flexible. For example, you can use the [`Hold`] condi
 
 This approach can be mixed with the pull-style API if you need to access values of other actions in your observer.
 
-### Pull-style
+### Pull-style: polling action state
 
 Sometimes you may want to access multiple actions at the same time, or check an action state
 during other gameplay logic. For cases like you can use pull-style API.
