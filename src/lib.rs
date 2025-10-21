@@ -104,7 +104,8 @@ struct Fire;
 
 let mut app = App::new();
 app.add_plugins(EnhancedInputPlugin)
-    .add_input_context::<Player>();
+    .add_input_context::<Player>()
+    .finish();
 
 app.world_mut().spawn((
     Player,
