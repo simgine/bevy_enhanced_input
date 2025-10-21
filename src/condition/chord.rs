@@ -4,45 +4,57 @@ use smallvec::{SmallVec, smallvec};
 
 use crate::prelude::*;
 
-/// Returns [`ActionState::Fired`] if all given actions fire, otherwise returns their maximum [`ActionState`], capped at [`ActionState::Ongoing`].
-///
-/// Useful for defining a composite action that fires only when all listed actions are active.
-///
-/// # Examples
-///
-/// To get action entities during spawning, you could use [`SpawnWith`].
-///
-/// ```
-/// use bevy::{ecs::spawn::SpawnWith, prelude::*};
-/// use bevy_enhanced_input::prelude::*;
-///
-/// Actions::<TestContext>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
-///     let combo1 = context
-///         .spawn((Action::<Combo1>::new(), bindings![KeyCode::KeyQ]))
-///         .id();
-///     let combo2 = context
-///         .spawn((Action::<Combo2>::new(), bindings![KeyCode::KeyX]))
-///         .id();
-///
-///     // Will trigger when both `Combo1` and `Combo2` fire.
-///     context.spawn((Action::<SuperCombo>::new(), Chord::new([combo1, combo2])));
-/// }));
-///
-/// #[derive(Component)]
-/// struct TestContext;
-///
-/// #[derive(InputAction)]
-/// #[action_output(bool)]
-/// struct Combo1;
-///
-/// #[derive(InputAction)]
-/// #[action_output(bool)]
-/// struct Combo2;
-///
-/// #[derive(InputAction)]
-/// #[action_output(bool)]
-/// struct SuperCombo;
-/// ```
+/**
+Returns [`ActionState::Fired`] if all given actions fire, otherwise returns their maximum
+[`ActionState`], capped at [`ActionState::Ongoing`].
+
+Useful for defining a composite action that fires only when all listed actions are active.
+
+Requires using [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
+because you need to pass [`Entity`] for step and cancel actions.
+
+# Examples
+
+```
+use bevy::prelude::*;
+use bevy_enhanced_input::prelude::*;
+
+# let mut world = World::new();
+world.spawn((
+    Player,
+    Actions::<Player>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
+        let modifier = context
+            .spawn((Action::<Modifier>::new(), bindings![GamepadButton::LeftTrigger]))
+            .id();
+
+        // Use `Heal` if `Modifier` is active.
+        context.spawn((
+            Action::<Heal>::new(),
+            Chord::single(modifier),
+            bindings![GamepadButton::West],
+        ));
+
+        // Otherwise use `Attack`.
+        context.spawn((Action::<Attack>::new(), bindings![GamepadButton::West]));
+    })),
+));
+
+#[derive(Component)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Attack;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Modifier;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Heal;
+```
+*/
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Chord {
     /// Actions whose state will be inherited when they are firing.
