@@ -455,7 +455,7 @@ mod tests {
         );
         assert_eq!(condition.step_index, 0);
 
-        world.entity_mut(action_b).insert(ActionEvents::empty()); // Clear `Completed` event.
+        world.entity_mut(action_b).insert(ActionEvents::empty());
         world.entity_mut(action_a).insert(ActionEvents::COMPLETED);
         let (time, actions) = state.get(&world);
 
@@ -465,7 +465,7 @@ mod tests {
         );
         assert_eq!(condition.step_index, 1);
 
-        world.entity_mut(action_a).insert(ActionEvents::empty()); // Clear `Completed` event.
+        world.entity_mut(action_a).insert(ActionEvents::empty());
         world.entity_mut(action_c).insert(ActionEvents::COMPLETED);
         let (time, actions) = state.get(&world);
 
