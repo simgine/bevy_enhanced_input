@@ -71,6 +71,7 @@ pub struct Combo {
     /// Index of the current step in the combo.
     step_index: usize,
 
+    /// Tracks timeout for completing the current step.
     timer: Timer,
 }
 
