@@ -20,11 +20,11 @@
 //!
 //! When an action is evaluated, it produces various [action events](events) that indicate
 //! changes in the action's state.
-//! See the section on [pull style action handling](crate) in the library documentation for more details.
+//! See the section on [push-style action handling](../index.html#push-style-responding-to-action-events) in the library documentation for more details.
 //!
 //! Similarly, you can check the current state and value of an action at any time using the
 //! [`Action<C>`], [`ActionState`], [`ActionValue`] and [`ActionTime`] components.
-//! See the section on [push style action handling](crate) in the library documentation for more details.
+//! See the section on [pull-style action handling](../index.html#pull-style-polling-action-state) in the library documentation for more details.
 //!
 //! # Configuring actions
 //!
