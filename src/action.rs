@@ -11,6 +11,7 @@
 //!
 //! They are spawned as entities with the [`Action<C>`] component, where `C` is the action type,
 //! and related to the context entity via the [`ActionOf<C>`] relationship.
+//! The [`actions!`] macro can be used to conveniently spawn multiple actions at once.
 //!
 //! In turn, actions have input mappings defined by [bindings](crate::binding) entities,
 //! which are related to the action entity via the [`BindingOf`] relationship.
