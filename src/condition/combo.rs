@@ -8,7 +8,11 @@ use crate::prelude::*;
 /**
 Sequence of actions that needs to be triggered in specific order.
 
-The condition activates for one frame before resetting the combo progress.
+The combo resets if a step is triggered out of order or by any defined
+cancel action.
+
+After the first step, returns [`ActionState::Ongoing`] until the last step.
+Once all steps are completed, returns [`ActionState::Fired`] once, then resets.
 
 Requires using [`SpawnRelated::spawn`] because you need to pass [`Entity`]
 for step and cancel actions.
