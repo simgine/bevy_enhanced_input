@@ -20,11 +20,13 @@
 //!
 //! When an action is evaluated, it produces various [action events](events) that indicate
 //! changes in the action's state.
-//! See the section on [push-style action handling](../index.html#push-style-responding-to-action-events) in the library documentation for more details.
+//! See the section on [push-style action handling](../index.html#push-style-responding-to-action-events)
+//! in the library documentation for more details.
 //!
 //! Similarly, you can check the current state and value of an action at any time using the
 //! [`Action<C>`], [`ActionState`], [`ActionValue`] and [`ActionTime`] components.
-//! See the section on [pull-style action handling](../index.html#pull-style-polling-action-state) in the library documentation for more details.
+//! See the section on [pull-style action handling](../index.html#pull-style-polling-action-state)
+//! in the library documentation for more details.
 //!
 //! # Configuring actions
 //!
@@ -38,8 +40,11 @@
 //! # Manually firing actions
 //!
 //! In addition to responding to user input, you can also manually set the state and value of actions
-//! using the [`ActionMock`] component. This is useful for simulating input during cutscenes,
+//! using the [`ActionMock`] component or by directly modifying various components before [`EnhancedInputSystems`] are run.
+//!
+//! This is useful for simulating input during cutscenes,
 //! testing, AI-controlled players, tool-assisted speedruns or other scenarios where you want to control the action state directly.
+
 pub mod events;
 pub mod fns;
 pub mod relationship;
