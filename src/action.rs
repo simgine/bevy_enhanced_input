@@ -43,7 +43,7 @@
 //! using the [`ActionMock`] component or by directly modifying various components before [`EnhancedInputSystems`] are run.
 //!
 //! This is useful for simulating input during cutscenes,
-//! testing, AI-controlled players, tool-assisted speedruns or other scenarios where you want to control the action state directly.
+//! testing, networked replication, AI-controlled players, game replays, or other scenarios where you want to control the action state directly.
 
 pub mod events;
 pub mod fns;
