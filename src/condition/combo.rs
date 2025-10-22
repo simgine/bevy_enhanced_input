@@ -92,6 +92,12 @@ impl Combo {
         self
     }
 
+    /// Returns the associated timer.
+    #[must_use]
+    pub fn timer(&self) -> &Timer {
+        &self.timer
+    }
+
     fn reset(&mut self) {
         self.step_index = 0;
         self.timer.reset();
