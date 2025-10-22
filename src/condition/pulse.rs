@@ -84,19 +84,21 @@ impl InputCondition for Pulse {
         value: ActionValue,
     ) -> ActionState {
         if value.is_actuated(self.actuation) {
-            let mut should_fire = false;
+            let mut finish_count = 0;
 
             if !self.started_actuation {
                 self.started_actuation = true;
-                should_fire |= self.trigger_on_start;
+                if self.trigger_on_start {
+                    finish_count += 1;
+                }
             }
 
             self.timer.tick(time.delta_kind(self.time_kind));
-            should_fire |= self.timer.just_finished();
+            finish_count += self.timer.times_finished_this_tick();
 
             if self.trigger_limit == 0 || self.trigger_count < self.trigger_limit {
-                if should_fire {
-                    self.trigger_count += 1;
+                if finish_count != 0 {
+                    self.trigger_count += finish_count;
                     ActionState::Fired
                 } else {
                     ActionState::Ongoing
@@ -223,6 +225,21 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             ActionState::None
+        );
+    }
+
+    #[test]
+    fn overshoot() {
+        let (mut world, mut state) = context::init_world();
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_secs(2));
+        let (time, actions) = state.get(&world);
+
+        let mut condition = Pulse::new(1.0).with_trigger_limit(3);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Fired,
         );
     }
 }

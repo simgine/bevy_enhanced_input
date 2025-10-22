@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Warn about bindings without associated actions.
+- Handle overshoot in `Pulse`.
 
 ## [0.19.1] - 2025-10-13
 
