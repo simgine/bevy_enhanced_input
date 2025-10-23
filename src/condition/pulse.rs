@@ -82,6 +82,12 @@ impl Pulse {
         self
     }
 
+    /// Returns the delay from [`Self::with_initial_delay`] if it was set.
+    #[must_use]
+    pub fn initial_delay(&self) -> Option<f32> {
+        self.initial_delay
+    }
+
     #[must_use]
     pub fn with_actuation(mut self, actuation: f32) -> Self {
         self.actuation = actuation;
