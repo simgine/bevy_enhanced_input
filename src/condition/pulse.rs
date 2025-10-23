@@ -1,3 +1,5 @@
+use core::time::Duration;
+
 use bevy::prelude::*;
 
 use super::DEFAULT_ACTUATION;
@@ -22,6 +24,12 @@ pub struct Pulse {
     /// The type of time used to advance the timer.
     pub time_kind: TimeKind,
 
+    /// Time in seconds that will be used instead of the [`Self::interval`] once.
+    initial_delay: Option<f32>,
+
+    /// Interval between pulses in seconds.
+    interval: f32,
+
     timer: Timer,
 
     trigger_count: u32,
@@ -39,6 +47,8 @@ impl Pulse {
             trigger_on_start: true,
             actuation: DEFAULT_ACTUATION,
             time_kind: Default::default(),
+            initial_delay: None,
+            interval,
             timer: Timer::from_seconds(interval, TimerMode::Repeating),
             trigger_count: 0,
             started_actuation: false,
@@ -55,6 +65,27 @@ impl Pulse {
     pub fn trigger_on_start(mut self, trigger_on_start: bool) -> Self {
         self.trigger_on_start = trigger_on_start;
         self
+    }
+
+    /// Sets a different pause before the first repeat.
+    ///
+    /// Further repeats will use the interval from [`Self::new`].
+    ///
+    /// For example, you could set a longer delay to simulate keyboard repeat:
+    /// when you hold down a key, the first repeat takes longer to fire, and then
+    /// it repeats at a faster, steady interval.
+    #[must_use]
+    pub fn with_initial_delay(mut self, initial_delay: f32) -> Self {
+        self.initial_delay = Some(initial_delay);
+        self.timer
+            .set_duration(Duration::from_secs_f32(initial_delay));
+        self
+    }
+
+    /// Returns the delay from [`Self::with_initial_delay`] if it was set.
+    #[must_use]
+    pub fn initial_delay(&self) -> Option<f32> {
+        self.initial_delay
     }
 
     #[must_use]
@@ -96,6 +127,11 @@ impl InputCondition for Pulse {
 
             if self.trigger_limit == 0 || self.trigger_count < self.trigger_limit {
                 if should_fire {
+                    if self.initial_delay.is_some() && self.trigger_count >= 1 {
+                        self.timer.reset();
+                        self.timer
+                            .set_duration(Duration::from_secs_f32(self.interval));
+                    }
                     self.trigger_count += 1;
                     ActionState::Fired
                 } else {
@@ -105,6 +141,10 @@ impl InputCondition for Pulse {
                 ActionState::None
             }
         } else {
+            if let Some(initial_delay) = self.initial_delay {
+                self.timer
+                    .set_duration(Duration::from_secs_f32(initial_delay));
+            }
             self.timer.reset();
             self.trigger_count = 0;
             self.started_actuation = false;
@@ -208,6 +248,62 @@ mod tests {
             condition.evaluate(&actions, &time, 1.0.into()),
             ActionState::Ongoing,
         );
+    }
+
+    #[test]
+    fn initial_delay() {
+        let (mut world, mut state) = context::init_world();
+        let mut condition = Pulse::new(0.35).with_initial_delay(1.0);
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Fired,
+        );
+
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(500));
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Ongoing,
+        );
+
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(500));
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Fired,
+            "should fire after initial delay",
+        );
+
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(300));
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Ongoing,
+        );
+
+        world
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(50));
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            ActionState::Fired,
+            "should fire after regular interval",
+        );
+
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 0.0.into()),
+            ActionState::None,
+        );
+        assert_eq!(condition.timer().duration().as_secs_f32(), 1.0);
     }
 
     #[test]
