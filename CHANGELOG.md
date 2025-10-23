@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `Combo` input condition.
+- `Pulse::with_initial_delay` and `Pulse::initial_delay` to add special delay before the first repeat.
 
 ### Changed
 
