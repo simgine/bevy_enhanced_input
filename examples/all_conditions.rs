@@ -1,4 +1,8 @@
 //! Demonstrates all available input conditions.
+//!
+//! Input conditions determine when an action is considered "triggered" based on the input state.
+//! Read more about them in the [condition module documentation](bevy_enhanced_input::condition).
+//!
 //! Press keys from the number row on the keyboard to trigger actions and observe the output in console.
 
 use bevy::{ecs::spawn::SpawnWith, log::LogPlugin, prelude::*};
@@ -89,6 +93,15 @@ fn spawn(mut commands: Commands) {
                 Action::<TestCooldown>::new(),
                 Cooldown::new(1.0),
                 bindings![TestCooldown::KEY],
+            ));
+
+            let combo_step = context
+                .spawn((Action::<ComboStep>::new(), bindings![ComboStep::KEY]))
+                .id();
+
+            context.spawn((
+                Action::<TestCombo>::new(),
+                Combo::default().with_step(combo_step).with_step(combo_step),
             ));
         })),
     ));
@@ -196,3 +209,15 @@ struct TestCooldown;
 impl TestCooldown {
     const KEY: KeyCode = KeyCode::Equal;
 }
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct ComboStep;
+
+impl ComboStep {
+    const KEY: KeyCode = KeyCode::Space;
+}
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct TestCombo;

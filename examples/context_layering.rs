@@ -1,4 +1,15 @@
-//! One context applied on top of another and overrides some of the bindings.
+//! Demonstrates the concept of context layering in input handling.
+//! One context can be applied on top of another, overriding some of the bindings.
+//!
+//! The [`ContextPriority`] component is used to determine the order of contexts,
+//! with higher priority contexts taking precedence over lower priority ones.
+//! This influences the order in which actions are evaluated and inputs are consumed.
+//! See [`ActionSettings::consume_input`] for more details and control over this behavior.
+//!
+//! In this example, we have a [`Player`] context that allows basic movement and jumping.
+//! When the player enters a vehicle, we add a [`Driving`] context on top of the [`Player`] context.
+//! The [`Driving`] context overrides the jump action with a brake action and adds actions for entering
+//! and exiting the vehicle.
 
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;

@@ -1,3 +1,9 @@
+//! Demonstrates how to create a keybinding menu, allowing users to customize their controls.
+//!
+//! Critically, the [`InputSettings`] resource which stores the keybindings
+//! implements [`Serialize`] and [`Deserialize`] via [`serde`], allowing easy saving and loading
+//! of user preferences in the file format of your choice (commonly .ron or .json).
+
 use core::{error::Error, fmt::Write};
 use std::fs;
 

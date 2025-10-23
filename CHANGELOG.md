@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Combo` input condition.
+
+### Changed
+
+- Warn about bindings without associated actions.
+
 ## [0.19.1] - 2025-10-13
 
 ### Changed

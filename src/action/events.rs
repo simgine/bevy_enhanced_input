@@ -9,7 +9,7 @@ use crate::prelude::*;
 
 /// Bitset with events caused by state transitions of [`ActionState`].
 ///
-/// During [`EnhancedInputSet::Apply`], events that correspond to bitflags will be triggered.
+/// During [`EnhancedInputSystems::Apply`], events that correspond to bitflags will be triggered.
 ///
 /// You can use this component directly in systems or react on corresponding events in observers.
 ///

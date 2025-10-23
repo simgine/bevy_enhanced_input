@@ -1,3 +1,50 @@
+//! Actions represent high-level user intents, such as "Jump" or "Move Forward".
+//!
+//! Each action is represented by a new type that implements the [`InputAction`] trait.
+//! The trait defines the output type of the action, via the [`InputAction::Output`] associated type.
+//! Actions can output different types of values, such as `bool` for button-like actions
+//! (e.g., "Jump"), `f32` for single-axis actions (e.g., "Zoom"), or `Vec2`/`Vec3` for multi-axis actions
+//! (like "Movement").
+//!
+//! Actions belong to [contexts](crate::context) that group related actions together,
+//! allowing you to enable and disable actions based on the current game state.
+//!
+//! They are spawned as entities with the [`Action<C>`] component, where `C` is the action type,
+//! and related to the context entity via the [`ActionOf<C>`] relationship.
+//! The [`actions!`] macro can be used to conveniently spawn multiple actions at once.
+//!
+//! In turn, actions have input mappings defined by [binding](crate::binding) entities,
+//! which are related to the action entity via the [`BindingOf`] relationship.
+//!
+//! # Responding to actions
+//!
+//! When an action is evaluated, it produces various [action events](events) that indicate
+//! changes in the action's state.
+//! See the section on [push-style action handling](../index.html#push-style-responding-to-action-events)
+//! in the library documentation for more details.
+//!
+//! Similarly, you can check the current state and value of an action at any time using the
+//! [`Action<C>`], [`ActionState`], [`ActionValue`] and [`ActionTime`] components.
+//! See the section on [pull-style action handling](../index.html#pull-style-polling-action-state)
+//! in the library documentation for more details.
+//!
+//! # Configuring actions
+//!
+//! The behavior of actions can be customized using the [`ActionSettings`] component,
+//! which allows you to define accumulation behavior, input consumption, and reset requirements.
+//!
+//! The behavior of actions can also be modified via
+//! [modifiers](crate::modifier) that transform the action value during evaluation,
+//! or by using [input conditions](crate::condition) to control when actions are triggered.
+//!
+//! # Manually firing actions
+//!
+//! In addition to responding to user input, you can also manually set the state and value of actions
+//! using the [`ActionMock`] component or by directly modifying various components before [`EnhancedInputSystems`] are run.
+//!
+//! This is useful for simulating input during cutscenes,
+//! testing, networked replication, AI-controlled players, game replays, or other scenarios where you want to control the action state directly.
+
 pub mod events;
 pub mod fns;
 pub mod relationship;
@@ -251,6 +298,9 @@ impl ActionTime {
 /// For more details, see the [evaluation](../index.html#evaluation) section in the quick start guide.
 ///
 /// See also [`ExternallyMocked`](crate::context::ExternallyMocked) to manually control the action data.
+///
+/// If you only need mocking, you can disable [`InputPlugin`](bevy::input::InputPlugin) entirely.
+/// However, `bevy_input` is a required dependency because we use its input types elsewhere in this crate.
 ///
 /// # Examples
 ///

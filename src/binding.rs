@@ -1,3 +1,16 @@
+//! Input bindings define which physical inputs map to an action.
+//!
+//! These are bound to actions using the [`BindingOf`] relationship,
+//! which can be created using the [`bindings!`] macro, spawned underneath an [action entity](crate::action).
+//!
+//! Inputs can be modified using [input modifiers](crate::modifier) to alter the input value captured,
+//! or [input conditions](crate::condition) to change when the action is triggered.
+//!
+//! When defining input bindings, you may find the collection of [preset bindings](crate::preset) useful
+//! to reduce boilerplate and demonstrate common input patterns and transformations.
+//!
+//! For an exhaustive list of available input devices, see the [`Binding`] enum.
+
 pub mod mod_keys;
 pub mod relationship;
 
@@ -7,7 +20,7 @@ use bevy::{
     ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
-use log::error;
+use log::{Level, error, log_enabled, warn};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -25,7 +38,7 @@ use crate::prelude::*;
 #[derive(Component, Reflect, Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
-#[component(on_insert = reset_first_activation, immutable)]
+#[component(on_insert = on_insert, immutable)]
 #[require(FirstActivation)]
 pub enum Binding {
     /// Keyboard button, captured as [`ActionValue::Bool`].
@@ -219,9 +232,29 @@ impl<I: Into<Binding>> InputModKeys for I {
     }
 }
 
-fn reset_first_activation(mut world: DeferredWorld, ctx: HookContext) {
-    let mut first_activation = world.get_mut::<FirstActivation>(ctx.entity).unwrap();
+fn on_insert(mut world: DeferredWorld, ctx: HookContext) {
+    let mut entity = world.entity_mut(ctx.entity);
+
+    let mut first_activation = entity.get_mut::<FirstActivation>().unwrap();
     **first_activation = true;
+
+    if log_enabled!(Level::Warn) {
+        if let Some(action) = entity.get::<BindingOf>().map(|b| **b) {
+            if world.get::<ActionState>(action).is_none() {
+                let binding = world.get::<Binding>(ctx.entity).unwrap();
+                warn!(
+                    "`{}` has binding `{binding:?}`, but the associated action `{action}` is invalid",
+                    ctx.entity
+                );
+            }
+        } else {
+            let binding = world.get::<Binding>(ctx.entity).unwrap();
+            warn!(
+                "`{}` has binding `{binding:?}`, but it is not associated with any action",
+                ctx.entity
+            );
+        }
+    }
 }
 
 /// Tracks whether the input defined by [`Binding`] was active at least once.
