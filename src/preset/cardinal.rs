@@ -56,13 +56,6 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     }
 
     /// Applies keyboard modifiers to all bindings.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use bevy_enhanced_input::prelude::*;
-    /// let cardinal = Cardinal::arrows().with_mod_keys(ModKeys::CONTROL);
-    /// ```
     #[must_use]
     pub fn with_mod_keys(self, mod_keys: ModKeys) -> Self {
         Self {
