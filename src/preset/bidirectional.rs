@@ -86,4 +86,13 @@ impl Bidirectional<Binding, Binding> {
             negative: GamepadButton::DPadDown.into(),
         }
     }
+
+    /// Applies keyboard modifiers to all bindings.
+    #[must_use]
+    pub fn with_mod_keys(self, mod_keys: ModKeys) -> Self {
+        Self {
+            positive: self.positive.with_mod_keys(mod_keys),
+            negative: self.negative.with_mod_keys(mod_keys),
+        }
+    }
 }

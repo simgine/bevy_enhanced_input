@@ -75,6 +75,21 @@ impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Bind
             north_west: KeyCode::KeyY.into(),
         }
     }
+
+    /// Applies keyboard modifiers to all bindings.
+    #[must_use]
+    pub fn with_mod_keys(self, mod_keys: ModKeys) -> Self {
+        Self {
+            north: self.north.with_mod_keys(mod_keys),
+            north_east: self.north_east.with_mod_keys(mod_keys),
+            east: self.east.with_mod_keys(mod_keys),
+            south_east: self.south_east.with_mod_keys(mod_keys),
+            south: self.south.with_mod_keys(mod_keys),
+            south_west: self.south_west.with_mod_keys(mod_keys),
+            west: self.west.with_mod_keys(mod_keys),
+            north_west: self.north_west.with_mod_keys(mod_keys),
+        }
+    }
 }
 
 impl<N, NE, E, SE, S, SW, W, NW> SpawnableList<BindingOf> for Ordinal<N, NE, E, SE, S, SW, W, NW>

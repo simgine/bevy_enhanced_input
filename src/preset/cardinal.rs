@@ -54,6 +54,17 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
             east: KeyCode::ArrowRight.into(),
         }
     }
+
+    /// Applies keyboard modifiers to all bindings.
+    #[must_use]
+    pub fn with_mod_keys(self, mod_keys: ModKeys) -> Self {
+        Self {
+            north: self.north.with_mod_keys(mod_keys),
+            east: self.east.with_mod_keys(mod_keys),
+            south: self.south.with_mod_keys(mod_keys),
+            west: self.west.with_mod_keys(mod_keys),
+        }
+    }
 }
 
 impl Cardinal<Binding, Binding, Binding, Binding> {
