@@ -59,7 +59,7 @@ fn jump(_on: On<Start<Jump>>) {
 
 fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
     // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
-    // preventing `Rotate` and `EnterWater` from being triggered.
+    // preventing `Rotate` and `EnterCar` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
     commands.entity(enter.context).insert((
@@ -73,7 +73,7 @@ fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
             (
                 Action::<ExitCar>::new(),
                 ActionSettings {
-                    // We set `require_reset` to `true` because `EnterWater` action uses the same input,
+                    // We set `require_reset` to `true` because `EnterCar` action uses the same input,
                     // and we want it to be triggerable only after the button is released.
                     require_reset: true,
                     ..Default::default()
