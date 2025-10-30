@@ -1,6 +1,6 @@
 [package]
 name = "bevy_enhanced_input"
-version = "0.19.1"
+version = "0.19.2"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "Alice Cecile <alice.i.cecile@gmail.com>",
@@ -22,7 +22,7 @@ required-features = ["serialize"]
 serialize = ["bevy/serialize", "dep:serde"]
 
 [dependencies]
-bevy_enhanced_input_macros = { path = "macros", version = "0.19.1" }
+bevy_enhanced_input_macros = { path = "macros", version = "0.19.2" }
 bevy = { version = "0.17.0", default-features = false }
 log = "0.4" # Directly depend on `log` like other `no_std` Bevy crates, since `bevy_log` currently requires `std`.
 smallvec = "1.15"
