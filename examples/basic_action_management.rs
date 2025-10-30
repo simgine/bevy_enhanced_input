@@ -17,7 +17,6 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<FlyCam>() // All contexts should be registered.
         .add_observer(apply_movement)
-        .add_observer(apply_sprint)
         .add_observer(rotate)
         .add_observer(zoom)
         .add_observer(capture_cursor)
@@ -56,16 +55,6 @@ fn setup(
                     Cardinal::wasd_keys(),
                     Axial::left_stick(),
                 )),
-            ),
-            (
-                Action::<Sprint>::new(),
-                DeadZone::default(),
-                SmoothNudge::default(),
-                Scale::splat(0.6), // Sprint is twice as fast as regular movement.
-                // Using `with_mod_keys` to require Shift key to be held.
-                // This works independently from the Movement action which will
-                // fire when Shift is not held.
-                Bindings::spawn(Cardinal::wasd_keys().with_mod_keys(ModKeys::SHIFT)),
             ),
             (
                 Action::<Rotate>::new(),
@@ -121,18 +110,6 @@ fn apply_movement(movement: On<Fire<Movement>>, mut transforms: Query<&mut Trans
     // We could do it with modifiers, but it wold be weird for an action to return
     // a `Vec3` like this, so we doing it inside the function.
     let mut velocity = movement.value.extend(0.0).xzy();
-    velocity.z = -velocity.z;
-
-    transform.translation += rotation * velocity
-}
-
-fn apply_sprint(sprint: On<Fire<Sprint>>, mut transforms: Query<&mut Transform>) {
-    let mut transform = transforms.get_mut(sprint.context).unwrap();
-
-    // Sprint works the same as regular movement but with different speed.
-    let rotation = transform.rotation;
-
-    let mut velocity = sprint.value.extend(0.0).xzy();
     velocity.z = -velocity.z;
 
     transform.translation += rotation * velocity
@@ -198,10 +175,6 @@ struct FlyCam;
 #[derive(InputAction)]
 #[action_output(Vec2)]
 struct Movement;
-
-#[derive(InputAction)]
-#[action_output(Vec2)]
-struct Sprint;
 
 #[derive(InputAction)]
 #[action_output(Vec2)]
