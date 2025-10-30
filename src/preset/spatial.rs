@@ -57,6 +57,19 @@ impl Spatial<Binding, Binding, Binding, Binding, Binding, Binding> {
             down: down.into(),
         }
     }
+
+    /// Applies keyboard modifiers to all bindings.
+    #[must_use]
+    pub fn with_mod_keys(self, mod_keys: ModKeys) -> Self {
+        Self {
+            forward: self.forward.with_mod_keys(mod_keys),
+            backward: self.backward.with_mod_keys(mod_keys),
+            left: self.left.with_mod_keys(mod_keys),
+            right: self.right.with_mod_keys(mod_keys),
+            up: self.up.with_mod_keys(mod_keys),
+            down: self.down.with_mod_keys(mod_keys),
+        }
+    }
 }
 
 impl<F, B, L, R, U, D> SpawnableList<BindingOf> for Spatial<F, B, L, R, U, D>
