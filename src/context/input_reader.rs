@@ -214,15 +214,51 @@ impl InputReader<'_, '_> {
         }
     }
 
+    /// Checks if the specified modifier keys are pressed.
+    ///
+    /// This function enforces **exact** modifier matching:
+    /// - A binding with no modifiers (`ModKeys::empty()`) only matches when NO
+    ///   modifiers are pressed.
+    /// - A binding with specific modifiers only matches when EXACTLY those
+    ///   modifiers are pressed.
+    ///
+    /// # Examples
+    ///
+    /// - Binding `KeyM` (no modifiers) matches when `M` is pressed alone, but
+    ///   NOT when `Shift+M` is pressed
+    /// - Binding `KeyM.with_mod_keys(ModKeys::SHIFT)` matches when `Shift+M` is
+    ///   pressed, but NOT when `M` alone or `Shift+Ctrl+M` is pressed
+    ///
+    /// # Note on `consume_input`.
+    ///
+    /// While exact modifier matching prevents unintended action triggers,
+    /// `ActionSettings::consume_input` may still be needed in some scenarios to
+    /// allow inputs to pass through to lower-priority contexts. This is
+    /// especially important for user-rebindable controls where the binding keys
+    /// may change at runtime.
     fn mod_keys_pressed(&self, mod_keys: ModKeys) -> bool {
         if !mod_keys.is_empty() && !self.action_sources.keyboard {
             return false;
         }
 
+        // Check that all required modifiers are pressed.
         for keys in mod_keys.iter_keys() {
             if self.keys.as_ref().is_none_or(|k| !k.any_pressed(keys)) {
                 return false;
             }
+        }
+
+        // Check that no unrequired modifiers are pressed. This ensures exact
+        // matching: If binding has no modifiers, no modifiers should be
+        // pressed.
+        let pressed_mod_keys = self
+            .keys
+            .as_ref()
+            .map(|k| ModKeys::pressed(k))
+            .unwrap_or(ModKeys::empty());
+
+        if pressed_mod_keys != mod_keys {
+            return false;
         }
 
         true

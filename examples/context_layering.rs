@@ -1,15 +1,41 @@
-//! Demonstrates the concept of context layering in input handling.
-//! One context can be applied on top of another, overriding some of the bindings.
+//! Demonstrates the concept of context layering in input handling. One context
+//! can be applied on top of another, overriding some of the bindings.
 //!
-//! The [`ContextPriority`] component is used to determine the order of contexts,
-//! with higher priority contexts taking precedence over lower priority ones.
-//! This influences the order in which actions are evaluated and inputs are consumed.
-//! See [`ActionSettings::consume_input`] for more details and control over this behavior.
+//! The [`ContextPriority`] component is used to determine the order of
+//! contexts, with higher priority contexts taking precedence over lower
+//! priority ones. This influences the order in which actions are evaluated and
+//! inputs are consumed. See [`ActionSettings::consume_input`] for more details
+//! and control over this behavior.
 //!
-//! In this example, we have a [`Player`] context that allows basic movement and jumping.
-//! When the player enters a vehicle, we add a [`Driving`] context on top of the [`Player`] context.
-//! The [`Driving`] context overrides the jump action with a brake action and adds actions for entering
-//! and exiting the vehicle.
+//! In this example, we have a [`Player`] context that allows basic movement,
+//! jumping, and muting audio. When the player enters a vehicle, we add a
+//! [`Driving`] context on top of the [`Player`] context. The [`Driving`]
+//! context overrides the jump action with a brake action and adds actions for
+//! entering and exiting the vehicle, plus a map display action.
+//!
+//! # Exact Modifier Key Matching
+//!
+//! This example also demonstrates exact modifier key matching:
+//! - The [`Player`] context has a [`ToggleMute`] action bound to `Shift+M`
+//! - The [`Driving`] context has a [`ToggleMap`] action bound to just `M` (no
+//!   modifiers)
+//! - When driving and pressing `Shift+M`, only the mute action fires (not the
+//!   map action)
+//! - When driving and pressing just `M`, only the map action fires
+//!
+//! This works because bindings require **exact** modifier matches:
+//! - A binding with no modifiers (`M`) only matches when NO modifiers are
+//!   pressed.
+//! - A binding with modifiers (`Shift+M`) only matches when EXACTLY those
+//!   modifiers are pressed.
+//!
+//! # Controls
+//!
+//! - `WASD` or Left Stick: Move
+//! - `Space` or South Button: Jump (or Brake when driving)
+//! - `Enter` or North Button: Enter/Exit car
+//! - `M`: Toggle map (only when driving, only without Shift)
+//! - `Shift+M`: Toggle mute (works both on foot and while driving)
 
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -24,6 +50,8 @@ fn main() {
         .add_observer(exit_car)
         .add_observer(enter_car)
         .add_observer(brake)
+        .add_observer(toggle_mute)
+        .add_observer(toggle_map)
         .add_systems(Startup, spawn)
         .run();
 }
@@ -45,6 +73,10 @@ fn spawn(mut commands: Commands) {
                 Action::<EnterCar>::new(),
                 bindings![KeyCode::Enter, GamepadButton::North]
             ),
+            (
+                Action::<ToggleMute>::new(),
+                bindings![KeyCode::KeyM.with_mod_keys(ModKeys::SHIFT)]
+            ),
         ]),
     ));
 }
@@ -58,8 +90,8 @@ fn jump(_on: On<Start<Jump>>) {
 }
 
 fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
-    // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
-    // preventing `Rotate` and `EnterCar` from being triggered.
+    // `Player` has lower priority, so `Brake`, `ExitCar`, and `ToggleMap` consume inputs first,
+    // preventing `Jump` and `EnterCar` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
     commands.entity(enter.context).insert((
@@ -79,6 +111,18 @@ fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
                     ..Default::default()
                 },
                 bindings![KeyCode::Enter, GamepadButton::North]
+            ),
+            (
+                Action::<ToggleMap>::new(),
+                ActionSettings {
+                    // We set `consume_input` to `false` to allow the `ToggleMute` action
+                    // (bound to Shift+M) to fire even when this action (bound to M) exists.
+                    // Without this, the M key would be consumed even when Shift is pressed,
+                    // but with exact modifier matching, M without modifiers won't match when Shift+M is pressed.
+                    consume_input: false,
+                    ..Default::default()
+                },
+                bindings![KeyCode::KeyM]
             ),
         ]),
     ));
@@ -125,3 +169,24 @@ struct Brake;
 #[derive(InputAction)]
 #[action_output(bool)]
 struct ExitCar;
+
+/// Toggle audio mute (bound to Shift+M in Player context).
+#[derive(InputAction)]
+#[action_output(bool)]
+struct ToggleMute;
+
+/// Toggle map display (bound to M in Driving context).
+/// This demonstrates exact modifier matching: when Shift+M is pressed,
+/// this action won't fire because it requires no modifiers.
+#[derive(InputAction)]
+#[action_output(bool)]
+struct ToggleMap;
+
+fn toggle_mute(_on: On<Start<ToggleMute>>) {
+    info!("Toggling mute (Shift+M) - works on foot and while driving");
+}
+
+fn toggle_map(_on: On<Start<ToggleMap>>) {
+    info!("Toggling map (M only, no modifiers) - only available while driving");
+    info!("   Note: Pressing Shift+M will NOT trigger this action due to exact modifier matching");
+}
