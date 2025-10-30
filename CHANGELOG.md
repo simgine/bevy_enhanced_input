@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Combo` input condition.
 - `Pulse::with_initial_delay` and `Pulse::initial_delay` to add special delay before the first repeat.
+- `with_mod_keys()` method to all preset types (`Cardinal`, `Bidirectional`, `Ordinal`, `Spatial`, `Axial`) to apply keyboard modifiers to all bindings in the preset.
 
 ### Changed
 
