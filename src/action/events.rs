@@ -93,7 +93,7 @@ impl ActionEvents {
 /// /// Triggered only once on the first press, similar to `just_pressed` in `bevy_input`.
 /// ///
 /// /// It will not trigger again until the key is released and pressed again.
-/// fn throw(throw: On<Fire<Throw>>, players: Query<(&Transform, &mut Health)>) {
+/// fn throw(throw: On<Start<Throw>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
 /// # #[derive(Component)]
