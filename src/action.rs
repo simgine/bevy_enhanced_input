@@ -288,7 +288,7 @@ impl ActionTime {
 ///
 /// While active, input reading, conditions, and modifiers are skipped. Instead,
 /// the action reports the provided state and value. All state transition events
-/// (e.g., [`Started<A>`], [`Fired<A>`]) will still be triggered as usual.
+/// (e.g., [`Start<A>`], [`Fire<A>`]) will still be triggered as usual.
 ///
 /// Once the span expires, [`Self::enabled`] is set to `false`, and the action resumes
 /// the regular evaluation. The component is not removed automatically, allowing you
