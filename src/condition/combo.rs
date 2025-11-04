@@ -339,7 +339,7 @@ mod tests {
         world
             .resource_mut::<Time>()
             .advance_by(Duration::from_secs(1));
-        world.entity_mut(action_a).insert(ActionEvents::empty()); // Clear `Completed` event.
+        world.entity_mut(action_a).insert(ActionEvents::empty()); // Clear `Complete` event.
         world.entity_mut(action_b).insert(ActionEvents::COMPLETED);
         let (time, actions) = state.get(&world);
 

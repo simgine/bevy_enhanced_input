@@ -36,15 +36,15 @@ pub struct ActionEvents(u8);
 
 bitflags! {
     impl ActionEvents: u8 {
-        /// Corresponds to [`Started`].
+        /// Corresponds to [`Start`].
         const STARTED = 0b00000001;
         /// Corresponds to [`Ongoing`].
         const ONGOING = 0b00000010;
-        /// Corresponds to [`Fired`].
+        /// Corresponds to [`Fire`].
         const FIRED = 0b00000100;
-        /// Corresponds to [`Canceled`].
+        /// Corresponds to [`Cancel`].
         const CANCELED = 0b00001000;
-        /// Corresponds to [`Completed`].
+        /// Corresponds to [`Complete`].
         const COMPLETED = 0b00010000;
     }
 }
@@ -71,7 +71,7 @@ impl ActionEvents {
 /// Triggers when an action switches its state from [`ActionState::None`]
 /// to [`ActionState::Fired`] or [`ActionState::Ongoing`].
 ///
-/// Triggered before [`Fired`] and [`Ongoing`].
+/// Triggered before [`Fire`] and [`Ongoing`].
 ///
 /// See [`ActionEvents`] for all transitions.
 ///
@@ -145,7 +145,7 @@ impl<A: InputAction> Copy for Start<A> {}
 /// Triggers every frame when an action state is [`ActionState::Ongoing`].
 ///
 ///
-/// Usually useful in combination with [`Completed`] to apply some
+/// Usually useful in combination with [`Complete`] to apply some
 /// logic while the action condition is partially met, and additional
 /// logic when the condition is fully met.
 ///
@@ -154,7 +154,7 @@ impl<A: InputAction> Copy for Start<A> {}
 /// # Examples
 ///
 /// Apply healing until the button is held down.
-/// Can be paired with [`Completed`] to apply a bonus healing when the hold duration is met.
+/// Can be paired with [`Complete`] to apply a bonus healing when the hold duration is met.
 ///
 /// ```
 /// # use bevy::prelude::*;
@@ -226,7 +226,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// Triggers every frame when an action state is [`ActionState::Fired`].
 ///
 /// If you want to respond only on the first or last frame this state
-/// is active, see [`Started`] or [`Completed`] respectively.
+/// is active, see [`Start`] or [`Complete`] respectively.
 ///
 /// See [`ActionEvents`] for all transitions.
 ///
@@ -313,7 +313,7 @@ impl<A: InputAction> Copy for Fire<A> {}
 /// # Examples
 ///
 /// Perform a weak attack when not holding the button enough with the [`Hold`] condition.
-/// Can be paired with [`Completed`] to apply a strong attack when the hold duration is met.
+/// Can be paired with [`Complete`] to apply a strong attack when the hold duration is met.
 ///
 ///
 /// ```

@@ -8,7 +8,7 @@ use crate::prelude::*;
 /// Returns [`ActionState::Ongoing`] when input becomes actuated and [`ActionState::Fired`]
 /// on the defined time interval.
 ///
-/// Note: [`Completed`] only fires when the repeat limit is reached or when input is released
+/// Note: [`Complete`] only fires when the repeat limit is reached or when input is released
 /// immediately after being triggered. Otherwise, [`Cancel`] is fired when input is released.
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Pulse {

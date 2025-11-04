@@ -124,8 +124,8 @@ pub trait InputContextAppExt {
     /// in which the context's actions will be evaluated.
     ///
     /// For example, if your game logic runs inside [`FixedMain`](bevy::app::FixedMain), you can set the schedule
-    /// to [`FixedPreUpdate`]. This way, if the schedule runs multiple times per frame, events like [`Started`] or
-    /// [`Completed`] will be triggered only once per schedule run.
+    /// to [`FixedPreUpdate`]. This way, if the schedule runs multiple times per frame, events like [`Start`] or
+    /// [`Complete`] will be triggered only once per schedule run.
     fn add_input_context_to<S: ScheduleLabel + Default, C: Component>(&mut self) -> &mut Self;
 }
 
