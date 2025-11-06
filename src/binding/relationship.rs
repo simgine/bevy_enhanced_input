@@ -108,7 +108,7 @@ macro_rules! bindings {
 /// Used to avoid writing [`Binding::from`] inside [`bindings!`].
 #[diagnostic::on_unimplemented(
     message = "`{Self}` is not a valid binding bundle. The first element must be convertible into a `Binding`.",
-    label = "invalid task bundle"
+    label = "invalid binding bundle"
 )]
 pub trait IntoBindingBundle {
     /// Returns a bundle for a binding.
