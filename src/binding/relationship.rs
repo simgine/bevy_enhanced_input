@@ -106,6 +106,10 @@ macro_rules! bindings {
 /// Types that can be converted into a bundle whose first element can be converted into a [`Binding`].
 ///
 /// Used to avoid writing [`Binding::from`] inside [`bindings!`].
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` is not a valid binding bundle. The first element must be a `Binding`.",
+    label = "invalid task bundle"
+)]
 pub trait IntoBindingBundle {
     /// Returns a bundle for a binding.
     fn into_binding_bundle(self) -> impl Bundle;
