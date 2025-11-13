@@ -41,6 +41,7 @@ bevy = { version = "0.17.0", default-features = false, features = [
   "bevy_ui_render",
   "bevy_window",
   "default_font",
+  "debug",
   "tonemapping_luts",
   "x11",
   "zstd_rust",
