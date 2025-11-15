@@ -62,6 +62,7 @@ impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Bind
     /// SW  S   SE
     /// ```
     #[must_use]
+    #[expect(clippy::too_many_arguments)]
     pub fn new(
         north: impl Into<Binding>,
         north_east: impl Into<Binding>,
