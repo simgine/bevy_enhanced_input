@@ -24,18 +24,21 @@ impl Axial<Binding, Binding> {
     /// Maps left stick as 2-dimensional input.
     #[must_use]
     pub fn left_stick() -> Self {
-        Self {
-            x: GamepadAxis::LeftStickX.into(),
-            y: GamepadAxis::LeftStickY.into(),
-        }
+        Self::new(GamepadAxis::LeftStickX, GamepadAxis::LeftStickY)
     }
 
     /// Maps right stick as 2-dimensional input.
     #[must_use]
     pub fn right_stick() -> Self {
+        Self::new(GamepadAxis::RightStickX, GamepadAxis::RightStickY)
+    }
+
+    /// Maps 2 bindings as 2-dimensional input.
+    #[must_use]
+    pub fn new(x: impl Into<Binding>, y: impl Into<Binding>) -> Self {
         Self {
-            x: GamepadAxis::RightStickX.into(),
-            y: GamepadAxis::RightStickY.into(),
+            x: x.into(),
+            y: y.into(),
         }
     }
 

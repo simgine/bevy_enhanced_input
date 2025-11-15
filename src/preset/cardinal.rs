@@ -36,22 +36,33 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     /// Maps WASD keys as 2-dimensional input.
     #[must_use]
     pub fn wasd_keys() -> Self {
-        Self {
-            north: KeyCode::KeyW.into(),
-            west: KeyCode::KeyA.into(),
-            south: KeyCode::KeyS.into(),
-            east: KeyCode::KeyD.into(),
-        }
+        Self::new(KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD)
     }
 
     /// Maps keyboard arrow keys as 2-dimensional input.
     #[must_use]
     pub fn arrows() -> Self {
+        Self::new(
+            KeyCode::ArrowUp,
+            KeyCode::ArrowLeft,
+            KeyCode::ArrowDown,
+            KeyCode::ArrowRight,
+        )
+    }
+
+    /// Maps 4 bindings as 2-dimensional input.
+    #[must_use]
+    pub fn new(
+        north: impl Into<Binding>,
+        west: impl Into<Binding>,
+        south: impl Into<Binding>,
+        east: impl Into<Binding>,
+    ) -> Self {
         Self {
-            north: KeyCode::ArrowUp.into(),
-            west: KeyCode::ArrowLeft.into(),
-            south: KeyCode::ArrowDown.into(),
-            east: KeyCode::ArrowRight.into(),
+            north: north.into(),
+            west: west.into(),
+            south: south.into(),
+            east: east.into(),
         }
     }
 

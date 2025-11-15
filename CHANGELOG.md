@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Axial::new`, `Bidirectional::new`, `Cardinal::new`, `Ordinal::new` and `Spatial::new`.
+
+### Removed
+
+- `Bidirectional::ad_keys`, `Bidirectional::ws_keys`, `Bidirectional::left_right_arrow`, `Bidirectional::up_down_arrow`, `Bidirectional::left_right_dpad`, `Bidirectional::up_down_dpad`, `Ordinal::hjklyubn_keys`, `Spatial::wasd_and` and `Spatial::arrows_and`. Use `new` instead.
+
 ## [0.19.3] - 2025-11-05
 
 ### Fixed
