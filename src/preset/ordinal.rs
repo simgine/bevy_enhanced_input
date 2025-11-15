@@ -40,39 +40,47 @@ impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Bind
     /// Maps numpad keys as 2-dimensional input.
     #[must_use]
     pub fn numpad() -> Self {
-        Self {
-            north: KeyCode::Numpad8.into(),
-            north_east: KeyCode::Numpad9.into(),
-            east: KeyCode::Numpad6.into(),
-            south_east: KeyCode::Numpad3.into(),
-            south: KeyCode::Numpad2.into(),
-            south_west: KeyCode::Numpad1.into(),
-            west: KeyCode::Numpad4.into(),
-            north_west: KeyCode::Numpad7.into(),
-        }
+        Self::new(
+            KeyCode::Numpad8,
+            KeyCode::Numpad9,
+            KeyCode::Numpad6,
+            KeyCode::Numpad3,
+            KeyCode::Numpad2,
+            KeyCode::Numpad1,
+            KeyCode::Numpad4,
+            KeyCode::Numpad7,
+        )
     }
 
-    /// Maps HJKLYUBN keys as 2-dimensional input.
+    /// Maps 8 bindings as 2-dimensional input.
     ///
     /// ```text
-    /// y   k   u
+    /// NW  N   NE
     ///   🡴 🡱 🡵
-    /// h 🡰 · 🡲 l
+    /// W 🡰 · 🡲 E
     ///   🡷 🡳 🡶
-    /// b   j   n
+    /// SW  S   SE
     /// ```
-    /// Common for roguelikes.
     #[must_use]
-    pub fn hjklyubn_keys() -> Self {
+    pub fn new(
+        north: impl Into<Binding>,
+        north_east: impl Into<Binding>,
+        east: impl Into<Binding>,
+        south_east: impl Into<Binding>,
+        south: impl Into<Binding>,
+        south_west: impl Into<Binding>,
+        west: impl Into<Binding>,
+        north_west: impl Into<Binding>,
+    ) -> Self {
         Self {
-            north: KeyCode::KeyK.into(),
-            north_east: KeyCode::KeyU.into(),
-            east: KeyCode::KeyL.into(),
-            south_east: KeyCode::KeyN.into(),
-            south: KeyCode::KeyJ.into(),
-            south_west: KeyCode::KeyB.into(),
-            west: KeyCode::KeyH.into(),
-            north_west: KeyCode::KeyY.into(),
+            north: north.into(),
+            north_east: north_east.into(),
+            east: east.into(),
+            south_east: south_east.into(),
+            south: south.into(),
+            south_west: south_west.into(),
+            west: west.into(),
+            north_west: north_west.into(),
         }
     }
 

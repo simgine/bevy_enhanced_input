@@ -48,8 +48,8 @@ fn setup(
                 SmoothNudge::default(),
                 Scale::splat(450.0),
                 Bindings::spawn((
-                    Bidirectional::ad_keys(),
-                    Bidirectional::left_right_arrow(),
+                    Bidirectional::new(KeyCode::KeyA, KeyCode::KeyD),
+                    Bidirectional::new(KeyCode::ArrowLeft, KeyCode::ArrowRight),
                     Axial::left_stick(),
                 )),
             ),

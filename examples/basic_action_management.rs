@@ -72,7 +72,7 @@ fn setup(
                     // In Bevy, vertical scrolling maps to the Y axis,
                     // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
                     Spawn((Binding::mouse_wheel(), SwizzleAxis::YXZ)),
-                    Bidirectional::up_down_dpad(),
+                    Bidirectional::new(GamepadButton::DPadUp, GamepadButton::DPadDown),
                 )),
             ),
             // For bindings we also have a macro similar to `children!`.
