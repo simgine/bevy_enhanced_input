@@ -29,7 +29,6 @@ fn keys() {
                         up: Binding::from(KeyCode::Digit4),
                         down: Binding::from(KeyCode::Digit5),
                     },
-                    Ordinal::hjklyubn_keys(),
                     Ordinal::numpad(),
                 ))
             )]
@@ -56,14 +55,6 @@ fn keys() {
         (KeyCode::Digit3, RIGHT),
         (KeyCode::Digit4, UP),
         (KeyCode::Digit5, DOWN),
-        (KeyCode::KeyK, UP),
-        (KeyCode::KeyU, RIGHT_UP),
-        (KeyCode::KeyL, RIGHT),
-        (KeyCode::KeyN, RIGHT_DOWN),
-        (KeyCode::KeyJ, DOWN),
-        (KeyCode::KeyB, LEFT_DOWN),
-        (KeyCode::KeyH, LEFT),
-        (KeyCode::KeyY, LEFT_UP),
         (KeyCode::Numpad8, UP),
         (KeyCode::Numpad9, RIGHT_UP),
         (KeyCode::Numpad6, RIGHT),

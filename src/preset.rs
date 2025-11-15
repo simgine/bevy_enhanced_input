@@ -185,7 +185,7 @@ pub trait WithBundle<T> {
     /// # use bevy_enhanced_input::prelude::*;
     /// # let mut world = World::new();
     /// world.spawn(Bindings::spawn(
-    ///     Bidirectional::left_right_dpad().with(Negate::x()),
+    ///     Bidirectional::new(GamepadButton::DPadLeft, GamepadButton::DPadRight).with(Negate::x()),
     /// ));
     /// ```
     ///
@@ -198,7 +198,7 @@ pub trait WithBundle<T> {
     /// world.spawn((
     ///     Action::<Movement>::new(),
     ///     Negate::x(),
-    ///     Bindings::spawn(Bidirectional::left_right_dpad()),
+    ///     Bindings::spawn(Bidirectional::new(GamepadButton::DPadLeft, GamepadButton::DPadRight)),
     /// ));
     ///
     /// #[derive(InputAction)]
