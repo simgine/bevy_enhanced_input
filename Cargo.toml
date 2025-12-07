@@ -46,7 +46,7 @@ bevy = { version = "0.17.0", default-features = false, features = [
   "zstd_rust",
 ] }
 test-log = "0.2"
-ron = "0.10"
+ron = "0.12"
 
 [lints.clippy]
 type_complexity = "allow"
