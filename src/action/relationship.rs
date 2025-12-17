@@ -111,7 +111,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 ///     Action::<Fire>::new(),
 ///     Action::<Jump>::new()
 /// ]));
-/// # assert_eq!(world.entities().len(), 3);
+/// # assert_eq!(world.entities().count_spawned(), 3);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
@@ -132,7 +132,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 ///     Action::<Fire>::new(),
 ///     bindings![MouseButton::Left],
 /// )]));
-/// # assert_eq!(world.entities().len(), 3);
+/// # assert_eq!(world.entities().count_spawned(), 3);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
@@ -156,7 +156,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 ///         bindings![KeyCode::Space],
 ///     ),
 /// ]));
-/// # assert_eq!(world.entities().len(), 8);
+/// # assert_eq!(world.entities().count_spawned(), 8);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
