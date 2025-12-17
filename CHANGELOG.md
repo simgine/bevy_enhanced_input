@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update to Bevy 0.18.0.
+- Update to Bevy 0.18.0-rc.1.
 
 ## [0.20.0] - 2025-11-15
 
