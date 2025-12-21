@@ -14,21 +14,10 @@ fn main() {
     log_plugin.filter += ",bevy_enhanced_input=debug";
 
     App::new()
-        .add_plugins((
-            DefaultPlugins.set(log_plugin),
-            EnhancedInputPlugin,
-            GamePlugin,
-        ))
+        .add_plugins((DefaultPlugins.set(log_plugin), EnhancedInputPlugin))
+        .add_input_context::<TestContext>()
+        .add_systems(Startup, spawn)
         .run();
-}
-
-struct GamePlugin;
-
-impl Plugin for GamePlugin {
-    fn build(&self, app: &mut App) {
-        app.add_input_context::<TestContext>()
-            .add_systems(Startup, spawn);
-    }
 }
 
 fn spawn(mut commands: Commands) {
