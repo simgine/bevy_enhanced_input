@@ -56,7 +56,7 @@ impl<X: Bundle, Y: Bundle> SpawnableList<BindingOf> for Axial<X, Y> {
     fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
         let axial = this.read();
         world.spawn((BindingOf(entity), axial.x));
-        world.spawn((BindingOf(entity), axial.y, SwizzleAxis::YXZ));
+        world.spawn((BindingOf(entity), SwizzleAxis::YXZ, axial.y));
     }
 
     fn size_hint(&self) -> usize {
