@@ -169,10 +169,10 @@ pub mod spatial;
 /// Helper trait for attaching a bundle to a preset.
 ///
 /// See the module documentation for a usage example.
-pub trait WithBundle<T> {
+pub trait WithBundle<B> {
     type Output;
 
-    /// Returns a new instance where the given bundle is added to each preset bundle.
+    /// Returns a new instance in which the given bundle is added to *each entity* spawned by the preset.
     ///
     /// # Examples
     ///
@@ -205,5 +205,5 @@ pub trait WithBundle<T> {
     /// #[action_output(f32)]
     /// struct Movement;
     /// ```
-    fn with(self, bundle: T) -> Self::Output;
+    fn with(self, bundle: B) -> Self::Output;
 }

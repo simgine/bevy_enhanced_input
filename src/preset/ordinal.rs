@@ -127,21 +127,21 @@ where
         world.spawn((BindingOf(entity), ordinal.north_east, SwizzleAxis::XXZ));
         world.spawn((
             BindingOf(entity),
-            ordinal.south_east,
             SwizzleAxis::XXZ,
             Negate::y(),
+            ordinal.south_east,
         ));
         world.spawn((
             BindingOf(entity),
-            ordinal.south_west,
             SwizzleAxis::XXZ,
             Negate::all(),
+            ordinal.south_west,
         ));
         world.spawn((
             BindingOf(entity),
-            ordinal.north_west,
             SwizzleAxis::XXZ,
             Negate::x(),
+            ordinal.north_west,
         ));
     }
 
