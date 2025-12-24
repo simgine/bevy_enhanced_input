@@ -176,6 +176,31 @@ pub trait WithBundle<B> {
     ///
     /// # Examples
     ///
+    /// Attaching [`Scale`](crate::prelude::Scale) modifier to every entity in the preset:
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # let mut world = World::new();
+    /// world.spawn(Bindings::spawn(
+    ///     Axial::right_stick().with(Scale::splat(0.1)),
+    /// ));
+    ///
+    /// // This will be quavalent to the following:
+    /// world.spawn(bindings![
+    ///     (GamepadAxis::RightStickX, Scale::splat(0.1)),
+    ///     (
+    ///         GamepadAxis::RightStickY,
+    ///         SwizzleAxis::YXZ,
+    ///         Scale::splat(0.1)
+    ///     )
+    /// ]);
+    ///
+    /// #[derive(InputAction)]
+    /// #[action_output(f32)]
+    /// struct Movement;
+    /// ```
+    ///
     /// Be careful when attaching modifiers like [`SwizzleAxis`](crate::prelude::SwizzleAxis)
     /// or [`Negate`](crate::prelude::Negate), as they might already be used by the preset,
     /// which will result in a duplicate component panic.
