@@ -94,7 +94,7 @@ mod tests {
     fn stepping() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 
@@ -115,7 +115,7 @@ mod tests {
     fn invalid_step_rate() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 
@@ -131,7 +131,7 @@ mod tests {
     fn bool_as_axis1d() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 
@@ -147,7 +147,7 @@ mod tests {
     fn snapping() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 
