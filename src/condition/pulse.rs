@@ -173,7 +173,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world);
 
@@ -186,7 +186,9 @@ mod tests {
             ActionState::Fired,
         );
 
-        world.resource_mut::<Time>().advance_by(Duration::ZERO);
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::ZERO);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -212,7 +214,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world);
 
@@ -225,7 +227,9 @@ mod tests {
             ActionState::Fired,
         );
 
-        world.resource_mut::<Time>().advance_by(Duration::ZERO);
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::ZERO);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -261,7 +265,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world);
         assert_eq!(
@@ -270,7 +274,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world);
         assert_eq!(
@@ -280,7 +284,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(300));
         let (time, actions) = state.get(&world);
         assert_eq!(
@@ -289,7 +293,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(50));
         let (time, actions) = state.get(&world);
         assert_eq!(

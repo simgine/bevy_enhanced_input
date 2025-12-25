@@ -14,16 +14,26 @@ pub struct SmoothNudge {
     /// By default set to 8.0, an ad-hoc value that usually produces nice results.
     pub decay_rate: f32,
 
+    /// The type of time used to advance the timer.
+    pub time_kind: TimeKind,
+
     current_value: Vec3,
 }
 
 impl SmoothNudge {
     #[must_use]
-    pub const fn new(decay_rate: f32) -> Self {
+    pub fn new(decay_rate: f32) -> Self {
         Self {
             decay_rate,
+            time_kind: Default::default(),
             current_value: Vec3::ZERO,
         }
+    }
+
+    #[must_use]
+    pub fn with_time_kind(mut self, kind: TimeKind) -> Self {
+        self.time_kind = kind;
+        self
     }
 }
 
@@ -52,8 +62,11 @@ impl InputModifier for SmoothNudge {
             return value;
         }
 
-        self.current_value
-            .smooth_nudge(&target_value, self.decay_rate, time.delta_secs());
+        self.current_value.smooth_nudge(
+            &target_value,
+            self.decay_rate,
+            time.delta_kind(self.time_kind).as_secs_f32(),
+        );
 
         ActionValue::Axis3D(self.current_value).convert(value.dim())
     }
@@ -70,7 +83,7 @@ mod tests {
     fn lerp() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 
@@ -89,7 +102,7 @@ mod tests {
     fn bool_as_axis1d() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 
@@ -108,7 +121,7 @@ mod tests {
     fn snapping() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
         let (time, actions) = state.get(&world);
 

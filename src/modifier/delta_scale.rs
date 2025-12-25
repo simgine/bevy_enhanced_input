@@ -5,8 +5,11 @@ use crate::prelude::*;
 /// Multiplies the input value by delta time for this frame.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Reflect, Debug, Clone, Copy)]
-pub struct DeltaScale;
+#[derive(Component, Default, Reflect, Debug, Clone, Copy)]
+pub struct DeltaScale {
+    /// The type of time used to advance the timer.
+    pub time_kind: TimeKind,
+}
 
 impl InputModifier for DeltaScale {
     fn transform(
@@ -18,11 +21,17 @@ impl InputModifier for DeltaScale {
         match value {
             ActionValue::Bool(value) => {
                 let value = if value { 1.0 } else { 0.0 };
-                (value * time.delta_secs()).into()
+                (value * time.delta_kind(self.time_kind).as_secs_f32()).into()
             }
-            ActionValue::Axis1D(value) => (value * time.delta_secs()).into(),
-            ActionValue::Axis2D(value) => (value * time.delta_secs()).into(),
-            ActionValue::Axis3D(value) => (value * time.delta_secs()).into(),
+            ActionValue::Axis1D(value) => {
+                (value * time.delta_kind(self.time_kind).as_secs_f32()).into()
+            }
+            ActionValue::Axis2D(value) => {
+                (value * time.delta_kind(self.time_kind).as_secs_f32()).into()
+            }
+            ActionValue::Axis3D(value) => {
+                (value * time.delta_kind(self.time_kind).as_secs_f32()).into()
+            }
         }
     }
 }
@@ -40,28 +49,28 @@ mod tests {
     fn scaling() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world);
 
         assert_eq!(
-            DeltaScale.transform(&actions, &time, true.into()),
+            DeltaScale::default().transform(&actions, &time, true.into()),
             0.5.into()
         );
         assert_eq!(
-            DeltaScale.transform(&actions, &time, false.into()),
+            DeltaScale::default().transform(&actions, &time, false.into()),
             0.0.into()
         );
         assert_eq!(
-            DeltaScale.transform(&actions, &time, 0.5.into()),
+            DeltaScale::default().transform(&actions, &time, 0.5.into()),
             0.25.into()
         );
         assert_eq!(
-            DeltaScale.transform(&actions, &time, Vec2::ONE.into()),
+            DeltaScale::default().transform(&actions, &time, Vec2::ONE.into()),
             (0.5, 0.5).into()
         );
         assert_eq!(
-            DeltaScale.transform(&actions, &time, Vec3::ONE.into()),
+            DeltaScale::default().transform(&actions, &time, Vec3::ONE.into()),
             (0.5, 0.5, 0.5).into()
         );
     }
