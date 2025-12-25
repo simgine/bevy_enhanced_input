@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update to Bevy 0.18.0-rc.1.
+- Change `TimeKind::default` to `TimeKind::Real`.
 
 ## [0.20.1] - 2025-12-29
 
