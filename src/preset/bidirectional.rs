@@ -24,7 +24,7 @@ impl<P: Bundle, N: Bundle> SpawnableList<BindingOf> for Bidirectional<P, N> {
     fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
         let bidirectional = this.read();
         world.spawn((BindingOf(entity), bidirectional.positive));
-        world.spawn((BindingOf(entity), bidirectional.negative, Negate::all()));
+        world.spawn((BindingOf(entity), Negate::all(), bidirectional.negative));
     }
 
     fn size_hint(&self) -> usize {

@@ -20,12 +20,12 @@
 //!
 //! When an action is evaluated, it produces various [action events](events) that indicate
 //! changes in the action's state.
-//! See the section on [push-style action handling](../index.html#push-style-responding-to-action-events)
+//! See the section on [push-style action handling](crate#push-style-responding-to-action-events)
 //! in the library documentation for more details.
 //!
 //! Similarly, you can check the current state and value of an action at any time using the
 //! [`Action<C>`], [`ActionState`], [`ActionValue`] and [`ActionTime`] components.
-//! See the section on [pull-style action handling](../index.html#pull-style-polling-action-state)
+//! See the section on [pull-style action handling](crate#pull-style-polling-action-state)
 //! in the library documentation for more details.
 //!
 //! # Configuring actions
@@ -295,7 +295,7 @@ impl ActionTime {
 /// to reuse it for future mocking.
 ///
 /// Mocking does not take effect immediately - it is applied during the next context evaluation.
-/// For more details, see the [evaluation](../index.html#evaluation) section in the quick start guide.
+/// For more details, see the [evaluation](crate#evaluation) section in the quick start guide.
 ///
 /// See also [`ExternallyMocked`](crate::context::ExternallyMocked) to manually control the action data.
 ///

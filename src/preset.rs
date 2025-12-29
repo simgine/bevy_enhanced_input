@@ -169,12 +169,37 @@ pub mod spatial;
 /// Helper trait for attaching a bundle to a preset.
 ///
 /// See the module documentation for a usage example.
-pub trait WithBundle<T> {
+pub trait WithBundle<B> {
     type Output;
 
-    /// Returns a new instance where the given bundle is added to each preset bundle.
+    /// Returns a new instance in which the given bundle is added to *each entity* spawned by the preset.
     ///
     /// # Examples
+    ///
+    /// Attaching [`Scale`](crate::prelude::Scale) modifier to every entity in the preset:
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # let mut world = World::new();
+    /// world.spawn(Bindings::spawn(
+    ///     Axial::right_stick().with(Scale::splat(0.1)),
+    /// ));
+    ///
+    /// // This will be quavalent to the following:
+    /// world.spawn(bindings![
+    ///     (GamepadAxis::RightStickX, Scale::splat(0.1)),
+    ///     (
+    ///         GamepadAxis::RightStickY,
+    ///         SwizzleAxis::YXZ,
+    ///         Scale::splat(0.1)
+    ///     )
+    /// ]);
+    ///
+    /// #[derive(InputAction)]
+    /// #[action_output(f32)]
+    /// struct Movement;
+    /// ```
     ///
     /// Be careful when attaching modifiers like [`SwizzleAxis`](crate::prelude::SwizzleAxis)
     /// or [`Negate`](crate::prelude::Negate), as they might already be used by the preset,
@@ -205,5 +230,5 @@ pub trait WithBundle<T> {
     /// #[action_output(f32)]
     /// struct Movement;
     /// ```
-    fn with(self, bundle: T) -> Self::Output;
+    fn with(self, bundle: B) -> Self::Output;
 }
