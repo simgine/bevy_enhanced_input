@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Apply all modifiers preset modifiers before user modifiers from `with`.
+- All preset modifiers are now applied before user modifiers from `with` to improve intuitiveness of construction.
 
 ## [0.20.0] - 2025-11-15
 
