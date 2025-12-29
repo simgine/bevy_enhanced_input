@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- All preset modifiers are now applied before user modifiers from `with` to improve intuitiveness of construction.
 - `Default`, `Debug`, `Clone`, `PartialEq`, and `Eq` for `Actions<C>` no longer impose trait bounds on `C`.
 
 ## [0.20.0] - 2025-11-15
