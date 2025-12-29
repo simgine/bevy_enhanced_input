@@ -20,17 +20,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Check typos
-        uses: crate-ci/typos@v1.39.0
+        uses: crate-ci/typos@v1.40.0
 
   format:
     name: Format
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Use the same target platform as Bevy (Game Boy Advance).
       - name: Instal stable toolchain
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload code coverage results
         if: github.actor != 'dependabot[bot]'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: code-coverage-report
           path: lcov.info
@@ -151,10 +151,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download code coverage results
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: code-coverage-report
 

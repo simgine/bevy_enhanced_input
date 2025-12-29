@@ -65,7 +65,7 @@ impl<C: Component> Eq for ActionOf<C> {}
 /// Action entities associated with context `C`.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, Default, PartialEq, Eq)]
+#[derive(Component, Deref, Reflect)]
 #[relationship_target(relationship = ActionOf<C>, linked_spawn)]
 pub struct Actions<C: Component> {
     #[deref]
@@ -83,6 +83,40 @@ impl<'a, C: Component> IntoIterator for &'a Actions<C> {
         self.iter()
     }
 }
+
+impl<C: Component> Default for Actions<C> {
+    fn default() -> Self {
+        Self {
+            entities: Default::default(),
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<C: Component> Debug for Actions<C> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        f.debug_struct("Actions")
+            .field("entities", &self.entities)
+            .finish()
+    }
+}
+
+impl<C: Component> Clone for Actions<C> {
+    fn clone(&self) -> Self {
+        Self {
+            entities: self.entities.clone(),
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<C: Component> PartialEq for Actions<C> {
+    fn eq(&self, other: &Self) -> bool {
+        self.entities == other.entities
+    }
+}
+
+impl<C: Component> Eq for Actions<C> {}
 
 /// A type alias over [`RelatedSpawner`] used to spawn action entities containing an [`ActionOf`] relationship.
 pub type ActionSpawner<'w, C> = RelatedSpawner<'w, ActionOf<C>>;
