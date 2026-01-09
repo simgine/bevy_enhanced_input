@@ -23,19 +23,10 @@ pub(crate) struct ContextInstances<S: ScheduleLabel> {
 impl<S: ScheduleLabel> ContextInstances<S> {
     pub(super) fn add<C: Component>(&mut self, entity: Entity, priority: usize) {
         let instance = ContextInstance::new::<C>(entity, priority);
-        match self.binary_search_by_key(&Reverse(priority), |inst| Reverse(inst.priority)) {
-            Ok(index) => {
-                // Insert last to preserve entry creation order.
-                let last_priority_index = self
-                    .iter()
-                    .skip(index + 1)
-                    .position(|inst| inst.priority != priority)
-                    .unwrap_or_default();
-                self.instances
-                    .insert(index + last_priority_index + 1, instance);
-            }
-            Err(index) => self.instances.insert(index, instance),
-        };
+        let index = self
+            .binary_search_by_key(&Reverse(priority), |inst| Reverse(inst.priority))
+            .unwrap_or_else(|i| i);
+        self.instances.insert(index, instance);
     }
 
     pub(super) fn remove<C: Component>(&mut self, entity: Entity) {
