@@ -42,10 +42,10 @@ fn register_condition<C: InputCondition + Component<Mutability = Mutable>>(
 }
 
 fn unregister_condition<C: InputCondition + Component<Mutability = Mutable>>(
-    add: On<Remove, C>,
+    remove: On<Remove, C>,
     mut conditions: Query<&mut ConditionFns>,
 ) {
-    let mut fns = conditions.get_mut(add.entity).unwrap();
+    let mut fns = conditions.get_mut(remove.entity).unwrap();
     let index = fns
         .iter()
         .position(|&f| ptr::fn_addr_eq(f, get_condition::<C> as GetConditionFn))
