@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2025-12-17
+
 ### Changed
 
 - Change default context evaluation order. Now the last spawned context is evaluated first.
@@ -507,7 +509,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.21.0...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/simgine/bevy_replicon/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/simgine/bevy_replicon/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/simgine/bevy_replicon/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/simgine/bevy_replicon/compare/v0.19.3...v0.20.0
