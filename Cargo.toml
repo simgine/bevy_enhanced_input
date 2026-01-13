@@ -1,6 +1,6 @@
 [package]
 name = "bevy_enhanced_input"
-version = "0.20.1"
+version = "0.21.0"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "Alice Cecile <alice.i.cecile@gmail.com>",
@@ -22,8 +22,13 @@ required-features = ["serialize"]
 serialize = ["bevy/serialize", "dep:serde"]
 
 [dependencies]
-bevy_enhanced_input_macros = { path = "macros", version = "0.20.1" }
-bevy = { version = "0.17.0", default-features = false }
+bevy_enhanced_input_macros = { path = "macros", version = "0.21.0" }
+bevy = { version = "0.18.0", default-features = false, features = [
+  "mouse",
+  "keyboard",
+  "gamepad",
+  "touch",
+] }
 log = "0.4" # Directly depend on `log` like other `no_std` Bevy crates, since `bevy_log` currently requires `std`.
 smallvec = "1.15"
 variadics_please = "1.0"
@@ -33,21 +38,21 @@ serde = { version = "1.0", default-features = false, features = [
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.17.0", default-features = false, features = [
+bevy = { version = "0.18.0", default-features = false, features = [
   "bevy_gilrs",
   "bevy_log",
   "bevy_pbr",
-  "bevy_ui_picking_backend",
   "bevy_ui_render",
   "bevy_window",
   "default_font",
   "debug",
   "tonemapping_luts",
+  "ui_picking",
   "x11",
   "zstd_rust",
 ] }
 test-log = "0.2"
-ron = "0.10"
+ron = "0.12"
 
 [lints.clippy]
 type_complexity = "allow"
