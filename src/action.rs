@@ -52,12 +52,11 @@ pub mod value;
 
 use core::{any, fmt::Debug, time::Duration};
 
+use crate::prelude::*;
 use bevy::prelude::*;
+use fns::ActionFns;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
-
-use crate::prelude::*;
-use fns::ActionFns;
 
 /// Component that represents a user action.
 ///
@@ -69,6 +68,7 @@ use fns::ActionFns;
 /// See the required components for other data associated with the action
 /// that can be accessed without static typing.
 #[derive(Component, Deref, DerefMut)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[require(
     Name::new(any::type_name::<A>()),
     ActionFns::new::<A>(),
@@ -129,9 +129,19 @@ pub trait InputAction: 'static {
     type Output: ActionOutput;
 }
 
+#[cfg(feature = "serialize")]
+pub trait SerializeExt: Serialize + Deserialize {}
+#[cfg(feature = "serialize")]
+impl<T: Serialize + Deserialize> SerializeExt for T {}
+#[cfg(not(feature = "serialize"))]
+pub trait SerializeExt {}
+
+#[cfg(not(feature = "serialize"))]
+impl<T> SerializeExt for T {}
+
 /// Type which can be used as [`InputAction::Output`].
 pub trait ActionOutput:
-    From<ActionValue> + Default + Send + Sync + Debug + Clone + Copy + PartialEq
+    From<ActionValue> + Default + Send + Sync + Debug + Clone + Copy + PartialEq + SerializeExt
 {
     /// Dimension of this output.
     ///
