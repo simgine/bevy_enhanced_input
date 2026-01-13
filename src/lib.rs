@@ -62,7 +62,8 @@ Contexts can be activated or deactivated using the [`ContextActivity`] component
 By default, contexts are active when the component is present.
 When active, all actions associated with the context are evaluated.
 
-By default contexts evaluated in their spawn order, but you can also control this with [`ContextPriority`].
+By default, contexts are evaluated in reverse spawn order, meaning the most recently spawned context is evaluated first.
+This behavior can be controlled with [`ContextPriority`].
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 

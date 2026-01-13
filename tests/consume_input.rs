@@ -49,18 +49,18 @@ fn consume() {
         .query_filtered::<&ActionState, With<Action<First>>>();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(
+        first_state,
+        ActionState::None,
+        "only last spawned entity with the same bindings that consume inputs should receive them"
+    );
 
     let mut second = app
         .world_mut()
         .query_filtered::<&ActionState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(
-        second_state,
-        ActionState::None,
-        "only first entity with the same mappings that consume inputs should receive them"
-    );
+    assert_eq!(second_state, ActionState::Fired);
 }
 
 #[test]
@@ -134,27 +134,24 @@ fn consume_then_passthrough() {
     app.world_mut().spawn((
         TestContext,
         actions!(
-            TestContext[(
+            TestContext[
+            (
                 Action::<First>::new(),
                 ActionSettings {
                     consume_input: true,
                     ..Default::default()
                 },
                 bindings![KEY],
-            )]
-        ),
-    ));
-    app.world_mut().spawn((
-        TestContext,
-        actions!(
-            TestContext[(
+            ),
+            (
                 Action::<Second>::new(),
                 ActionSettings {
                     consume_input: false,
                     ..Default::default()
                 },
                 bindings![KEY],
-            )]
+            ),
+            ]
         ),
     ));
 
