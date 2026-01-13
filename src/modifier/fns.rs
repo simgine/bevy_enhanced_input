@@ -42,10 +42,10 @@ fn register_modifier<M: InputModifier + Component<Mutability = Mutable>>(
 }
 
 fn unregister_modifier<M: InputModifier + Component<Mutability = Mutable>>(
-    add: On<Remove, M>,
+    remove: On<Remove, M>,
     mut modifiers: Query<&mut ModifierFns>,
 ) {
-    let mut fns = modifiers.get_mut(add.entity).unwrap();
+    let mut fns = modifiers.get_mut(remove.entity).unwrap();
     let index = fns
         .iter()
         .position(|&f| ptr::fn_addr_eq(f, get_modifier::<M> as GetModifierFn))

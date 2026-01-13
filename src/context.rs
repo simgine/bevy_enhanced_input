@@ -299,37 +299,41 @@ impl ScheduleContexts {
 }
 
 fn register<C: Component, S: ScheduleLabel>(
-    add: On<Insert, ContextPriority<C>>,
+    insert: On<Insert, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
     contexts: Query<&ContextPriority<C>, Allow<Disabled>>,
 ) {
-    debug!("registering `{}` to `{}`", ShortName::of::<C>(), add.entity);
+    debug!(
+        "registering `{}` to `{}`",
+        ShortName::of::<C>(),
+        insert.entity
+    );
 
-    let priority = **contexts.get(add.entity).unwrap();
-    instances.add::<C>(add.entity, priority);
+    let priority = **contexts.get(insert.entity).unwrap();
+    instances.add::<C>(insert.entity, priority);
 }
 
 fn unregister<C: Component, S: ScheduleLabel>(
-    add: On<Replace, ContextPriority<C>>,
+    replace: On<Replace, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
 ) {
     debug!(
         "unregistering `{}` from `{}`",
         ShortName::of::<C>(),
-        add.entity,
+        replace.entity,
     );
 
-    instances.remove::<C>(add.entity);
+    instances.remove::<C>(replace.entity);
 }
 
 fn deactivate<C: Component>(
-    add: On<Insert, ContextActivity<C>>,
+    insert: On<Insert, ContextActivity<C>>,
     mut pending: ResMut<PendingBindings>,
     contexts: Query<(&ContextActivity<C>, &Actions<C>)>,
     actions: Query<(&ActionSettings, &Bindings)>,
     bindings: Query<&Binding>,
 ) {
-    let Ok((&active, context_actions)) = contexts.get(add.entity) else {
+    let Ok((&active, context_actions)) = contexts.get(insert.entity) else {
         return;
     };
 
@@ -350,7 +354,7 @@ fn deactivate<C: Component>(
 
 /// Resets action data and triggers corresponding events on removal.
 pub(crate) fn reset_action<C: Component>(
-    add: On<Remove, ActionOf<C>>,
+    remove: On<Remove, ActionOf<C>>,
     mut commands: Commands,
     mut pending: ResMut<PendingBindings>,
     mut actions: Query<(
@@ -366,9 +370,9 @@ pub(crate) fn reset_action<C: Component>(
     bindings: Query<&Binding>,
 ) {
     let Ok((action_of, settings, fns, action_bindings, mut value, mut state, mut events, mut time)) =
-        actions.get_mut(add.entity)
+        actions.get_mut(remove.entity)
     else {
-        trace!("ignoring reset for `{}`", add.entity);
+        trace!("ignoring reset for `{}`", remove.entity);
         return;
     };
 
@@ -380,7 +384,7 @@ pub(crate) fn reset_action<C: Component>(
     fns.trigger(
         &mut commands,
         **action_of,
-        add.entity,
+        remove.entity,
         *state,
         *events,
         *value,
