@@ -25,17 +25,23 @@ impl ContextTime<'_> {
     }
 }
 
-/// Type of time resource to use.
+/// Type of the [`Time`] resource to use.
+///
+/// Used to configure time-based [modifiers](crate::modifier) and [conditions](crate::condition).
 #[derive(Reflect, Debug, Default, Clone, Copy)]
 pub enum TimeKind {
+    /// Corresponds to [`Time<Real>`].
+    ///
+    /// Real wall-clock time elapsed, not affected by pausing or scaling.
+    ///
+    /// This is the default value.
+    #[default]
+    Real,
     /// Corresponds to [`Time`], which contains [`Time<Virtual>`], except in the fixed schedule,
     /// where it's [`Time<Fixed>`].
     ///
     /// Virtual game time, affected by [`Time::pause`] and [`Time::relative_speed`].
-    #[default]
-    Virtual,
-    /// Corresponds to [`Time<Real>`].
     ///
-    /// Real wall-clock time elapsed, not affected by pausing or scaling.
-    Real,
+    /// Useful for time-based actions that needs to be paused or speedup together with the game.
+    Virtual,
 }

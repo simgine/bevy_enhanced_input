@@ -323,7 +323,7 @@ mod tests {
             .id();
         let action_b = world.spawn(Action::<B>::new()).id();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 
@@ -337,7 +337,7 @@ mod tests {
         assert_eq!(condition.step_index, 1);
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         world.entity_mut(action_a).insert(ActionEvents::empty()); // Clear `Complete` event.
         world.entity_mut(action_b).insert(ActionEvents::COMPLETED);
@@ -385,7 +385,7 @@ mod tests {
         assert_eq!(condition.step_index, 1);
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs_f32(0.5));
         world.entity_mut(action_a).insert(ActionEvents::empty());
         world.entity_mut(action_b).insert(ActionEvents::COMPLETED);
@@ -398,7 +398,7 @@ mod tests {
         assert_eq!(condition.step_index, 2);
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs_f32(0.2));
         world.entity_mut(action_b).insert(ActionEvents::empty());
         world.entity_mut(action_c).insert(ActionEvents::COMPLETED);

@@ -107,7 +107,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 
@@ -124,7 +124,9 @@ mod tests {
             ActionState::None
         );
 
-        world.resource_mut::<Time>().advance_by(Duration::ZERO);
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::ZERO);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -137,7 +139,7 @@ mod tests {
     fn one_shot() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 

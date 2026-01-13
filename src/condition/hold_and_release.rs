@@ -93,7 +93,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 
@@ -102,7 +102,9 @@ mod tests {
             ActionState::Fired
         );
 
-        world.resource_mut::<Time>().advance_by(Duration::ZERO);
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::ZERO);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -127,7 +129,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 
@@ -136,7 +138,9 @@ mod tests {
             ActionState::Ongoing
         );
 
-        world.resource_mut::<Time>().advance_by(Duration::ZERO);
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::ZERO);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -165,7 +169,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 
@@ -175,7 +179,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_nanos(1));
         let (time, actions) = state.get(&world);
 

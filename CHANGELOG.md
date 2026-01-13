@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Change default context evaluation order. Now the last spawned context is evaluated first.
+- Change `TimeKind::default` to `TimeKind::Real`.
+- Add `TimeKind` configuration to `SmoothNudge`.
+- Add `TimeKind` configuration to `DeltaScale`.
+- `SmoothNudge::new` no longer `const`.
+
 ## [0.21.0] - 2025-12-17
 
 ### Changed

@@ -123,7 +123,7 @@ mod tests {
         );
 
         world
-            .resource_mut::<Time>()
+            .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         let (time, actions) = state.get(&world);
 
