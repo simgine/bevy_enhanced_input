@@ -303,13 +303,13 @@ fn register<C: Component, S: ScheduleLabel>(
     mut instances: ResMut<ContextInstances<S>>,
     contexts: Query<&ContextPriority<C>, Allow<Disabled>>,
 ) {
+    let priority = **contexts.get(insert.entity).unwrap();
     debug!(
-        "registering `{}` to `{}`",
+        "registering `{}` to `{}` with priority {priority}",
         ShortName::of::<C>(),
         insert.entity
     );
 
-    let priority = **contexts.get(insert.entity).unwrap();
     instances.add::<C>(insert.entity, priority);
 }
 
@@ -322,7 +322,6 @@ fn unregister<C: Component, S: ScheduleLabel>(
         ShortName::of::<C>(),
         replace.entity,
     );
-
     instances.remove::<C>(replace.entity);
 }
 
