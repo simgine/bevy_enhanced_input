@@ -1,4 +1,4 @@
-use core::{any::TypeId, cmp::Reverse, marker::PhantomData};
+use core::{any::TypeId, marker::PhantomData};
 
 use bevy::{
     ecs::{
@@ -21,12 +21,11 @@ pub(crate) struct ContextInstances<S: ScheduleLabel> {
 }
 
 impl<S: ScheduleLabel> ContextInstances<S> {
-    pub(super) fn add<C: Component>(&mut self, entity: Entity, priority: usize) {
+    pub(super) fn add<C: Component>(&mut self, entity: Entity, priority: usize) -> usize {
         let instance = ContextInstance::new::<C>(entity, priority);
-        let index = self
-            .binary_search_by_key(&Reverse(priority), |inst| Reverse(inst.priority))
-            .unwrap_or_else(|i| i);
+        let index = self.partition_point(|i| i.priority > instance.priority);
         self.instances.insert(index, instance);
+        index
     }
 
     pub(super) fn remove<C: Component>(&mut self, entity: Entity) {
@@ -105,4 +104,25 @@ impl ContextInstance {
             .get_mut::<Actions<C>>()
             .map(|a| a.map_unchanged(|a| &mut **a.collection_mut_risky()))
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_log::test;
+
+    #[test]
+    fn instance_ordering() {
+        let mut instances = ContextInstances::<PreUpdate>::default();
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 1), 0);
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 1), 0);
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 1), 0);
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 0), 3);
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 0), 3);
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 1), 0);
+        assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 0), 4);
+    }
+
+    #[derive(Component)]
+    struct Test;
 }
