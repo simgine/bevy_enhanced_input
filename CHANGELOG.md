@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.1] - 2026-01-16
+
 ### Fixed
 
 - Evaluate contexts in their spawn order as described in the docs.
@@ -513,7 +515,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.22.0...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...HEAD
+[0.22.1]: https://github.com/simgine/bevy_replicon/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/simgine/bevy_replicon/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/simgine/bevy_replicon/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/simgine/bevy_replicon/compare/v0.20.0...v0.20.1
