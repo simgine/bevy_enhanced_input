@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Evaluate contexts in their spawn order as described in the docs.
 
-## [0.22.0] - 2025-12-17
+## [0.22.0] - 2026-01-14
 
 ### Changed
 
@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `TimeKind` configuration to `DeltaScale`.
 - `SmoothNudge::new` no longer `const`.
 
-## [0.21.0] - 2025-12-17
+## [0.21.0] - 2026-01-14
 
 ### Changed
 
