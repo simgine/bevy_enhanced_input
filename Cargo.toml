@@ -18,13 +18,10 @@ include = ["/src", "/LICENSE*"]
 name = "keybinding_menu"
 required-features = ["serialize"]
 
-[[example]]
-name = "state_integration"
-required-features = ["bevy_state"]
-
 [features]
+default = ["state"]
 serialize = ["bevy/serialize", "dep:serde"]
-bevy_state = ["bevy/bevy_state"]
+state = ["bevy/bevy_state"]
 
 [dependencies]
 bevy_enhanced_input_macros = { path = "macros", version = "0.22.0" }

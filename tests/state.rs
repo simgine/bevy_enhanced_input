@@ -1,4 +1,4 @@
-#![cfg(feature = "bevy_state")]
+#![cfg(feature = "state")]
 
 use bevy::{input::InputPlugin, prelude::*, state::app::StatesPlugin};
 use bevy_enhanced_input::prelude::*;
@@ -15,12 +15,12 @@ fn initial_state_activates_context() {
     ))
     .init_state::<TestState>()
     .add_input_context::<ContextA>()
-    .sync_context_to_state::<TestState, ContextA>()
+    .sync_context_to_state::<ContextA, TestState>()
     .finish();
 
     app.world_mut().spawn((
         ContextA,
-        ActiveInState::<TestState, ContextA>::new(TestState::A),
+        ActiveInStates::<ContextA, _>::single(TestState::A),
         actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
     ));
 
@@ -47,19 +47,19 @@ fn state_transition_activates_matching_context() {
     .init_state::<TestState>()
     .add_input_context::<ContextA>()
     .add_input_context::<ContextB>()
-    .sync_context_to_state::<TestState, ContextA>()
-    .sync_context_to_state::<TestState, ContextB>()
+    .sync_context_to_state::<ContextA, TestState>()
+    .sync_context_to_state::<ContextB, TestState>()
     .finish();
 
     app.world_mut().spawn((
         ContextA,
-        ActiveInState::<TestState, ContextA>::new(TestState::A),
+        ActiveInStates::<ContextA, _>::single(TestState::A),
         actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
     ));
 
     app.world_mut().spawn((
         ContextB,
-        ActiveInState::<TestState, ContextB>::new(TestState::B),
+        ActiveInStates::<ContextB, _>::single(TestState::B),
         actions!(ContextB[(Action::<TestAction>::new(), bindings![KeyCode::KeyB])]),
     ));
 
@@ -104,12 +104,12 @@ fn active_in_states_matches_multiple() {
     ))
     .init_state::<TestState>()
     .add_input_context::<ContextA>()
-    .sync_context_to_state::<TestState, ContextA>()
+    .sync_context_to_state::<ContextA, TestState>()
     .finish();
 
     app.world_mut().spawn((
         ContextA,
-        ActiveInStates::<TestState, ContextA>::new([TestState::A, TestState::B]),
+        ActiveInStates::<ContextA, _>::new([TestState::A, TestState::B]),
         actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
     ));
 
@@ -138,6 +138,63 @@ fn active_in_states_matches_multiple() {
     app.update();
 
     assert!(!get_activity(&mut app), "should be inactive in state C");
+}
+
+#[test]
+fn dynamic_spawn_activates_based_on_current_state() {
+    let mut app = App::new();
+    app.add_plugins((
+        MinimalPlugins,
+        InputPlugin,
+        StatesPlugin,
+        EnhancedInputPlugin,
+    ))
+    .init_state::<TestState>()
+    .add_input_context::<ContextA>()
+    .add_input_context::<ContextB>()
+    .sync_context_to_state::<ContextA, TestState>()
+    .sync_context_to_state::<ContextB, TestState>()
+    .finish();
+
+    app.world_mut()
+        .resource_mut::<NextState<TestState>>()
+        .set(TestState::B);
+    app.update();
+
+    app.world_mut().spawn((
+        ContextA,
+        ActiveInStates::<ContextA, _>::single(TestState::A),
+        actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
+    ));
+
+    app.world_mut().spawn((
+        ContextB,
+        ActiveInStates::<ContextB, _>::single(TestState::B),
+        actions!(ContextB[(Action::<TestAction>::new(), bindings![KeyCode::KeyB])]),
+    ));
+
+    app.update();
+
+    let activity_a = **app
+        .world_mut()
+        .query_filtered::<&ContextActivity<ContextA>, With<ContextA>>()
+        .single(app.world())
+        .unwrap();
+
+    let activity_b = **app
+        .world_mut()
+        .query_filtered::<&ContextActivity<ContextB>, With<ContextB>>()
+        .single(app.world())
+        .unwrap();
+
+    assert!(
+        !activity_a,
+        "context A should be inactive when spawned in state B"
+    );
+    assert!(
+        activity_b,
+        "context B should be active when spawned in state B"
+    );
 }
 
 #[derive(States, Clone, PartialEq, Eq, Hash, Debug, Default)]
