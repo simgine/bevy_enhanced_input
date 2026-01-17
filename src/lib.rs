@@ -349,8 +349,12 @@ pub mod condition;
 pub mod context;
 pub mod modifier;
 pub mod preset;
+#[cfg(feature = "bevy_state")]
+pub mod state;
 
 pub mod prelude {
+    #[cfg(feature = "bevy_state")]
+    pub use super::state::{ActiveInState, ActiveInStates, StateContextAppExt};
     pub use super::{
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{

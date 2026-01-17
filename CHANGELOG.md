@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `bevy_state` feature for automatic context activation based on `bevy_state` states.
+- `ActiveInState<S, C>` and `ActiveInStates<S, C>` components.
+- `StateContextAppExt` trait with `sync_context_to_state` method.
+
 ## [0.22.1] - 2026-01-16
 
 ### Fixed
