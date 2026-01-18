@@ -65,7 +65,7 @@ fn transition() {
 }
 
 #[test]
-fn active_in_states_matches_multiple() {
+fn multiple_states() {
     let mut app = App::new();
     app.add_plugins((
         MinimalPlugins,

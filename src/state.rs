@@ -1,5 +1,5 @@
 /*!
-State-context integration for synchronizing [`bevy_state`](bevy::state) with input contexts.
+State-context integration for synchronizing Bevy [`States`] with input contexts.
 
 This module provides components that automatically activate/deactivate
 input contexts based on the current application state, eliminating manual
@@ -25,27 +25,15 @@ struct Player;
 #[action_output(bool)]
 struct Jump;
 
-App::new()
-    .add_plugins((StatesPlugin, EnhancedInputPlugin))
+let mut app = App::new();
+app.add_plugins((StatesPlugin, EnhancedInputPlugin))
     .init_state::<GameState>()
     .add_input_context::<Player>()
-    .sync_context_to_state::<Player, GameState>();
-```
+    .sync_context_to_state::<Player, GameState>()
+    .finish();
 
-When spawning entities, use [`ActiveInStates`] to declare which states activate the context:
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# #[derive(States, Clone, PartialEq, Eq, Hash, Debug, Default)]
-# enum GameState { #[default] Playing, Paused }
-# #[derive(Component)]
-# struct Player;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# let mut world = World::new();
-world.spawn((
+// When spawning entities, use `ActiveInStates` to declare which states activate the context.
+app.world_mut().spawn((
     Player,
     ContextActivity::<Player>::INACTIVE,
     ActiveInStates::<Player, _>::single(GameState::Playing),
@@ -63,7 +51,7 @@ use bevy::{
 use log::debug;
 use smallvec::SmallVec;
 
-use crate::prelude::ContextActivity;
+use crate::prelude::*;
 
 /// Extension trait for synchronizing input contexts with [`States`].
 pub trait StateContextAppExt {
@@ -101,10 +89,11 @@ fn sync_on_insert<C: Component, S: States>(
     let Ok(active_in) = contexts.get(insert.entity) else {
         return;
     };
-    set_context_activity::<C>(
-        commands.entity(insert.entity),
+    set_context_activity(
+        &mut commands,
+        &activity,
+        insert.entity,
         active_in.matches(current_state.get()),
-        activity.get(insert.entity).ok(),
     );
 }
 
@@ -121,43 +110,35 @@ fn sync_state_contexts<C: Component, S: States>(
     match &transition.entered {
         Some(entered) => {
             for (entity, active_in) in &contexts {
-                set_context_activity::<C>(
-                    commands.entity(entity),
-                    active_in.matches(entered),
-                    activity.get(entity).ok(),
-                );
+                set_context_activity(&mut commands, &activity, entity, active_in.matches(entered));
             }
         }
-        // State was removed/cleared rather than transitioned — deactivate all contexts.
         None => {
             for (entity, _) in &contexts {
-                set_context_activity::<C>(
-                    commands.entity(entity),
-                    false,
-                    activity.get(entity).ok(),
-                );
+                set_context_activity(&mut commands, &activity, entity, false);
             }
         }
     }
 }
 
 fn set_context_activity<C: Component>(
-    mut entity: EntityCommands,
+    commands: &mut Commands,
+    activity: &Query<&ContextActivity<C>>,
+    entity: Entity,
     active: bool,
-    current: Option<&ContextActivity<C>>,
 ) {
-    if let Some(current) = current
+    if let Ok(current) = activity.get(entity)
         && **current == active
     {
         return;
     }
     debug!(
-        "setting `{}` on `{}` to `{}`",
+        "setting `{}` on `{entity}` to `{active}`",
         ShortName::of::<C>(),
-        entity.id(),
-        active,
     );
-    entity.insert(ContextActivity::<C>::new(active));
+    commands
+        .entity(entity)
+        .insert(ContextActivity::<C>::new(active));
 }
 
 /// Inserts [`ContextActivity::<C>::ACTIVE`] when the state matches one of the
