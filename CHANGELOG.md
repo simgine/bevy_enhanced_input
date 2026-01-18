@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.2] - 2026-01-18
+
 ### Added
 
 - `state` feature (enabled by default) for automatic context activation based on `bevy_state` states. See the module documentation for more details.
@@ -519,7 +521,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.22.2...HEAD
+[0.22.2]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/simgine/bevy_replicon/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/simgine/bevy_replicon/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/simgine/bevy_replicon/compare/v0.20.1...v0.21.0

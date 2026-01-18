@@ -1,6 +1,6 @@
 [package]
 name = "bevy_enhanced_input"
-version = "0.22.1"
+version = "0.22.2"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "Alice Cecile <alice.i.cecile@gmail.com>",
