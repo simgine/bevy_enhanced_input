@@ -349,8 +349,12 @@ pub mod condition;
 pub mod context;
 pub mod modifier;
 pub mod preset;
+#[cfg(feature = "state")]
+pub mod state;
 
 pub mod prelude {
+    #[cfg(feature = "state")]
+    pub use super::state::{ActiveInStates, StateContextAppExt};
     pub use super::{
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{
