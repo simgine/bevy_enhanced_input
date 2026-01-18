@@ -9,9 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `state` feature (enabled by default) for automatic context activation based on `bevy_state` states.
-- `ActiveInStates<C, S>` component with `single()` and `new()` constructors.
-- `StateContextAppExt` trait with `sync_context_to_state` method.
+- `state` feature (enabled by default) for automatic context activation based on `bevy_state` states. See the module documentation for more details.
 
 ## [0.22.1] - 2026-01-16
 
