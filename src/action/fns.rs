@@ -77,7 +77,7 @@ fn trigger<A: InputAction>(
         );
 
         match event {
-            ActionEvents::STARTED => {
+            ActionEvents::START => {
                 let event = Start::<A> {
                     context,
                     action,
@@ -96,7 +96,7 @@ fn trigger<A: InputAction>(
                 };
                 commands.trigger(event);
             }
-            ActionEvents::FIRED => {
+            ActionEvents::FIRE => {
                 let event = Fire::<A> {
                     context,
                     action,
@@ -107,7 +107,7 @@ fn trigger<A: InputAction>(
                 };
                 commands.trigger(event);
             }
-            ActionEvents::CANCELED => {
+            ActionEvents::CANCEL => {
                 let event = Cancel::<A> {
                     context,
                     action,
@@ -117,7 +117,7 @@ fn trigger<A: InputAction>(
                 };
                 commands.trigger(event);
             }
-            ActionEvents::COMPLETED => {
+            ActionEvents::COMPLETE => {
                 let event = Complete::<A> {
                     context,
                     action,
@@ -149,19 +149,19 @@ mod tests {
     #[test]
     fn none_ongoing() {
         let events = transition(ActionState::None, ActionState::Ongoing);
-        assert_eq!(events, ActionEvents::STARTED | ActionEvents::ONGOING);
+        assert_eq!(events, ActionEvents::START | ActionEvents::ONGOING);
     }
 
     #[test]
     fn none_fired() {
         let events = transition(ActionState::None, ActionState::Fired);
-        assert_eq!(events, ActionEvents::STARTED | ActionEvents::FIRED);
+        assert_eq!(events, ActionEvents::START | ActionEvents::FIRE);
     }
 
     #[test]
     fn ongoing_none() {
         let events = transition(ActionState::Ongoing, ActionState::None);
-        assert_eq!(events, ActionEvents::CANCELED);
+        assert_eq!(events, ActionEvents::CANCEL);
     }
 
     #[test]
@@ -173,13 +173,13 @@ mod tests {
     #[test]
     fn ongoing_fired() {
         let events = transition(ActionState::Ongoing, ActionState::Fired);
-        assert_eq!(events, ActionEvents::FIRED);
+        assert_eq!(events, ActionEvents::FIRE);
     }
 
     #[test]
     fn fired_none() {
         let events = transition(ActionState::Fired, ActionState::None);
-        assert_eq!(events, ActionEvents::COMPLETED);
+        assert_eq!(events, ActionEvents::COMPLETE);
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod tests {
     #[test]
     fn fired_fired() {
         let events = transition(ActionState::Fired, ActionState::Fired);
-        assert_eq!(events, ActionEvents::FIRED);
+        assert_eq!(events, ActionEvents::FIRE);
     }
 
     fn transition(initial_state: ActionState, target_state: ActionState) -> ActionEvents {
@@ -199,10 +199,10 @@ mod tests {
 
         world.init_resource::<TriggeredEvents>();
         world.add_observer(|_: On<Fire<Test>>, mut events: ResMut<TriggeredEvents>| {
-            events.insert(ActionEvents::FIRED);
+            events.insert(ActionEvents::FIRE);
         });
         world.add_observer(|_: On<Start<Test>>, mut events: ResMut<TriggeredEvents>| {
-            events.insert(ActionEvents::STARTED);
+            events.insert(ActionEvents::START);
         });
         world.add_observer(
             |_: On<Ongoing<Test>>, mut events: ResMut<TriggeredEvents>| {
@@ -211,11 +211,11 @@ mod tests {
         );
         world.add_observer(
             |_: On<Complete<Test>>, mut events: ResMut<TriggeredEvents>| {
-                events.insert(ActionEvents::COMPLETED);
+                events.insert(ActionEvents::COMPLETE);
             },
         );
         world.add_observer(|_: On<Cancel<Test>>, mut events: ResMut<TriggeredEvents>| {
-            events.insert(ActionEvents::CANCELED);
+            events.insert(ActionEvents::CANCEL);
         });
 
         let events = ActionEvents::new(initial_state, target_state);
