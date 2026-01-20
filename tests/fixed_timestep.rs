@@ -36,7 +36,7 @@ fn once_in_two_frames() {
         let events = *actions.single(app.world()).unwrap();
         assert_eq!(
             events,
-            ActionEvents::STARTED | ActionEvents::FIRED,
+            ActionEvents::START | ActionEvents::FIRE,
             "should maintain start-firing on frame {frame}"
         );
     }
@@ -75,7 +75,7 @@ fn twice_in_one_frame() {
     let events = *actions.single(app.world()).unwrap();
     assert_eq!(
         events,
-        ActionEvents::FIRED,
+        ActionEvents::FIRE,
         "should run twice, so it shouldn't be started on the second run"
     );
 }

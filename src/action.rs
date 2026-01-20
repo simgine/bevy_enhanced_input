@@ -246,8 +246,8 @@ pub enum ActionState {
     ///
     /// For example, with the [`Down`] condition, this state remains active
     /// as long as the key is held down. If you want to respond only
-    /// on the first or last frame this state is active, see [`ActionEvents::STARTED`]
-    /// or [`ActionEvents::COMPLETED`] respectively. For this condition,
+    /// on the first or last frame this state is active, see [`ActionEvents::START`]
+    /// or [`ActionEvents::COMPLETE`] respectively. For this condition,
     /// these correspond to "just pressed" and "just released".
     Fired,
 }

@@ -226,13 +226,13 @@ pub struct ComboStep {
 }
 
 impl ComboStep {
-    /// Creates a new instance with [`Self::events`] set to [`ActionEvents::COMPLETED`]
+    /// Creates a new instance with [`Self::events`] set to [`ActionEvents::COMPLETE`]
     /// and [`Self::timeout`] set to 0.5.
     #[must_use]
     pub fn new(action: Entity) -> Self {
         Self {
             action,
-            events: ActionEvents::COMPLETED,
+            events: ActionEvents::COMPLETE,
             timeout: 0.5,
         }
     }
@@ -274,7 +274,7 @@ impl CancelAction {
     fn new(action: Entity) -> Self {
         Self {
             action,
-            events: ActionEvents::ONGOING | ActionEvents::FIRED,
+            events: ActionEvents::ONGOING | ActionEvents::FIRE,
         }
     }
 }
@@ -319,7 +319,7 @@ mod tests {
     fn timeout() {
         let (mut world, mut state) = context::init_world();
         let action_a = world
-            .spawn((Action::<A>::new(), ActionEvents::COMPLETED))
+            .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
         let action_b = world.spawn(Action::<B>::new()).id();
         world
@@ -340,7 +340,7 @@ mod tests {
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
         world.entity_mut(action_a).insert(ActionEvents::empty()); // Clear `Complete` event.
-        world.entity_mut(action_b).insert(ActionEvents::COMPLETED);
+        world.entity_mut(action_b).insert(ActionEvents::COMPLETE);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -388,7 +388,7 @@ mod tests {
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs_f32(0.5));
         world.entity_mut(action_a).insert(ActionEvents::empty());
-        world.entity_mut(action_b).insert(ActionEvents::COMPLETED);
+        world.entity_mut(action_b).insert(ActionEvents::COMPLETE);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -401,7 +401,7 @@ mod tests {
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs_f32(0.2));
         world.entity_mut(action_b).insert(ActionEvents::empty());
-        world.entity_mut(action_c).insert(ActionEvents::COMPLETED);
+        world.entity_mut(action_c).insert(ActionEvents::COMPLETE);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -421,7 +421,7 @@ mod tests {
     fn same_action() {
         let (mut world, mut state) = context::init_world();
         let action_a = world
-            .spawn((Action::<A>::new(), ActionEvents::COMPLETED))
+            .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
         let (time, actions) = state.get(&world);
 
@@ -445,7 +445,7 @@ mod tests {
         let (mut world, mut state) = context::init_world();
         let action_a = world.spawn(Action::<A>::new()).id();
         let action_b = world
-            .spawn((Action::<B>::new(), ActionEvents::COMPLETED))
+            .spawn((Action::<B>::new(), ActionEvents::COMPLETE))
             .id();
         let action_c = world.spawn(Action::<C>::new()).id();
         let (time, actions) = state.get(&world);
@@ -462,7 +462,7 @@ mod tests {
         assert_eq!(condition.step_index, 0);
 
         world.entity_mut(action_b).insert(ActionEvents::empty());
-        world.entity_mut(action_a).insert(ActionEvents::COMPLETED);
+        world.entity_mut(action_a).insert(ActionEvents::COMPLETE);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -472,7 +472,7 @@ mod tests {
         assert_eq!(condition.step_index, 1);
 
         world.entity_mut(action_a).insert(ActionEvents::empty());
-        world.entity_mut(action_c).insert(ActionEvents::COMPLETED);
+        world.entity_mut(action_c).insert(ActionEvents::COMPLETE);
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -486,7 +486,7 @@ mod tests {
     fn ignore_same_cancel_action() {
         let (mut world, mut state) = context::init_world();
         let action_a = world
-            .spawn((Action::<A>::new(), ActionEvents::COMPLETED))
+            .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
         let (time, actions) = state.get(&world);
 
@@ -502,7 +502,7 @@ mod tests {
     fn missing_cancel_action() {
         let (mut world, mut state) = context::init_world();
         let action_a = world
-            .spawn((Action::<A>::new(), ActionEvents::COMPLETED))
+            .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
         let (time, actions) = state.get(&world);
 
@@ -520,7 +520,7 @@ mod tests {
     fn cancel() {
         let (mut world, mut state) = context::init_world();
         let action_a = world
-            .spawn((Action::<A>::new(), ActionEvents::COMPLETED))
+            .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
         let action_b = world.spawn(Action::<B>::new()).id();
         let action_c = world.spawn(Action::<C>::new()).id();
@@ -538,8 +538,8 @@ mod tests {
         assert_eq!(condition.step_index, 1);
 
         world.entity_mut(action_a).insert(ActionEvents::empty());
-        world.entity_mut(action_b).insert(ActionEvents::COMPLETED);
-        world.entity_mut(action_c).insert(ActionEvents::FIRED);
+        world.entity_mut(action_b).insert(ActionEvents::COMPLETE);
+        world.entity_mut(action_c).insert(ActionEvents::FIRE);
         let (time, actions) = state.get(&world);
 
         assert_eq!(

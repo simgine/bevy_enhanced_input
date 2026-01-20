@@ -30,14 +30,14 @@ fn updates() {
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
     assert_eq!(state, ActionState::Fired);
-    assert_eq!(events, ActionEvents::FIRED | ActionEvents::STARTED);
+    assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(!*action);
     assert_eq!(state, ActionState::None);
-    assert_eq!(events, ActionEvents::COMPLETED);
+    assert_eq!(events, ActionEvents::COMPLETE);
 }
 
 #[test]
@@ -70,21 +70,21 @@ fn duration() {
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
     assert_eq!(state, ActionState::Fired);
-    assert_eq!(events, ActionEvents::FIRED | ActionEvents::STARTED);
+    assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
     assert_eq!(state, ActionState::Fired);
-    assert_eq!(events, ActionEvents::FIRED);
+    assert_eq!(events, ActionEvents::FIRE);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(!*action);
     assert_eq!(state, ActionState::None);
-    assert_eq!(events, ActionEvents::COMPLETED);
+    assert_eq!(events, ActionEvents::COMPLETE);
 }
 
 #[test]
@@ -113,14 +113,14 @@ fn manual() {
     let (&action, &state, &events, _) = actions.single(app.world()).unwrap();
     assert!(*action);
     assert_eq!(state, ActionState::Fired);
-    assert_eq!(events, ActionEvents::FIRED | ActionEvents::STARTED);
+    assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events, mut mock) = actions.single_mut(app.world_mut()).unwrap();
     assert!(*action);
     assert_eq!(state, ActionState::Fired);
-    assert_eq!(events, ActionEvents::FIRED);
+    assert_eq!(events, ActionEvents::FIRE);
 
     mock.enabled = false;
 
@@ -129,7 +129,7 @@ fn manual() {
     let (&action, &state, &events, _) = actions.single(app.world()).unwrap();
     assert!(!*action);
     assert_eq!(state, ActionState::None);
-    assert_eq!(events, ActionEvents::COMPLETED);
+    assert_eq!(events, ActionEvents::COMPLETE);
 }
 
 #[test]

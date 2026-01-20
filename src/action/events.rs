@@ -34,18 +34,29 @@ use crate::prelude::*;
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionEvents(u8);
 
+impl ActionEvents {
+    #[deprecated(since = "0.23.0", note = "Replaced by `START`")]
+    pub const STARTED: Self = Self::START;
+    #[deprecated(since = "0.23.0", note = "Replaced by `FIRE`")]
+    pub const FIRED: Self = Self::FIRE;
+    #[deprecated(since = "0.23.0", note = "Replaced by `CANCEL`")]
+    pub const CANCELLED: Self = Self::CANCEL;
+    #[deprecated(since = "0.23.0", note = "Replaced by `COMPLETE`")]
+    pub const COMPLETED: Self = Self::COMPLETE;
+}
+
 bitflags! {
     impl ActionEvents: u8 {
         /// Corresponds to [`Start`].
-        const STARTED = 0b00000001;
+        const START = 0b00000001;
         /// Corresponds to [`Ongoing`].
         const ONGOING = 0b00000010;
         /// Corresponds to [`Fire`].
-        const FIRED = 0b00000100;
+        const FIRE = 0b00000100;
         /// Corresponds to [`Cancel`].
-        const CANCELED = 0b00001000;
+        const CANCEL = 0b00001000;
         /// Corresponds to [`Complete`].
-        const COMPLETED = 0b00010000;
+        const COMPLETE = 0b00010000;
     }
 }
 
@@ -55,15 +66,15 @@ impl ActionEvents {
         match (previous, current) {
             (ActionState::None, ActionState::None) => ActionEvents::empty(),
             (ActionState::None, ActionState::Ongoing) => {
-                ActionEvents::STARTED | ActionEvents::ONGOING
+                ActionEvents::START | ActionEvents::ONGOING
             }
-            (ActionState::None, ActionState::Fired) => ActionEvents::STARTED | ActionEvents::FIRED,
-            (ActionState::Ongoing, ActionState::None) => ActionEvents::CANCELED,
+            (ActionState::None, ActionState::Fired) => ActionEvents::START | ActionEvents::FIRE,
+            (ActionState::Ongoing, ActionState::None) => ActionEvents::CANCEL,
             (ActionState::Ongoing, ActionState::Ongoing) => ActionEvents::ONGOING,
-            (ActionState::Ongoing, ActionState::Fired) => ActionEvents::FIRED,
-            (ActionState::Fired, ActionState::None) => ActionEvents::COMPLETED,
+            (ActionState::Ongoing, ActionState::Fired) => ActionEvents::FIRE,
+            (ActionState::Fired, ActionState::None) => ActionEvents::COMPLETE,
             (ActionState::Fired, ActionState::Ongoing) => ActionEvents::ONGOING,
-            (ActionState::Fired, ActionState::Fired) => ActionEvents::FIRED,
+            (ActionState::Fired, ActionState::Fired) => ActionEvents::FIRE,
         }
     }
 }
