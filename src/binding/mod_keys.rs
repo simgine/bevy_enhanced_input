@@ -3,7 +3,7 @@ use core::fmt::{self, Display, Formatter};
 use bevy::prelude::*;
 use bitflags::bitflags;
 #[cfg(feature = "serialize")]
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Keyboard modifiers for both left and right keys.
 ///
@@ -12,7 +12,6 @@ use serde::{Deserialize, Serialize};
 /// [`ActionSettings::consume_input`](crate::prelude::ActionSettings::consume_input)
 /// for more details.
 #[derive(Default, Reflect, Debug, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ModKeys(u8);
 
@@ -26,6 +25,20 @@ bitflags! {
         const ALT = 0b00000100;
         /// Corresponds to [`KeyCode::SuperLeft`] and [`KeyCode::SuperRight`].
         const SUPER = 0b00001000;
+    }
+}
+
+#[cfg(feature = "serialize")]
+impl Serialize for ModKeys {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        bitflags::serde::serialize(self, serializer)
+    }
+}
+
+#[cfg(feature = "serialize")]
+impl<'de> Deserialize<'de> for ModKeys {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        bitflags::serde::deserialize(deserializer)
     }
 }
 
@@ -113,5 +126,19 @@ mod tests {
         assert_eq!(ModKeys::CONTROL.to_string(), "Ctrl");
         assert_eq!(ModKeys::all().to_string(), "Ctrl + Shift + Alt + Super");
         assert_eq!(ModKeys::empty().to_string(), "");
+    }
+
+    #[cfg(feature = "serialize")]
+    #[test]
+    fn mod_keys_serde() {
+        assert_eq!(ron::to_string(&ModKeys::CONTROL).unwrap(), "\"CONTROL\"");
+        assert_eq!(
+            ron::to_string(&(ModKeys::CONTROL | ModKeys::SHIFT)).unwrap(),
+            "\"CONTROL | SHIFT\""
+        );
+        assert_eq!(ron::to_string(&ModKeys::empty()).unwrap(), "\"\"");
+
+        let parsed: ModKeys = ron::from_str("\"CONTROL | SHIFT\"").unwrap();
+        assert_eq!(parsed, ModKeys::CONTROL | ModKeys::SHIFT);
     }
 }
