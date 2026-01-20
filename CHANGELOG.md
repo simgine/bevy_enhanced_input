@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `ModKeys` now serializes to human-readable format instead of raw integers. Existing config files with integer `mod_keys` values need to be updated or regenerated.
+
 ## [0.22.2] - 2026-01-18
 
 ### Added
