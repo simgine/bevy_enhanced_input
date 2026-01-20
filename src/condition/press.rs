@@ -16,11 +16,6 @@ pub struct Press {
     actuated: bool,
 }
 
-/// Outdated alias for [`Press`].
-#[doc(hidden)]
-#[deprecated(since = "0.19.0", note = "Use `Press` instead.")]
-pub type Pressed = Press;
-
 impl Press {
     #[must_use]
     pub const fn new(actuation: f32) -> Self {
