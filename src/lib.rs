@@ -390,15 +390,6 @@ pub mod prelude {
         },
         preset::{WithBundle, axial::*, bidirectional::*, cardinal::*, ordinal::*, spatial::*},
     };
-    #[expect(
-        deprecated,
-        reason = "Exporting deprecated aliases to improve migration"
-    )]
-    pub use super::{
-        EnhancedInputSet,
-        action::events::{Cancelled, Completed, Fired, Started},
-        condition::{press::Pressed, release::Released},
-    };
     pub use bevy_enhanced_input_macros::InputAction;
 }
 
@@ -479,11 +470,6 @@ impl Plugin for EnhancedInputPlugin {
         }
     }
 }
-
-/// Outdated alias for [`EnhancedInputSystems`].
-#[doc(hidden)]
-#[deprecated(since = "0.19.0", note = "Use `EnhancedInputSystems` instead")]
-pub type EnhancedInputSet = EnhancedInputSystems;
 
 /// Label for the system that updates input context instances.
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemSet)]

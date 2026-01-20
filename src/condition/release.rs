@@ -15,11 +15,6 @@ pub struct Release {
     actuated: bool,
 }
 
-/// Outdated alias for [`Release`].
-#[doc(hidden)]
-#[deprecated(since = "0.19.0", note = "Use `Release` instead.")]
-pub type Released = Release;
-
 impl Release {
     #[must_use]
     pub const fn new(actuation: f32) -> Self {
