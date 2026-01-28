@@ -146,7 +146,7 @@ impl InputContextAppExt for App {
         {
             debug_assert!(
                 !contexts.actions_ids.contains(&actions_id),
-                "context `{}` shouldn't be added more then once",
+                "context `{}` shouldn't be added more than once",
                 ShortName::of::<C>()
             );
             contexts.actions_ids.push(actions_id);
