@@ -3,6 +3,7 @@ use core::ptr;
 use bevy::{
     ecs::{
         component::{ComponentId, Mutable},
+        entity_disabling::Disabled,
         world::FilteredEntityMut,
     },
     prelude::*,
@@ -35,7 +36,7 @@ impl InputModifierAppExt for App {
 
 fn register_modifier<M: InputModifier + Component<Mutability = Mutable>>(
     add: On<Add, M>,
-    mut modifiers: Query<&mut ModifierFns>,
+    mut modifiers: Query<&mut ModifierFns, Allow<Disabled>>,
 ) {
     let mut fns = modifiers.get_mut(add.entity).unwrap();
     fns.0.push(get_modifier::<M>);
@@ -43,7 +44,7 @@ fn register_modifier<M: InputModifier + Component<Mutability = Mutable>>(
 
 fn unregister_modifier<M: InputModifier + Component<Mutability = Mutable>>(
     remove: On<Remove, M>,
-    mut modifiers: Query<&mut ModifierFns>,
+    mut modifiers: Query<&mut ModifierFns, Allow<Disabled>>,
 ) {
     let mut fns = modifiers.get_mut(remove.entity).unwrap();
     let index = fns
