@@ -11,7 +11,7 @@
 //! The [`Driving`] context overrides the jump action with a brake action and adds actions for entering
 //! and exiting the vehicle.
 
-use bevy::prelude::*;
+use bevy::{ecs::entity_disabling::Disabled, prelude::*};
 use bevy_enhanced_input::prelude::*;
 
 fn main() {
@@ -24,6 +24,8 @@ fn main() {
         .add_observer(exit_car)
         .add_observer(enter_car)
         .add_observer(brake)
+        .add_observer(disable_actions)
+        .add_observer(despawn_player)
         .add_systems(Startup, spawn)
         .run();
 }
@@ -45,6 +47,14 @@ fn spawn(mut commands: Commands) {
                 Action::<EnterCar>::new(),
                 bindings![KeyCode::Enter, GamepadButton::North]
             ),
+            (
+                Action::<DisableActions>::new(),
+                bindings![KeyCode::KeyX]
+            ),
+            (
+                Action::<DespawnPlayer>::new(),
+                bindings![KeyCode::KeyZ]
+            )
         ]),
     ));
 }
@@ -125,3 +135,46 @@ struct Brake;
 #[derive(InputAction)]
 #[action_output(bool)]
 struct ExitCar;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct DisableActions;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct DespawnPlayer;
+
+fn disable_actions(
+    _disable: On<Start<DisableActions>>,
+    mut commands: Commands,
+    action_query: Query<(
+        Entity,
+        Has<Disabled>,
+        &ActionState,
+        &ActionEvents,
+        Option<&Action<Movement>>,
+        Option<&Action<Jump>>,
+        Option<&Action<EnterCar>>,
+        Option<&Action<Brake>>,
+        Option<&Action<ExitCar>>,
+        Option<&Action<DespawnPlayer>>,
+    )>,
+) {
+    info!("Disabling actions");
+    for (entity, is_disabled, _, _, _, _, _, _, _, maybe_despawn) in action_query.iter() {
+        if maybe_despawn.is_some() {
+            // Don't disable the DespawnPlayer action to allow triggering it.
+            continue;
+        }
+
+        if !is_disabled {
+            commands.entity(entity).insert(Disabled);
+            info!("Disabling action {:?}", entity);
+        }
+    }
+}
+
+fn despawn_player(despawn: On<Start<DespawnPlayer>>, mut commands: Commands) {
+    info!("Despawning player");
+    commands.entity(despawn.context).despawn();
+}
