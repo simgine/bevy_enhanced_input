@@ -406,7 +406,9 @@ impl From<Duration> for MockSpan {
     }
 }
 
+/// Command used by [`MockCommandExt::mock`]. See that method for documentation.
 pub struct MockCommand<T, U> {
+    /// The action mock to use.
     pub action_mock: ActionMock,
     _pd: PhantomData<(T, U)>,
 }
@@ -437,7 +439,37 @@ impl<T: Component, U: InputAction + Send> EntityCommand<bevy::ecs::error::Result
     }
 }
 
+/// Extension trait for [`EntityCommands`] that allows mocking actions.
 pub trait MockCommandExt {
+    /// Mocks an action. `T` is the action context, `U` is the [`InputAction`].
+    /// Convenience method so we don't have to manually query an action's [`ActionMock`].
+    ///
+    /// # Examples
+    ///
+    /// Mocks a single press.
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # let mut app = App::new();
+    /// app.add_input_context(Player);
+    ///
+    /// app.world_mut().spawn((
+    ///     Player,
+    ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
+    /// ));
+    ///
+    /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
+    ///     commands
+    ///         .entity(player.into_inner())
+    ///         .mock(ActionMock::<Player, PrimaryFire>::once(ActionState::Fired, true));
+    /// }
+    /// # #[derive(Component)]
+    /// # struct Player;
+    /// # #[derive(InputAction)]
+    /// # #[action_output(bool)]
+    /// # struct PrimaryFire;
+    /// ```
     fn mock<T: Component, U: InputAction + Send>(&mut self, action_mock: ActionMock) -> &mut Self;
 }
 
