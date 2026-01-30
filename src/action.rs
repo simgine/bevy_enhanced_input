@@ -444,7 +444,7 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
             })?;
         let mut action_mock = action_mocks
             .get_mut(world, mock_entity)
-            .expect("World already found this entity");
+            .expect("`ActionMock` already found on this entity");
 
         *action_mock = self.action_mock;
         Ok(())
