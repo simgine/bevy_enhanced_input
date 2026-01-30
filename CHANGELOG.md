@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   app.world_mut()
       .commands()
       .entity(context)
-      .mock_once::<MyContext, MyInput>(ActionState::Fired, true);
+      .mock_once::<Player, Jump>(ActionState::Fired, true);
   ```
 
 ### Changed
