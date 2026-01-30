@@ -14,7 +14,16 @@ fn layering() {
         .world_mut()
         .spawn((
             First,
-            actions!(First[(Action::<OnFirst>::new(), bindings![KEY])]),
+            actions!(
+                First[(
+                    Action::<OnFirst>::new(),
+                    ActionSettings {
+                        consume_input: true,
+                        ..Default::default()
+                    },
+                    bindings![KEY]
+                )]
+            ),
         ))
         .id();
 
@@ -38,6 +47,7 @@ fn layering() {
             Second[(
                 Action::<OnSecond>::new(),
                 ActionSettings {
+                    consume_input: true,
                     require_reset: true,
                     ..Default::default()
                 },
