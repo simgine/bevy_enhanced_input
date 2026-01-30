@@ -447,6 +447,42 @@ pub trait MockCommandExt {
     ///
     /// # Examples
     ///
+    /// Mocks a 2 second long press.
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # let mut app = App::new();
+    /// app.add_input_context(Player);
+    ///
+    /// app.world_mut().spawn((
+    ///     Player,
+    ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
+    /// ));
+    ///
+    /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
+    ///     commands
+    ///         .entity(player.into_inner())
+    ///         .mock::<Player, PrimaryFire>(ActionState::Fired, true, Duration::from_secs(2));
+    /// }
+    /// # #[derive(Component)]
+    /// # struct Player;
+    /// # #[derive(InputAction)]
+    /// # #[action_output(bool)]
+    /// # struct PrimaryFire;
+    /// ```
+    fn mock<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> &mut Self;
+
+    /// Mocks an action for a single update. `C` is the action context, `A` is the [`InputAction`].
+    /// Convenience method so we don't have to manually query an action's [`ActionMock`].
+    ///
+    /// # Examples
+    ///
     /// Mocks a single press.
     ///
     /// ```
@@ -463,7 +499,7 @@ pub trait MockCommandExt {
     /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
     ///     commands
     ///         .entity(player.into_inner())
-    ///         .mock(ActionMock::<Player, PrimaryFire>::once(ActionState::Fired, true));
+    ///         .mock_once::<Player, PrimaryFire>(ActionState::Fired, true);
     /// }
     /// # #[derive(Component)]
     /// # struct Player;
@@ -471,13 +507,33 @@ pub trait MockCommandExt {
     /// # #[action_output(bool)]
     /// # struct PrimaryFire;
     /// ```
-    fn mock<C: Component, A: InputAction + Send>(&mut self, action_mock: ActionMock) -> &mut Self;
+    fn mock_once<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> &mut Self;
 }
 
 impl MockCommandExt for EntityCommands<'_> {
-    fn mock<C: Component, A: InputAction + Send>(&mut self, action_mock: ActionMock) -> &mut Self {
+    fn mock<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> &mut Self {
         self.queue(MockCommand::<C, A> {
-            action_mock,
+            action_mock: ActionMock::new(state, value, span),
+            marker: PhantomData,
+        })
+    }
+
+    fn mock_once<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> &mut Self {
+        self.queue(MockCommand::<C, A> {
+            action_mock: ActionMock::once(state, value),
             marker: PhantomData,
         })
     }

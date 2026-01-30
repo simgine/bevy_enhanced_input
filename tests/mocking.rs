@@ -191,7 +191,7 @@ fn entity_command() {
     app.world_mut()
         .commands()
         .entity(context)
-        .mock::<TestContext, Test>(ActionMock::once(ActionState::Fired, true));
+        .mock_once::<TestContext, Test>(ActionState::Fired, true);
 
     app.update();
 
