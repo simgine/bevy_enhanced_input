@@ -454,8 +454,6 @@ pub trait MockCommandExt {
     /// # use bevy_enhanced_input::prelude::*;
     /// # use core::time::Duration;
     /// # let mut app = App::new();
-    /// app.add_input_context::<Player>();
-    ///
     /// app.world_mut().spawn((
     ///     Player,
     ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
@@ -490,8 +488,6 @@ pub trait MockCommandExt {
     /// # use bevy::prelude::*;
     /// # use bevy_enhanced_input::prelude::*;
     /// # let mut app = App::new();
-    /// app.add_input_context::<Player>();
-    ///
     /// app.world_mut().spawn((
     ///     Player,
     ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
