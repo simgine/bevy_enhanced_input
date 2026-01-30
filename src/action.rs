@@ -189,7 +189,7 @@ pub struct ActionSettings {
     /// Inputs are consumed only when the action state is not equal to
     /// [`ActionState::None`].
     ///
-    /// By default set to `true`.
+    /// By default set to `false`.
     pub consume_input: bool,
 }
 
@@ -198,7 +198,7 @@ impl Default for ActionSettings {
         Self {
             accumulation: Default::default(),
             require_reset: false,
-            consume_input: true,
+            consume_input: false,
         }
     }
 }
