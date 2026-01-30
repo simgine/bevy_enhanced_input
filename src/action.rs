@@ -421,6 +421,8 @@ impl<T: Component, U: InputAction + Send> EntityCommand<bevy::ecs::error::Result
         let mut actions = world.query::<&Actions<T>>();
         let mut action_mocks = world.query_filtered::<&mut ActionMock, With<Action<U>>>();
 
+        // Need to iterate over this immutably first
+        // because otherwise we would have to borrow `World` mutably and immutably at the same time
         let mock_entity = actions
             .get(world, context)?
             .iter()
