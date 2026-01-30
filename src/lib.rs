@@ -311,7 +311,7 @@ Each of these is complex to deserve their own section:
 - [input modifiers](crate::modifier) for combining and transforming input values (e.g. applying dead zones or sensitivity or creating chords)
 - [input conditions](crate::condition) for defining when actions are triggered (e.g. on press, release, hold, tap, etc.)
 - [presets](crate::preset) for common bindings and modifiers (e.g. WASD keys and gamepad sticks for movement)
-- [mocking](crate::action::ActionMock) for simulating input in tests, cutscenes or as part of replicated network state
+- [mocking](crate::action::mock) for simulating input in tests, cutscenes or as part of replicated network state
 - [the details of working with contexts](crate::context) (e.g. managing multiple players or gameplay states)
 
 # Input and UI
