@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Mocks can now be more ergonomically applied via the `MockCommandExt` trait from the prelude:
+  ```rust
+  app.world_mut()
+      .commands()
+      .entity(context)
+      .mock::<MyContext, MyInput>(ActionMock::once(ActionState::Fired, true));
+  ```
+
 ### Changed
 
 - Rename `ActionEvents::STARTED` into `ActionEvents::START`.
@@ -14,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `ActionEvents::CANCELLED` into `ActionEvents::CANCEL`.
 - Rename `ActionEvents::COMPLETED` into `ActionEvents::COMPLETE`.
 - `ModKeys` now serializes to human-readable format instead of raw integers. Existing config files with integer `mod_keys` values need to be updated or regenerated.
+- `Action<T>` now requires `ActionMock`.
 
 ### Removed
 

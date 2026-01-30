@@ -41,6 +41,49 @@ fn updates() {
 }
 
 #[test]
+fn updates_when_using_extension() {
+    let mut app = App::new();
+    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+        .add_input_context::<TestContext>()
+        .finish();
+
+    let context = app
+        .world_mut()
+        // Using implicit `ActionMock`
+        .spawn((TestContext, actions!(TestContext[Action::<Test>::new()])))
+        .id();
+
+    let mut actions = app
+        .world_mut()
+        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+
+    app.update();
+
+    let (&action, &state, _events) = actions.single(app.world()).unwrap();
+    assert!(!*action);
+    assert_eq!(state, ActionState::None);
+
+    app.world_mut()
+        .commands()
+        .entity(context)
+        .mock::<TestContext, Test>(ActionMock::once(ActionState::Fired, true));
+
+    app.update();
+
+    let (&action, &state, &events) = actions.single(app.world()).unwrap();
+    assert!(*action);
+    assert_eq!(state, ActionState::Fired);
+    assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
+
+    app.update();
+
+    let (&action, &state, &events) = actions.single(app.world()).unwrap();
+    assert!(!*action);
+    assert_eq!(state, ActionState::None);
+    assert_eq!(events, ActionEvents::COMPLETE);
+}
+
+#[test]
 fn duration() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, EnhancedInputPlugin))

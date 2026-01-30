@@ -50,7 +50,7 @@ pub mod fns;
 pub mod relationship;
 pub mod value;
 
-use core::{any, fmt::Debug, time::Duration};
+use core::{any, fmt::Debug, marker::PhantomData, time::Duration};
 
 use bevy::prelude::*;
 #[cfg(feature = "serialize")]
@@ -77,6 +77,7 @@ use fns::ActionFns;
     ActionState,
     ActionEvents,
     ActionTime,
+    ActionMock,
 )]
 pub struct Action<A: InputAction>(A::Output);
 
@@ -372,6 +373,19 @@ impl ActionMock {
     }
 }
 
+impl Default for ActionMock {
+    fn default() -> Self {
+        Self {
+            // Just some placeholder values.
+            // They don't mean much, as a user is expected to replace the entire component with their own values.
+            state: ActionState::None,
+            value: ActionValue::Bool(false),
+            span: MockSpan::Manual,
+            enabled: false,
+        }
+    }
+}
+
 /// Specifies how long [`ActionMock`] should remain active.
 #[derive(Reflect, Debug, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
@@ -389,5 +403,47 @@ pub enum MockSpan {
 impl From<Duration> for MockSpan {
     fn from(value: Duration) -> Self {
         Self::Duration(value)
+    }
+}
+
+pub struct MockCommand<T, U> {
+    pub action_mock: ActionMock,
+    _pd: PhantomData<(T, U)>,
+}
+
+impl<T: Component, U: InputAction + Send> EntityCommand<bevy::ecs::error::Result<()>>
+    for MockCommand<T, U>
+{
+    fn apply(self, entity: EntityWorldMut) -> bevy::ecs::error::Result<()> {
+        let context = entity.id();
+        let world = entity.into_world_mut();
+
+        let mut actions = world.query::<&Actions<T>>();
+        let mut action_mocks = world.query_filtered::<&mut ActionMock, With<Action<U>>>();
+
+        let mock_entity = actions
+            .get(world, context)?
+            .iter()
+            .find(|e| action_mocks.get(world, *e).is_ok())
+            .ok_or("No action mock found for that action")?;
+        let mut action_mock = action_mocks
+            .get_mut(world, mock_entity)
+            .expect("World already found this entity");
+
+        *action_mock = self.action_mock;
+        Ok(())
+    }
+}
+
+pub trait MockCommandExt {
+    fn mock<T: Component, U: InputAction + Send>(&mut self, action_mock: ActionMock) -> &mut Self;
+}
+
+impl MockCommandExt for EntityCommands<'_> {
+    fn mock<T: Component, U: InputAction + Send>(&mut self, action_mock: ActionMock) -> &mut Self {
+        self.queue(MockCommand::<T, U> {
+            action_mock,
+            _pd: PhantomData,
+        })
     }
 }

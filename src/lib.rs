@@ -359,7 +359,7 @@ pub mod prelude {
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{
             Accumulation, Action, ActionMock, ActionOutput, ActionSettings, ActionState,
-            ActionTime, InputAction, MockSpan,
+            ActionTime, InputAction, MockCommandExt, MockSpan,
             events::*,
             relationship::{ActionOf, ActionSpawner, ActionSpawnerCommands, Actions},
             value::{ActionValue, ActionValueDim},
