@@ -240,7 +240,9 @@ pub trait MockCommandExt {
         &mut self,
         state: ActionState,
         value: impl Into<ActionValue>,
-    ) -> &mut Self;
+    ) -> &mut Self {
+        self.mock::<C, A>(state, value, MockSpan::once())
+    }
 }
 
 impl MockCommandExt for EntityCommands<'_> {
@@ -252,17 +254,6 @@ impl MockCommandExt for EntityCommands<'_> {
     ) -> &mut Self {
         self.queue(MockCommand::<C, A> {
             action_mock: ActionMock::new(state, value, span),
-            marker: PhantomData,
-        })
-    }
-
-    fn mock_once<C: Component, A: InputAction + Send>(
-        &mut self,
-        state: ActionState,
-        value: impl Into<ActionValue>,
-    ) -> &mut Self {
-        self.queue(MockCommand::<C, A> {
-            action_mock: ActionMock::once(state, value),
             marker: PhantomData,
         })
     }
