@@ -8,9 +8,11 @@
 //! - Driving cutscenes.
 //! - Applying input over a network.
 
-use crate::prelude::*;
-use bevy::prelude::*;
 use core::{marker::PhantomData, time::Duration};
+
+use bevy::prelude::*;
+
+use crate::prelude::*;
 
 /// Mocks the state and value of [`Action<C>`] for a specified span.
 ///
