@@ -219,8 +219,9 @@ pub trait MockCommandExt {
         span: impl Into<MockSpan>,
     ) -> &mut Self;
 
-    /// Mocks an action for a single update. `C` is the action context, `A` is the [`InputAction`].
-    /// Convenience method so we don't have to manually query an action's [`ActionMock`].
+    /// Like [`Self::mock`], but uses [`MockSpan::Once`].
+    ///
+    /// Similar to [`ActionMock::once`].
     ///
     /// # Examples
     ///
