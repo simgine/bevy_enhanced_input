@@ -87,7 +87,7 @@ impl ActionMock {
     /// For better ergonomics, consider using [`MockCommandExt::mock_once`] instead.
     #[must_use]
     pub fn once(state: ActionState, value: impl Into<ActionValue>) -> Self {
-        Self::new(state, value, MockSpan::Updates(1))
+        Self::new(state, value, MockSpan::once())
     }
 
     /// Creates a new instance that will mock state and value for the given span.
@@ -140,6 +140,7 @@ pub enum MockSpan {
 
 impl MockSpan {
     /// Active for a single context evaluation. Shorthand for `MockSpan::Updates(1)`.
+    #[inline]
     pub fn once() -> Self {
         Self::Updates(1)
     }
