@@ -105,10 +105,12 @@ impl ActionMock {
 }
 
 impl Default for ActionMock {
+    /// By default the component is initialized as disabled and holds some placeholder values.
+    /// This is done to prevent archetype moves when the component is inserted as part of an action mock.
+    /// The specific default values are unimportant, as a user is expected to either use [`MockCommandExt::mock`]
+    /// or manually replace the entire component with their own values.
     fn default() -> Self {
         Self {
-            // Just some placeholder values.
-            // They don't mean much, as a user is expected to replace the entire component with their own values.
             state: ActionState::None,
             value: ActionValue::Bool(false),
             span: MockSpan::Manual,
