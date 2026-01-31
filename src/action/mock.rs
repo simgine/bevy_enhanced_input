@@ -164,9 +164,7 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
 {
     fn apply(self, entity: EntityWorldMut) -> bevy::ecs::error::Result<()> {
         let context = entity.id();
-        let world = entity.into_world_mut();
-
-        let actions = world.get::<Actions<C>>(context).ok_or_else(|| {
+        let actions = entity.get::<Actions<C>>().ok_or_else(|| {
             format!(
                 "entity {} has no `{}`",
                 context,
@@ -176,9 +174,9 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
 
         // Need to iterate over this immutably first
         // because otherwise we would have to borrow `World` mutably and immutably at the same time
-        let action_entity = actions
+        let action = actions
             .iter()
-            .find(|e| world.entity(*e).contains::<Action<A>>())
+            .find(|&a| entity.world().get::<Action<A>>(a).is_some())
             .ok_or_else(|| {
                 format!(
                     "entity {} has no `{}` in its `{}`",
@@ -188,8 +186,10 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
                 )
             })?;
 
-        // Not an archetype move: `InputAction` requires `ActionMock`.
-        world.entity_mut(action_entity).insert(self.action_mock);
+        // Not an archetype move: `Action` requires `ActionMock`.
+        let world = entity.into_world_mut();
+        world.entity_mut(action).insert(self.action_mock);
+
         Ok(())
     }
 }
