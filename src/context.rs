@@ -420,7 +420,7 @@ fn update<S: ScheduleLabel>(
             Option<&Bindings>,
             Option<&ModifierFns>,
             Option<&ConditionFns>,
-            Option<&mut ActionMock>,
+            &mut ActionMock,
         ),
         Without<ExternallyMocked>,
     >,
@@ -488,7 +488,7 @@ fn update<S: ScheduleLabel>(
             action_bindings,
             modifiers,
             conditions,
-            mock,
+            mut mock,
         )) = actions_iter.fetch_next()
         {
             let action_name = ShortName(action_name);
@@ -496,9 +496,7 @@ fn update<S: ScheduleLabel>(
                 trace!("skipping updating `{action_name}` due to inactive context");
                 let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
                 (ActionState::None, ActionValue::zero(dim))
-            } else if let Some(mut mock) = mock
-                && mock.enabled
-            {
+            } else if mock.enabled {
                 trace!("updating `{action_name}` from `{mock:?}`");
                 let expired = match &mut mock.span {
                     MockSpan::Updates(ticks) => {
