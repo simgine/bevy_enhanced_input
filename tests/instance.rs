@@ -1,5 +1,5 @@
 use bevy::{ecs::entity_disabling::Disabled, input::InputPlugin, prelude::*};
-use bevy_enhanced_input::prelude::*;
+use bevy_enhanced_input::prelude::{Release, *};
 use test_log::test;
 
 #[test]
@@ -69,7 +69,14 @@ fn disabled() {
         .spawn((
             TestContext,
             Disabled,
-            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY1])]),
+            actions!(
+                TestContext[(
+                    Action::<Test>::new(),
+                    Release::default(),
+                    Scale::splat(2.0),
+                    bindings![Test::KEY1]
+                )]
+            ),
         ))
         .id();
 
@@ -77,7 +84,17 @@ fn disabled() {
         .world_mut()
         .spawn((
             TestContext,
-            actions!(TestContext[(Action::<Test>::new(), Disabled, bindings![Test::KEY1])]),
+            actions!(
+                TestContext[(
+                    Action::<Test>::new(),
+                    Disabled,
+                    // Add at least one condition and modifier to ensure
+                    // they register and unregister properly on a disabled entity.
+                    Release::default(),
+                    Scale::splat(2.0),
+                    bindings![Test::KEY1]
+                )]
+            ),
         ))
         .id();
 
@@ -109,7 +126,14 @@ fn reenabling() {
         .spawn((
             TestContext,
             Disabled,
-            actions!(TestContext[(Action::<Test>::new(), bindings![Test::KEY1])]),
+            actions!(
+                TestContext[(
+                    Action::<Test>::new(),
+                    Release::default(),
+                    Scale::splat(2.0),
+                    bindings![Test::KEY1]
+                )]
+            ),
         ))
         .id();
 
@@ -124,12 +148,15 @@ fn reenabling() {
 
     app.update();
 
-    let mut actions = app
-        .world_mut()
-        .query_filtered::<&ActionState, With<Action<Test>>>();
+    let mut actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
 
-    let state = *actions.single(app.world()).unwrap();
-    assert_eq!(state, ActionState::Fired);
+    let (&action, &state) = actions.single(app.world()).unwrap();
+    assert_eq!(*action, 2.0, "scale should work after re-enabling");
+    assert_eq!(
+        state,
+        ActionState::Ongoing,
+        "release should work after re-enabling"
+    );
 }
 
 #[test]
@@ -157,7 +184,7 @@ fn same_action_different_bindings() {
 
     let mut actions = app.world_mut().query::<&Action<Test>>();
 
-    assert!(actions.iter(app.world()).all(|&action| *action));
+    assert_eq!(actions.iter(app.world()).map(|&a| *a).sum::<f32>(), 2.0);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -165,8 +192,7 @@ fn same_action_different_bindings() {
 
     app.update();
 
-    assert!(actions.iter(app.world()).any(|&action| *action));
-    assert!(actions.iter(app.world()).any(|&action| !*action));
+    assert_eq!(actions.iter(app.world()).map(|&a| *a).sum::<f32>(), 1.0);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -174,14 +200,14 @@ fn same_action_different_bindings() {
 
     app.update();
 
-    assert!(!actions.iter(app.world()).all(|&action| *action));
+    assert_eq!(actions.iter(app.world()).map(|&a| *a).sum::<f32>(), 0.0);
 }
 
 #[derive(Component)]
 struct TestContext;
 
 #[derive(InputAction)]
-#[action_output(bool)]
+#[action_output(f32)]
 struct Test;
 
 impl Test {

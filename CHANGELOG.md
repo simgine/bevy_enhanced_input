@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `ActionEvents::COMPLETED` into `ActionEvents::COMPLETE`.
 - `ModKeys` now serializes to human-readable format instead of raw integers. Existing config files with integer `mod_keys` values need to be updated or regenerated.
 
+### Fixed
+
+- Prevent crash when despawning disabled entities with conditions and modifiers.
+
 ### Removed
 
 - Deprecated aliases.
