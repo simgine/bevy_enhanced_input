@@ -16,7 +16,8 @@ use crate::prelude::*;
 
 /// Mocks the state and value of [`Action<C>`] for a specified span.
 ///
-/// You can simply insert this component on the action entity or use [`MockCommandExt`] for a command-based API on the context entity.
+/// You can simply insert this component on the action entity or use [`MockCommandExt`]
+/// for a command-based API on the context entity.
 ///
 /// While active, input reading, conditions, and modifiers are skipped. Instead,
 /// the action reports the provided state and value. All state transition events
@@ -84,16 +85,15 @@ pub struct ActionMock {
 impl ActionMock {
     /// Like [`ActionMock::new`], but uses [`MockSpan::once`] to mock an action for a single update.
     ///
-    /// For better ergonomics, consider using [`MockCommandExt::mock_once`] instead.
+    /// See also [`MockCommandExt::mock_once`].
     #[must_use]
     pub fn once(state: ActionState, value: impl Into<ActionValue>) -> Self {
         Self::new(state, value, MockSpan::once())
     }
 
     /// Creates a new instance that will mock state and value for the given span.
-    /// If you only want to mock an action for a single update, you can use [`ActionMock::once`] as a shorthand.
     ///
-    /// For better ergonomics, consider using [`MockCommandExt::mock`] (or [`MockCommandExt::mock_once`]) instead.
+    /// See also [`MockCommandExt::mock`].
     #[must_use]
     pub fn new(
         state: ActionState,
@@ -110,7 +110,8 @@ impl ActionMock {
 }
 
 impl Default for ActionMock {
-    /// By default the component is initialized as disabled and holds some placeholder values.
+    /// Creates a new disabled instance with some placeholder values.
+    ///
     /// This is done to prevent archetype moves when the component is inserted as part of an action mock.
     /// The specific default values are unimportant, as a user is expected to either use [`MockCommandExt::mock`]
     /// or manually replace the entire component with their own values.
@@ -133,14 +134,16 @@ pub enum MockSpan {
     Updates(u32),
     /// Active for a real-time [`Duration`].
     Duration(Duration),
-    /// Remains active until [`ActionMock::enabled`] is manually set to `false`,
-    /// or the [`ActionMock`] component is removed from the action entity.
+    /// Remains active until [`ActionMock::enabled`] is manually set to `false`.
     Manual,
 }
 
 impl MockSpan {
-    /// Active for a single context evaluation. Shorthand for `MockSpan::Updates(1)`.
+    /// Active for a single context evaluation.
+    ///
+    /// Shorthand for `MockSpan::Updates(1)`.
     #[inline]
+    #[must_use]
     pub fn once() -> Self {
         Self::Updates(1)
     }
@@ -194,12 +197,11 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
     }
 }
 
-/// Extension trait for [`EntityCommands`] that allows mocking actions.
+/// Extension trait for [`EntityCommands`] for mocking actions.
 pub trait MockCommandExt {
     /// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
-    /// If you want to mock an action for a single update, use [`MockCommandExt::mock_once`] as a shorthand.
     ///
-    /// Convenience method to avoid manually inserting an [`ActionMock::new`].
+    /// Convenience method to avoid manually searching for an action on a context entity to insert [`ActionMock`].
     ///
     /// # Examples
     ///
@@ -234,8 +236,6 @@ pub trait MockCommandExt {
     ) -> &mut Self;
 
     /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
-    ///
-    /// Ergonomic wrapper around [`ActionMock::once`].
     fn mock_once<C: Component, A: InputAction + Send>(
         &mut self,
         state: ActionState,
