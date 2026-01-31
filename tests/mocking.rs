@@ -184,9 +184,10 @@ fn entity_command() {
 
     app.update();
 
-    let (&action, &state, _events) = actions.single(app.world()).unwrap();
+    let (&action, &state, events) = actions.single(app.world()).unwrap();
     assert!(!*action);
     assert_eq!(state, ActionState::None);
+    assert!(events.is_empty());
 
     app.world_mut()
         .commands()
