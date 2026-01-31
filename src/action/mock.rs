@@ -16,6 +16,8 @@ use crate::prelude::*;
 
 /// Mocks the state and value of [`Action<C>`] for a specified span.
 ///
+/// You can simply insert this component on the action entity or use [`MockCommandExt`] for a command-based API on the context entity.
+///
 /// While active, input reading, conditions, and modifiers are skipped. Instead,
 /// the action reports the provided state and value. All state transition events
 /// (e.g., [`Start<A>`], [`Fire<A>`]) will still be triggered as usual.
