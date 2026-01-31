@@ -234,10 +234,18 @@ fn modifiers() {
         actions!(TestContext[
             (
                 Action::<First>::new(),
+                ActionSettings {
+                    consume_input: true,
+                    ..Default::default()
+                },
                 bindings![KEY],
             ),
             (
                 Action::<Second>::new(),
+                ActionSettings {
+                    consume_input: true,
+                    ..Default::default()
+                },
                 bindings![Binding::Keyboard { key: KEY, mod_keys: MOD }],
             )
         ]),

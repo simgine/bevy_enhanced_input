@@ -38,6 +38,7 @@ fn layering() {
             Second[(
                 Action::<OnSecond>::new(),
                 ActionSettings {
+                    consume_input: true,
                     require_reset: true,
                     ..Default::default()
                 },

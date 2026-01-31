@@ -156,7 +156,7 @@ impl ActionOutput for Vec3 {
 }
 
 /// Behavior configuration for [`Action<C>`].
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Reflect, Default, Debug, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionSettings {
@@ -189,18 +189,8 @@ pub struct ActionSettings {
     /// Inputs are consumed only when the action state is not equal to
     /// [`ActionState::None`].
     ///
-    /// By default set to `true`.
+    /// By default set to `false`.
     pub consume_input: bool,
-}
-
-impl Default for ActionSettings {
-    fn default() -> Self {
-        Self {
-            accumulation: Default::default(),
-            require_reset: false,
-            consume_input: true,
-        }
-    }
 }
 
 /// Defines how [`ActionValue`] is calculated when multiple inputs are evaluated with the

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `ActionSettings::consume_input` now defaults to `false`. This should make the input less footgunny. If you need to enable input consumption, you need to explicitly set this field to `true`.
 - Rename `ActionEvents::STARTED` into `ActionEvents::START`.
 - Rename `ActionEvents::FIRED` into `ActionEvents::FIRE`.
 - Rename `ActionEvents::CANCELLED` into `ActionEvents::CANCEL`.
