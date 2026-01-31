@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `ActionEvents::COMPLETED` into `ActionEvents::COMPLETE`.
 - `ModKeys` now serializes to human-readable format instead of raw integers. Existing config files with integer `mod_keys` values need to be updated or regenerated.
 - `Action<T>` now requires `ActionMock`.
+- All mocking functionality has been moved from `bevy_enhanced_input::action` to its own module in `bevy_enhanced_input::action::mock`. The affected types are
+  - `ActionMock`
+  - `MockSpan`
 
 ### Removed
 
