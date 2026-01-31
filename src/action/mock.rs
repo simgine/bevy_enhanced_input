@@ -1,9 +1,12 @@
-//! Provides functionality for mocking actions. Mocking in this context means activating the action without actually physically interacting with the input device.
-//! This is useful for
-//! - automated testing
-//! - applying the inputs of AI systems
-//! - driving cutscenes
-//! - applying input over a network
+//! Provides functionality for mocking actions. Mocking, in this context, means
+//! activating an action without physically interacting with the input device.
+//!
+//! Could be useful for:
+//!
+//! - Automated testing.
+//! - Applying inputs from AI systems.
+//! - Driving cutscenes.
+//! - Applying input over a network.
 
 use crate::prelude::*;
 use bevy::prelude::*;
