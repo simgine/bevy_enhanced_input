@@ -761,7 +761,7 @@ impl<C> Copy for ContextActivity<C> {}
 /// Ordering matters because actions may "consume" inputs, making them unavailable to other actions
 /// until the context that consumed them is evaluated again. This allows contexts layering, where
 /// some actions take priority over others. This behavior can be customized per-action by setting
-/// [`ActionSettings::consume_input`] to `false`.
+/// [`ActionSettings::consume_input`].
 ///
 /// Marked as required for `C` on context registration.
 ///
