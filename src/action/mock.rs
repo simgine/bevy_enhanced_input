@@ -182,8 +182,9 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
 
 /// Extension trait for [`EntityCommands`] that allows mocking actions.
 pub trait MockCommandExt {
-    /// Mocks an action. `C` is the action context, `A` is the [`InputAction`].
-    /// Convenience method so we don't have to manually query an action's [`ActionMock`].
+    /// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
+    ///
+    /// Convenience method to avoid manually querying an [`ActionMock`].
     ///
     /// # Examples
     ///
