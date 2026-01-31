@@ -82,13 +82,18 @@ pub struct ActionMock {
 }
 
 impl ActionMock {
-    /// Creates a new instance that will mock state and value only for a single context evaluation.
+    /// Like [`ActionMock::new`], but uses [`MockSpan::once`] to mock an action for a single update.
+    ///
+    /// For better ergonomics, consider using [`MockCommandExt::mock_once`] instead.
     #[must_use]
     pub fn once(state: ActionState, value: impl Into<ActionValue>) -> Self {
         Self::new(state, value, MockSpan::Updates(1))
     }
 
     /// Creates a new instance that will mock state and value for the given span.
+    /// If you only want to mock an action for a single update, you can use [`ActionMock::once`] as a shorthand.
+    ///
+    /// For better ergonomics, consider using [`MockCommandExt::mock`] (or [`MockCommandExt::mock_once`]) instead.
     #[must_use]
     pub fn new(
         state: ActionState,
@@ -131,6 +136,13 @@ pub enum MockSpan {
     /// Remains active until [`ActionMock::enabled`] is manually set to `false`,
     /// or the [`ActionMock`] component is removed from the action entity.
     Manual,
+}
+
+impl MockSpan {
+    /// Active for a single context evaluation. Shorthand for `MockSpan::Updates(1)`.
+    pub fn once() -> Self {
+        Self::Updates(1)
+    }
 }
 
 impl From<Duration> for MockSpan {
@@ -184,8 +196,9 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
 /// Extension trait for [`EntityCommands`] that allows mocking actions.
 pub trait MockCommandExt {
     /// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
+    /// If you want to mock an action for a single update, use [`MockCommandExt::mock_once`] as a shorthand.
     ///
-    /// Convenience method to avoid manually querying an [`ActionMock`].
+    /// Convenience method to avoid manually inserting an [`ActionMock::new`].
     ///
     /// # Examples
     ///
@@ -219,34 +232,9 @@ pub trait MockCommandExt {
         span: impl Into<MockSpan>,
     ) -> &mut Self;
 
-    /// Like [`Self::mock`], but uses [`MockSpan::Once`].
+    /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
     ///
-    /// Similar to [`ActionMock::once`].
-    ///
-    /// # Examples
-    ///
-    /// Mocks a single press.
-    ///
-    /// ```
-    /// # use bevy::prelude::*;
-    /// # use bevy_enhanced_input::prelude::*;
-    /// # let mut app = App::new();
-    /// app.world_mut().spawn((
-    ///     Player,
-    ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
-    /// ));
-    ///
-    /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
-    ///     commands
-    ///         .entity(player.into_inner())
-    ///         .mock_once::<Player, PrimaryFire>(ActionState::Fired, true);
-    /// }
-    /// # #[derive(Component)]
-    /// # struct Player;
-    /// # #[derive(InputAction)]
-    /// # #[action_output(bool)]
-    /// # struct PrimaryFire;
-    /// ```
+    /// Ergonomic wrapper around [`ActionMock::once`].
     fn mock_once<C: Component, A: InputAction + Send>(
         &mut self,
         state: ActionState,
