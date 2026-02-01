@@ -47,10 +47,11 @@
 
 pub mod events;
 pub mod fns;
+pub mod mock;
 pub mod relationship;
 pub mod value;
 
-use core::{any, fmt::Debug, time::Duration};
+use core::{any, fmt::Debug};
 
 use bevy::prelude::*;
 #[cfg(feature = "serialize")]
@@ -77,6 +78,7 @@ use fns::ActionFns;
     ActionState,
     ActionEvents,
     ActionTime,
+    ActionMock,
 )]
 pub struct Action<A: InputAction>(A::Output);
 
@@ -271,113 +273,5 @@ impl ActionTime {
                 self.fired_secs += delta_secs;
             }
         }
-    }
-}
-
-/// Mocks the state and value of [`Action<C>`] for a specified span.
-///
-/// While active, input reading, conditions, and modifiers are skipped. Instead,
-/// the action reports the provided state and value. All state transition events
-/// (e.g., [`Start<A>`], [`Fire<A>`]) will still be triggered as usual.
-///
-/// Once the span expires, [`Self::enabled`] is set to `false`, and the action resumes
-/// the regular evaluation. The component is not removed automatically, allowing you
-/// to reuse it for future mocking.
-///
-/// Mocking does not take effect immediately - it is applied during the next context evaluation.
-/// For more details, see the [evaluation](crate#evaluation) section in the quick start guide.
-///
-/// See also [`ExternallyMocked`](crate::context::ExternallyMocked) to manually control the action data.
-///
-/// If you only need mocking, you can disable [`InputPlugin`](bevy::input::InputPlugin) entirely.
-/// However, `bevy_input` is a required dependency because we use its input types elsewhere in this crate.
-///
-/// # Examples
-///
-/// Spawn and move up for 2 seconds:
-///
-/// ```
-/// # use core::time::Duration;
-/// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::*;
-/// # let mut world = World::new();
-/// world.spawn((
-///     Player,
-///     actions!(Player[
-///         (
-///             Action::<Movement>::new(),
-///             ActionMock::new(ActionState::Fired, Vec2::Y, Duration::from_secs(2)),
-///             Bindings::spawn(Cardinal::wasd_keys()), // Bindings will be ignored while mocked.
-///         ),
-///     ]),
-/// ));
-/// # #[derive(Component)]
-/// # struct Player;
-/// # #[derive(InputAction)]
-/// # #[action_output(Vec2)]
-/// # struct Movement;
-/// ```
-///
-/// Mock previously spawned jump action for the next frame:
-///
-/// ```
-/// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::*;
-/// fn mock_jump(mut commands: Commands, jump: Single<Entity, With<Action<Jump>>>) {
-///     commands.entity(*jump).insert(ActionMock::once(ActionState::Fired, true));
-/// }
-/// # #[derive(InputAction)]
-/// # #[action_output(bool)]
-/// # struct Jump;
-#[derive(Component, Reflect, Debug, Clone, Copy)]
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
-pub struct ActionMock {
-    pub state: ActionState,
-    pub value: ActionValue,
-    pub span: MockSpan,
-    pub enabled: bool,
-}
-
-impl ActionMock {
-    /// Creates a new instance that will mock state and value only for a single context evaluation.
-    #[must_use]
-    pub fn once(state: ActionState, value: impl Into<ActionValue>) -> Self {
-        Self::new(state, value, MockSpan::Updates(1))
-    }
-
-    /// Creates a new instance that will mock state and value for the given span.
-    #[must_use]
-    pub fn new(
-        state: ActionState,
-        value: impl Into<ActionValue>,
-        span: impl Into<MockSpan>,
-    ) -> Self {
-        Self {
-            state,
-            value: value.into(),
-            span: span.into(),
-            enabled: true,
-        }
-    }
-}
-
-/// Specifies how long [`ActionMock`] should remain active.
-#[derive(Reflect, Debug, Clone, Copy)]
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
-pub enum MockSpan {
-    /// Active for a fixed number of context evaluations.
-    Updates(u32),
-    /// Active for a real-time [`Duration`].
-    Duration(Duration),
-    /// Remains active until [`ActionMock::enabled`] is manually set to `false`,
-    /// or the [`ActionMock`] component is removed from the action entity.
-    Manual,
-}
-
-impl From<Duration> for MockSpan {
-    fn from(value: Duration) -> Self {
-        Self::Duration(value)
     }
 }

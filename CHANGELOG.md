@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Mocks can now be more ergonomically applied via the `MockEntityCommandsExt` and `MockEntityWorldMutExt` traits from the prelude. Use `mock` and `mock_once` on the entity commands:
+  ```rust
+  commands
+      .entity(context)
+      .mock_once::<Player, Jump>(ActionState::Fired, true);
+  ```
+
 ### Changed
 
 - `ActionSettings::consume_input` now defaults to `false`. This should make the input less footgunny. If you need to enable input consumption, you need to explicitly set this field to `true`.
@@ -15,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `ActionEvents::CANCELLED` into `ActionEvents::CANCEL`.
 - Rename `ActionEvents::COMPLETED` into `ActionEvents::COMPLETE`.
 - `ModKeys` now serializes to human-readable format instead of raw integers. Existing config files with integer `mod_keys` values need to be updated or regenerated.
+- `Action<T>` now requires `ActionMock`.
+- All mocking functionality has been moved from `bevy_enhanced_input::action` to its own module in `bevy_enhanced_input::action::mock`. The affected types are
+  - `ActionMock`
+  - `MockSpan`
 
 ### Fixed
 
