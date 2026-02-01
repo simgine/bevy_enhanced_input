@@ -211,6 +211,49 @@ fn entity_command() {
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 
+#[test]
+fn world_entity() {
+    let mut app = App::new();
+    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+        .add_input_context::<TestContext>()
+        .finish();
+
+    let context = app
+        .world_mut()
+        .spawn((TestContext, actions!(TestContext[Action::<Test>::new()])))
+        .id();
+
+    let mut actions = app
+        .world_mut()
+        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+
+    app.update();
+
+    let (&action, &state, events) = actions.single(app.world()).unwrap();
+    assert!(!*action);
+    assert_eq!(state, ActionState::None);
+    assert!(events.is_empty());
+
+    app.world_mut()
+        .entity_mut(context)
+        .mock_once::<TestContext, Test>(ActionState::Fired, true)
+        .unwrap();
+
+    app.update();
+
+    let (&action, &state, &events) = actions.single(app.world()).unwrap();
+    assert!(*action);
+    assert_eq!(state, ActionState::Fired);
+    assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
+
+    app.update();
+
+    let (&action, &state, &events) = actions.single(app.world()).unwrap();
+    assert!(!*action);
+    assert_eq!(state, ActionState::None);
+    assert_eq!(events, ActionEvents::COMPLETE);
+}
+
 #[derive(Component)]
 struct TestContext;
 
