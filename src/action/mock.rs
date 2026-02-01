@@ -157,7 +157,9 @@ impl From<Duration> for MockSpan {
 
 /// Extension trait for [`EntityWorldMut`] that provides methods for mocking actions.
 pub trait MockEntityWorldMutExt {
-    /// Mocks an action. See [`mock`] for more details.
+    /// Mocks action `A` for the context `C` on the entity.
+    ///
+    /// See [`MockEntityCommandsExt::mock`] for more details.
     fn mock<C: Component, A: InputAction + Send>(
         self,
         state: ActionState,
@@ -165,7 +167,9 @@ pub trait MockEntityWorldMutExt {
         span: impl Into<MockSpan>,
     ) -> Result<()>;
 
-    /// Mocks an action for a single context evaluation. See [`mock_once`] for more details.
+    /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
+    ///
+    /// See also [`MockEntityCommandsExt::mock_once`].
     fn mock_once<C: Component, A: InputAction + Send>(
         self,
         state: ActionState,
@@ -174,7 +178,6 @@ pub trait MockEntityWorldMutExt {
 }
 
 impl MockEntityWorldMutExt for EntityWorldMut<'_> {
-    /// Mocks an action. See [`mock`] for more details.
     fn mock<C: Component, A: InputAction + Send>(
         self,
         state: ActionState,
@@ -184,7 +187,6 @@ impl MockEntityWorldMutExt for EntityWorldMut<'_> {
         mock::<C, A>(state, value, span).apply(self)
     }
 
-    /// Mocks an action for a single context evaluation. See [`mock_once`] for more details.
     fn mock_once<C: Component, A: InputAction + Send>(
         self,
         state: ActionState,
@@ -196,6 +198,37 @@ impl MockEntityWorldMutExt for EntityWorldMut<'_> {
 
 /// Extension trait for [`EntityCommands`] that provides methods for mocking actions.
 pub trait MockEntityCommandsExt {
+    /// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
+    ///
+    /// Convenience method to avoid manually searching for an action on a context entity to insert [`ActionMock`].
+    ///
+    /// See also [`MockEntityWorldMutExt::mock`].
+    ///
+    /// # Examples
+    ///
+    /// Mocks a 2 second long press.
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// # use bevy_enhanced_input::prelude::*;
+    /// # use core::time::Duration;
+    /// # let mut app = App::new();
+    /// app.world_mut().spawn((
+    ///     Player,
+    ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
+    /// ));
+    ///
+    /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
+    ///     commands
+    ///         .entity(player.into_inner())
+    ///         .mock::<Player, PrimaryFire>(ActionState::Fired, true, Duration::from_secs(2));
+    /// }
+    /// # #[derive(Component)]
+    /// # struct Player;
+    /// # #[derive(InputAction)]
+    /// # #[action_output(bool)]
+    /// # struct PrimaryFire;
+    /// ```
     fn mock<C: Component, A: InputAction + Send>(
         &mut self,
         state: ActionState,
@@ -203,6 +236,9 @@ pub trait MockEntityCommandsExt {
         span: impl Into<MockSpan>,
     ) -> &mut Self;
 
+    /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
+    ///
+    /// See also [`MockEntityWorldMutExt::mock_once`].
     fn mock_once<C: Component, A: InputAction + Send>(
         &mut self,
         state: ActionState,
@@ -229,36 +265,9 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
     }
 }
 
-/// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
+/// Mocks action `A` for the context `C` on the entity.
 ///
-/// Convenience method to avoid manually searching for an action on a context entity to insert [`ActionMock`].
-/// For only mocking actions for a single update, use [`mock_once`].
-///
-/// # Examples
-///
-/// Mocks a 2 second long press.
-///
-/// ```
-/// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::*;
-/// # use core::time::Duration;
-/// # let mut app = App::new();
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
-/// ));
-///
-/// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
-///     commands
-///         .entity(player.into_inner())
-///         .mock::<Player, PrimaryFire>(ActionState::Fired, true, Duration::from_secs(2));
-/// }
-/// # #[derive(Component)]
-/// # struct Player;
-/// # #[derive(InputAction)]
-/// # #[action_output(bool)]
-/// # struct PrimaryFire;
-/// ```
+/// See also [`MockEntityCommandsExt::mock_once`] and [`MockEntityWorldMutExt::mock_once`].
 pub fn mock<C: Component, A: InputAction + Send>(
     state: ActionState,
     value: impl Into<ActionValue>,
@@ -301,6 +310,8 @@ pub fn mock<C: Component, A: InputAction + Send>(
 }
 
 /// Like [`mock`], but uses [`MockSpan::once`] to mock an action for a single update.
+///
+/// See also [`MockEntityCommandsExt::mock_once`] and [`MockEntityWorldMutExt::mock_once`].
 pub fn mock_once<C: Component, A: InputAction + Send>(
     state: ActionState,
     value: impl Into<ActionValue>,
