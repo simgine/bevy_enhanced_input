@@ -174,7 +174,6 @@ fn entity_command() {
 
     let context = app
         .world_mut()
-        // Using implicit `ActionMock`
         .spawn((TestContext, actions!(TestContext[Action::<Test>::new()])))
         .id();
 
