@@ -16,7 +16,7 @@ use crate::prelude::*;
 
 /// Mocks the state and value of [`Action<C>`] for a specified span.
 ///
-/// You can simply insert this component on the action entity or use [`MockCommandExt`]
+/// You can simply insert this component on the action entity or use either [`MockEntityWorldMutExt`] or [`MockEntityCommandsExt`]
 /// for a command-based API on the context entity.
 ///
 /// While active, input reading, conditions, and modifiers are skipped. Instead,
@@ -85,7 +85,7 @@ pub struct ActionMock {
 impl ActionMock {
     /// Like [`ActionMock::new`], but uses [`MockSpan::once`] to mock an action for a single update.
     ///
-    /// See also [`MockCommandExt::mock_once`].
+    /// See also [`mock_once`].
     #[must_use]
     pub fn once(state: ActionState, value: impl Into<ActionValue>) -> Self {
         Self::new(state, value, MockSpan::once())
@@ -93,7 +93,7 @@ impl ActionMock {
 
     /// Creates a new instance that will mock state and value for the given span.
     ///
-    /// See also [`MockCommandExt::mock`].
+    /// See also [`mock`].
     #[must_use]
     pub fn new(
         state: ActionState,
@@ -113,7 +113,7 @@ impl Default for ActionMock {
     /// Creates a new disabled instance with some placeholder values.
     ///
     /// This is done to prevent archetype moves when the component is inserted as part of an action mock.
-    /// The specific default values are unimportant, as a user is expected to either use [`MockCommandExt::mock`]
+    /// The specific default values are unimportant, as a user is expected to either use [`mock`]
     /// or manually replace the entire component with their own values.
     fn default() -> Self {
         Self {
