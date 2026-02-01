@@ -361,7 +361,7 @@ pub mod prelude {
             Accumulation, Action, ActionOutput, ActionSettings, ActionState, ActionTime,
             InputAction,
             events::*,
-            mock::{ActionMock, MockEntityCommandsExt as _, MockEntityWorldMutExt as _, MockSpan},
+            mock::{ActionMock, MockEntityCommandsExt, MockEntityWorldMutExt, MockSpan},
             relationship::{ActionOf, ActionSpawner, ActionSpawnerCommands, Actions},
             value::{ActionValue, ActionValueDim},
         },
