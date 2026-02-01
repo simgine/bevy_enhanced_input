@@ -3,6 +3,7 @@ use core::ptr;
 use bevy::{
     ecs::{
         component::{ComponentId, Mutable},
+        entity_disabling::Disabled,
         world::FilteredEntityMut,
     },
     prelude::*,
@@ -35,7 +36,7 @@ impl InputConditionAppExt for App {
 
 fn register_condition<C: InputCondition + Component<Mutability = Mutable>>(
     add: On<Add, C>,
-    mut conditions: Query<&mut ConditionFns>,
+    mut conditions: Query<&mut ConditionFns, Allow<Disabled>>,
 ) {
     let mut fns = conditions.get_mut(add.entity).unwrap();
     fns.0.push(get_condition::<C>);
@@ -43,7 +44,7 @@ fn register_condition<C: InputCondition + Component<Mutability = Mutable>>(
 
 fn unregister_condition<C: InputCondition + Component<Mutability = Mutable>>(
     remove: On<Remove, C>,
-    mut conditions: Query<&mut ConditionFns>,
+    mut conditions: Query<&mut ConditionFns, Allow<Disabled>>,
 ) {
     let mut fns = conditions.get_mut(remove.entity).unwrap();
     let index = fns
