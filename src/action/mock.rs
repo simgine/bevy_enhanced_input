@@ -163,14 +163,14 @@ pub trait MockEntityWorldMutExt {
         state: ActionState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
-    ) -> bevy::ecs::error::Result<()>;
+    ) -> Result<()>;
 
     /// Mocks an action for a single context evaluation. See [`mock_once`] for more details.
     fn mock_once<C: Component, A: InputAction + Send>(
         self,
         state: ActionState,
         value: impl Into<ActionValue>,
-    ) -> bevy::ecs::error::Result<()>;
+    ) -> Result<()>;
 }
 
 impl MockEntityWorldMutExt for EntityWorldMut<'_> {
@@ -180,7 +180,7 @@ impl MockEntityWorldMutExt for EntityWorldMut<'_> {
         state: ActionState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
-    ) -> bevy::ecs::error::Result<()> {
+    ) -> Result<()> {
         mock::<C, A>(state, value, span).apply(self)
     }
 
@@ -189,7 +189,7 @@ impl MockEntityWorldMutExt for EntityWorldMut<'_> {
         self,
         state: ActionState,
         value: impl Into<ActionValue>,
-    ) -> bevy::ecs::error::Result<()> {
+    ) -> Result<()> {
         mock_once::<C, A>(state, value).apply(self)
     }
 }
@@ -263,10 +263,10 @@ pub fn mock<C: Component, A: InputAction + Send>(
     state: ActionState,
     value: impl Into<ActionValue>,
     span: impl Into<MockSpan>,
-) -> impl EntityCommand<bevy::ecs::error::Result<()>> {
+) -> impl EntityCommand<Result<()>> {
     let value = value.into();
     let span = span.into();
-    move |entity: EntityWorldMut| -> bevy::ecs::error::Result<()> {
+    move |entity: EntityWorldMut| -> Result<()> {
         let context = entity.id();
         let actions = entity.get::<Actions<C>>().ok_or_else(|| {
             format!(
@@ -304,6 +304,6 @@ pub fn mock<C: Component, A: InputAction + Send>(
 pub fn mock_once<C: Component, A: InputAction + Send>(
     state: ActionState,
     value: impl Into<ActionValue>,
-) -> impl EntityCommand<bevy::ecs::error::Result<()>> {
+) -> impl EntityCommand<Result<()>> {
     mock::<C, A>(state, value, MockSpan::once())
 }
