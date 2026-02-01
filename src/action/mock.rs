@@ -160,7 +160,7 @@ pub trait MockEntityWorldMutExt {
     /// Mocks action `A` for the context `C` on the entity.
     ///
     /// See [`MockEntityCommandsExt::mock`] for more details.
-    fn mock<C: Component, A: InputAction + Send>(
+    fn mock<C: Component, A: InputAction>(
         self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -170,7 +170,7 @@ pub trait MockEntityWorldMutExt {
     /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
     ///
     /// See also [`MockEntityCommandsExt::mock_once`].
-    fn mock_once<C: Component, A: InputAction + Send>(
+    fn mock_once<C: Component, A: InputAction>(
         self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -178,7 +178,7 @@ pub trait MockEntityWorldMutExt {
 }
 
 impl MockEntityWorldMutExt for EntityWorldMut<'_> {
-    fn mock<C: Component, A: InputAction + Send>(
+    fn mock<C: Component, A: InputAction>(
         self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -187,7 +187,7 @@ impl MockEntityWorldMutExt for EntityWorldMut<'_> {
         mock::<C, A>(state, value, span).apply(self)
     }
 
-    fn mock_once<C: Component, A: InputAction + Send>(
+    fn mock_once<C: Component, A: InputAction>(
         self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -229,7 +229,7 @@ pub trait MockEntityCommandsExt {
     /// # #[action_output(bool)]
     /// # struct PrimaryFire;
     /// ```
-    fn mock<C: Component, A: InputAction + Send>(
+    fn mock<C: Component, A: InputAction>(
         &mut self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -239,7 +239,7 @@ pub trait MockEntityCommandsExt {
     /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
     ///
     /// See also [`MockEntityWorldMutExt::mock_once`].
-    fn mock_once<C: Component, A: InputAction + Send>(
+    fn mock_once<C: Component, A: InputAction>(
         &mut self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -247,7 +247,7 @@ pub trait MockEntityCommandsExt {
 }
 
 impl MockEntityCommandsExt for EntityCommands<'_> {
-    fn mock<C: Component, A: InputAction + Send>(
+    fn mock<C: Component, A: InputAction>(
         &mut self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -256,7 +256,7 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
         self.queue(mock::<C, A>(state, value, span))
     }
 
-    fn mock_once<C: Component, A: InputAction + Send>(
+    fn mock_once<C: Component, A: InputAction>(
         &mut self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -268,7 +268,7 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
 /// Mocks action `A` for the context `C` on the entity.
 ///
 /// See also [`MockEntityCommandsExt::mock_once`] and [`MockEntityWorldMutExt::mock_once`].
-pub fn mock<C: Component, A: InputAction + Send>(
+pub fn mock<C: Component, A: InputAction>(
     state: ActionState,
     value: impl Into<ActionValue>,
     span: impl Into<MockSpan>,
@@ -312,7 +312,7 @@ pub fn mock<C: Component, A: InputAction + Send>(
 /// Like [`mock`], but uses [`MockSpan::once`] to mock an action for a single update.
 ///
 /// See also [`MockEntityCommandsExt::mock_once`] and [`MockEntityWorldMutExt::mock_once`].
-pub fn mock_once<C: Component, A: InputAction + Send>(
+pub fn mock_once<C: Component, A: InputAction>(
     state: ActionState,
     value: impl Into<ActionValue>,
 ) -> impl EntityCommand<Result<()>> {
