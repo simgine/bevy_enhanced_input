@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Mocks can now be more ergonomically applied via the `MockCommandExt` trait from the prelude. Use `mock` and `mock_once` on the entity commands:
+- Mocks can now be more ergonomically applied via the `MockEntityCommandsExt` and `MockEntityWorldMutExt` traits from the prelude. Use `mock` and `mock_once` on the entity commands:
   ```rust
   app.world_mut()
       .commands()

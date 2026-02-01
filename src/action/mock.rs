@@ -8,7 +8,7 @@
 //! - Driving cutscenes.
 //! - Applying input over a network.
 
-use core::{marker::PhantomData, time::Duration};
+use core::time::Duration;
 
 use bevy::prelude::*;
 
@@ -155,17 +155,118 @@ impl From<Duration> for MockSpan {
     }
 }
 
-/// Command used by [`MockCommandExt::mock`]. See that method for documentation.
-pub struct MockCommand<T, U> {
-    /// The action mock to use.
-    pub action_mock: ActionMock,
-    marker: PhantomData<(T, U)>,
+/// Extension trait for [`EntityWorldMut`] that provides methods for mocking actions.
+pub trait MockEntityWorldMutExt {
+    /// Mocks an action. See [`mock`] for more details.
+    fn mock<C: Component, A: InputAction + Send>(
+        self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> bevy::ecs::error::Result<()>;
+
+    /// Mocks an action for a single context evaluation. See [`mock_once`] for more details.
+    fn mock_once<C: Component, A: InputAction + Send>(
+        self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> bevy::ecs::error::Result<()>;
 }
 
-impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result<()>>
-    for MockCommand<C, A>
-{
-    fn apply(self, entity: EntityWorldMut) -> bevy::ecs::error::Result<()> {
+impl MockEntityWorldMutExt for EntityWorldMut<'_> {
+    /// Mocks an action. See [`mock`] for more details.
+    fn mock<C: Component, A: InputAction + Send>(
+        self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> bevy::ecs::error::Result<()> {
+        mock::<C, A>(state, value, span).apply(self)
+    }
+
+    /// Mocks an action for a single context evaluation. See [`mock_once`] for more details.
+    fn mock_once<C: Component, A: InputAction + Send>(
+        self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> bevy::ecs::error::Result<()> {
+        mock_once::<C, A>(state, value).apply(self)
+    }
+}
+
+/// Extension trait for [`EntityCommands`] that provides methods for mocking actions.
+pub trait MockEntityCommandsExt {
+    fn mock<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> &mut Self;
+
+    fn mock_once<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> &mut Self;
+}
+
+impl MockEntityCommandsExt for EntityCommands<'_> {
+    fn mock<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> &mut Self {
+        self.queue(mock::<C, A>(state, value, span))
+    }
+
+    fn mock_once<C: Component, A: InputAction + Send>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> &mut Self {
+        self.queue(mock_once::<C, A>(state, value))
+    }
+}
+
+/// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
+///
+/// Convenience method to avoid manually searching for an action on a context entity to insert [`ActionMock`].
+/// For only mocking actions for a single update, use [`mock_once`].
+///
+/// # Examples
+///
+/// Mocks a 2 second long press.
+///
+/// ```
+/// # use bevy::prelude::*;
+/// # use bevy_enhanced_input::prelude::*;
+/// # use core::time::Duration;
+/// # let mut app = App::new();
+/// app.world_mut().spawn((
+///     Player,
+///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
+/// ));
+///
+/// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
+///     commands
+///         .entity(player.into_inner())
+///         .mock::<Player, PrimaryFire>(ActionState::Fired, true, Duration::from_secs(2));
+/// }
+/// # #[derive(Component)]
+/// # struct Player;
+/// # #[derive(InputAction)]
+/// # #[action_output(bool)]
+/// # struct PrimaryFire;
+/// ```
+pub fn mock<C: Component, A: InputAction + Send>(
+    state: ActionState,
+    value: impl Into<ActionValue>,
+    span: impl Into<MockSpan>,
+) -> impl EntityCommand<bevy::ecs::error::Result<()>> {
+    let value = value.into();
+    let span = span.into();
+    move |entity: EntityWorldMut| -> bevy::ecs::error::Result<()> {
         let context = entity.id();
         let actions = entity.get::<Actions<C>>().ok_or_else(|| {
             format!(
@@ -191,70 +292,18 @@ impl<C: Component, A: InputAction + Send> EntityCommand<bevy::ecs::error::Result
 
         // Not an archetype move: `Action` requires `ActionMock`.
         let world = entity.into_world_mut();
-        world.entity_mut(action).insert(self.action_mock);
+        world
+            .entity_mut(action)
+            .insert(ActionMock::new(state, value, span));
 
         Ok(())
     }
 }
 
-/// Extension trait for [`EntityCommands`] for mocking actions.
-pub trait MockCommandExt {
-    /// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
-    ///
-    /// Convenience method to avoid manually searching for an action on a context entity to insert [`ActionMock`].
-    ///
-    /// # Examples
-    ///
-    /// Mocks a 2 second long press.
-    ///
-    /// ```
-    /// # use bevy::prelude::*;
-    /// # use bevy_enhanced_input::prelude::*;
-    /// # use core::time::Duration;
-    /// # let mut app = App::new();
-    /// app.world_mut().spawn((
-    ///     Player,
-    ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
-    /// ));
-    ///
-    /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
-    ///     commands
-    ///         .entity(player.into_inner())
-    ///         .mock::<Player, PrimaryFire>(ActionState::Fired, true, Duration::from_secs(2));
-    /// }
-    /// # #[derive(Component)]
-    /// # struct Player;
-    /// # #[derive(InputAction)]
-    /// # #[action_output(bool)]
-    /// # struct PrimaryFire;
-    /// ```
-    fn mock<C: Component, A: InputAction + Send>(
-        &mut self,
-        state: ActionState,
-        value: impl Into<ActionValue>,
-        span: impl Into<MockSpan>,
-    ) -> &mut Self;
-
-    /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
-    fn mock_once<C: Component, A: InputAction + Send>(
-        &mut self,
-        state: ActionState,
-        value: impl Into<ActionValue>,
-    ) -> &mut Self {
-        self.mock::<C, A>(state, value, MockSpan::once())
-    }
-}
-
-impl MockCommandExt for EntityCommands<'_> {
-    fn mock<C: Component, A: InputAction + Send>(
-        &mut self,
-        state: ActionState,
-        value: impl Into<ActionValue>,
-        span: impl Into<MockSpan>,
-    ) -> &mut Self {
-        self.queue(MockCommand::<C, A> {
-            action_mock: ActionMock::new(state, value, span),
-            marker: PhantomData,
-        })
-    }
+/// Like [`mock`], but uses [`MockSpan::once`] to mock an action for a single update.
+pub fn mock_once<C: Component, A: InputAction + Send>(
+    state: ActionState,
+    value: impl Into<ActionValue>,
+) -> impl EntityCommand<bevy::ecs::error::Result<()>> {
+    mock::<C, A>(state, value, MockSpan::once())
 }
