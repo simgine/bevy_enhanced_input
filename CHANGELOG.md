@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-02-03
+
 ### Fixed
 
 - Missing imports of serde derive macros.
@@ -558,7 +560,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.23.0...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.23.1...HEAD
+[0.23.1]: https://github.com/simgine/bevy_replicon/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/simgine/bevy_replicon/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/simgine/bevy_replicon/compare/v0.22.0...v0.22.1
