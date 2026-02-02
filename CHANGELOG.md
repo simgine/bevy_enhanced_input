@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Missing imports of serde derive macros.
+
 ## [0.23.0] - 2026-02-02
 
 ### Added
