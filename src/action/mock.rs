@@ -11,6 +11,8 @@
 use core::time::Duration;
 
 use bevy::prelude::*;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
