@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `mock` and `mock_once` commands now have a `try_` variant that will not emit a warning in case of failure.
+
+### Changed
+
+- For parity with upstream methods, `mock` and `mock_once` commands now override the default error handler to emit a warning.
+
 ## [0.23.1] - 2026-02-03
 
 ### Fixed
