@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- for parity with upstream methods, `mock` and `mock_once` commands now override the default error handler to emit a warning.
+- For parity with upstream methods, `mock` and `mock_once` commands now override the default error handler to emit a warning.
 
 ## [0.23.1] - 2026-02-03
 
