@@ -10,7 +10,7 @@
 
 use core::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{ecs::error::warn, prelude::*};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -203,6 +203,7 @@ pub trait MockEntityCommandsExt {
     /// Searches for an entity with [`Action<A>`] in [`Actions<C>`] and inserts [`ActionMock`] to it with the given values.
     ///
     /// Convenience method to avoid manually searching for an action on a context entity to insert [`ActionMock`].
+    /// This will emit a warning if the entity does not exist, does not have [`Actions<C>`], or those actions do not contain an [`Action<A>`].
     ///
     /// See also [`MockEntityWorldMutExt::mock`].
     ///
@@ -238,10 +239,25 @@ pub trait MockEntityCommandsExt {
         span: impl Into<MockSpan>,
     ) -> &mut Self;
 
+    /// Like [`Self::mock`], but will not emit a warning in case of failure.
+    fn try_mock<C: Component, A: InputAction>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> &mut Self;
+
     /// Like [`Self::mock`], but uses [`MockSpan::once`] to mock an action for a single update.
     ///
     /// See also [`MockEntityWorldMutExt::mock_once`].
     fn mock_once<C: Component, A: InputAction>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> &mut Self;
+
+    /// Like [`Self::mock_once`], but will not emit a warning in case of failure.
+    fn try_mock_once<C: Component, A: InputAction>(
         &mut self,
         state: ActionState,
         value: impl Into<ActionValue>,
@@ -255,7 +271,16 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> &mut Self {
-        self.queue(mock::<C, A>(state, value, span))
+        self.queue_handled(mock::<C, A>(state, value, span), warn)
+    }
+
+    fn try_mock<C: Component, A: InputAction>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+        span: impl Into<MockSpan>,
+    ) -> &mut Self {
+        self.queue_silenced(mock::<C, A>(state, value, span))
     }
 
     fn mock_once<C: Component, A: InputAction>(
@@ -263,7 +288,15 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
         state: ActionState,
         value: impl Into<ActionValue>,
     ) -> &mut Self {
-        self.queue(mock_once::<C, A>(state, value))
+        self.queue_handled(mock_once::<C, A>(state, value), warn)
+    }
+
+    fn try_mock_once<C: Component, A: InputAction>(
+        &mut self,
+        state: ActionState,
+        value: impl Into<ActionValue>,
+    ) -> &mut Self {
+        self.queue_silenced(mock_once::<C, A>(state, value))
     }
 }
 
