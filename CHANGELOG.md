@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] - 2026-02-05
+
 ### Added
 
 - `mock` and `mock_once` commands now have a `try_` variant that will not emit a warning in case of failure.
@@ -568,7 +570,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.23.1...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...HEAD
+[0.23.2]: https://github.com/simgine/bevy_replicon/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/simgine/bevy_replicon/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/simgine/bevy_replicon/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...v0.22.2
