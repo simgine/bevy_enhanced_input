@@ -62,6 +62,7 @@ pub mod press;
 pub mod pulse;
 pub mod release;
 pub mod tap;
+pub mod toggle;
 
 use core::fmt::Debug;
 

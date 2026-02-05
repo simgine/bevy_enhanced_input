@@ -377,7 +377,7 @@ pub mod prelude {
         condition::{
             ConditionKind, InputCondition, block_by::*, chord::*, combo::*, cooldown::*, down::*,
             fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
-            release::*, tap::*,
+            release::*, tap::*, toggle::*,
         },
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
@@ -402,7 +402,7 @@ use context::{
     input_reader::{self, ConsumedInputs, PendingBindings},
 };
 use modifier::fns::ModifierRegistry;
-use prelude::{Press, Release, *};
+use prelude::{Press, Release, Toggle, *};
 
 /// Initializes contexts and feeds inputs to them.
 ///
@@ -428,6 +428,7 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_condition::<Release>()
             .add_input_condition::<Tap>()
             .add_input_condition::<Cooldown>()
+            .add_input_condition::<Toggle>()
             .add_input_modifier::<AccumulateBy>()
             .add_input_modifier::<Clamp>()
             .add_input_modifier::<DeadZone>()
