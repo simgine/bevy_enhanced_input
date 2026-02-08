@@ -142,7 +142,7 @@ fn axis3d() {
     assert_eq!(*action, Vec3::ZERO);
 }
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct TestContext;
 
 #[derive(InputAction)]

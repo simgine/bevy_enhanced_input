@@ -101,7 +101,7 @@ fn player_bundle() -> impl Bundle {
     )
 }
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct Player;
 
 #[derive(InputAction)]
@@ -117,7 +117,7 @@ struct Attack;
 #[action_output(bool)]
 struct OpenInventory;
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct Inventory;
 
 #[derive(InputAction)]

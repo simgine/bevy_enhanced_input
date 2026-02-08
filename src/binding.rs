@@ -80,7 +80,7 @@ pub enum Binding {
     /// #[action_output(f32)]
     /// struct Zoom;
     ///
-    /// #[derive(Component)]
+    /// #[derive(Component, TypePath)]
     /// struct PlayerCam;
     /// ```
     MouseWheel { mod_keys: ModKeys },

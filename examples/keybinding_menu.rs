@@ -573,7 +573,7 @@ impl Default for InputSettings {
 #[derive(Event)]
 struct SettingsChanged;
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct Player;
 
 fn player_bundle(settings: InputSettings) -> impl Bundle {

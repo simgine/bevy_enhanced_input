@@ -16,7 +16,7 @@ meaning it will trigger on any non-zero input value.
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct Player;
 
 #[derive(InputAction)]

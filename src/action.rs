@@ -69,7 +69,7 @@ use fns::ActionFns;
 ///
 /// See the required components for other data associated with the action
 /// that can be accessed without static typing.
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Reflect, Deref, DerefMut)]
 #[require(
     Name::new(any::type_name::<A>()),
     ActionFns::new::<A>(),

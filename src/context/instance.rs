@@ -123,6 +123,6 @@ mod tests {
         assert_eq!(instances.add::<Test>(Entity::PLACEHOLDER, 0), 4);
     }
 
-    #[derive(Component)]
+    #[derive(Component, TypePath)]
     struct Test;
 }

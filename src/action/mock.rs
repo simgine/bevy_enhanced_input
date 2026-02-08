@@ -56,7 +56,7 @@ use crate::prelude::*;
 ///         ),
 ///     ]),
 /// ));
-/// # #[derive(Component)]
+/// # #[derive(Component, TypePath)]
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(Vec2)]
@@ -226,7 +226,7 @@ pub trait MockEntityCommandsExt {
     ///         .entity(player.into_inner())
     ///         .mock::<Player, PrimaryFire>(TriggerState::Fired, true, Duration::from_secs(2));
     /// }
-    /// # #[derive(Component)]
+    /// # #[derive(Component, TypePath)]
     /// # struct Player;
     /// # #[derive(InputAction)]
     /// # #[action_output(bool)]

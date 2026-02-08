@@ -175,7 +175,7 @@ const RIGHT_DOWN: Vec3 = Vec3::new(1.0, -1.0, 0.0);
 const LEFT_DOWN: Vec3 = Vec3::new(-1.0, -1.0, 0.0);
 const LEFT_UP: Vec3 = Vec3::new(-1.0, 1.0, 0.0);
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct TestContext;
 
 #[derive(InputAction)]

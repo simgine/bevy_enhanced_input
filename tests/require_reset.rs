@@ -235,10 +235,10 @@ fn switching_by_activation() {
     assert!(*on_second);
 }
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct First;
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct Second;
 
 /// A key used by all actions.

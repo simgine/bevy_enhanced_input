@@ -140,7 +140,7 @@ fn player_bundle(
     )
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, TypePath)]
 enum Player {
     First,
     Second,

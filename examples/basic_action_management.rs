@@ -166,7 +166,7 @@ fn grab_cursor(cursor_options: &mut CursorOptions, grab: bool) {
 
 // Since it's possible to have multiple input contexts on a single entity,
 // you need to define a marker component and register it in the app.
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct FlyCam;
 
 // All actions should implement the `InputAction` trait.

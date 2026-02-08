@@ -281,7 +281,7 @@ fn both_levels() {
     );
 }
 
-#[derive(Component)]
+#[derive(Component, TypePath)]
 struct TestContext;
 
 #[derive(InputAction)]

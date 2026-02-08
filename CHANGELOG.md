@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Rename `ActionState` into `TriggerState` to improve clarity and better align with Unreal Engine conventions.
+- Require context components to derive `TypePath` to enable reflect registration for `ActionOf<C>`, `Actions<C>`, `ContextActivity<C>` and `ContextPriority<C>`. You should add `#[derive(TypePath)]` to your context components:
+
+```diff
+-#[derive(Component)]
++#[derive(Component, TypePath)]
+ struct Player;
+```
 
 ## [0.23.2] - 2026-02-05
 
