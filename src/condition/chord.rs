@@ -143,7 +143,9 @@ mod tests {
         let action1 = world
             .spawn((Action::<Test>::new(), TriggerState::Fired))
             .id();
-        let action2 = world.spawn((Action::<Test>::new(), TriggerState::None)).id();
+        let action2 = world
+            .spawn((Action::<Test>::new(), TriggerState::None))
+            .id();
         let (time, actions) = state.get(&world);
 
         let mut condition = Chord::new([action1, action2]);
@@ -156,8 +158,12 @@ mod tests {
     #[test]
     fn none() {
         let (mut world, mut state) = context::init_world();
-        let action1 = world.spawn((Action::<Test>::new(), TriggerState::None)).id();
-        let action2 = world.spawn((Action::<Test>::new(), TriggerState::None)).id();
+        let action1 = world
+            .spawn((Action::<Test>::new(), TriggerState::None))
+            .id();
+        let action2 = world
+            .spawn((Action::<Test>::new(), TriggerState::None))
+            .id();
         let (time, actions) = state.get(&world);
 
         let mut condition = Chord::new([action1, action2]);

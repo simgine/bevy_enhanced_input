@@ -358,8 +358,8 @@ pub mod prelude {
     pub use super::{
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{
-            Accumulation, Action, ActionOutput, ActionSettings, TriggerState, ActionTime,
-            InputAction,
+            Accumulation, Action, ActionOutput, ActionSettings, ActionTime, InputAction,
+            TriggerState,
             events::*,
             mock::{ActionMock, MockEntityCommandsExt, MockEntityWorldMutExt, MockSpan},
             relationship::{ActionOf, ActionSpawner, ActionSpawnerCommands, Actions},

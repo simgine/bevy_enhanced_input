@@ -353,7 +353,9 @@ mod tests {
     #[test]
     fn first_step_ongoing() {
         let (mut world, mut state) = context::init_world();
-        let action_a = world.spawn((Action::<A>::new(), TriggerState::Ongoing)).id();
+        let action_a = world
+            .spawn((Action::<A>::new(), TriggerState::Ongoing))
+            .id();
         let (time, actions) = state.get(&world);
 
         let mut condition = Combo::default().with_step(action_a);

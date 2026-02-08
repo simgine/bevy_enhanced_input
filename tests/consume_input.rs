@@ -53,7 +53,11 @@ fn consume() {
         .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, TriggerState::None, "action should be consumed");
+    assert_eq!(
+        second_state,
+        TriggerState::None,
+        "action should be consumed"
+    );
 }
 
 #[test]
@@ -165,7 +169,11 @@ fn consume_then_passthrough() {
         .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, TriggerState::None, "action should be consumed");
+    assert_eq!(
+        second_state,
+        TriggerState::None,
+        "action should be consumed"
+    );
 }
 
 #[test]
