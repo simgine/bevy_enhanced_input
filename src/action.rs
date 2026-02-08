@@ -244,7 +244,7 @@ pub enum TriggerState {
     Fired,
 }
 
-#[deprecated(since = "0.23.1", note = "Renamed to `TriggerState`")]
+#[deprecated(since = "0.23.3", note = "Renamed to `TriggerState`")]
 pub type ActionState = TriggerState;
 
 /// Timing information for [`Action<C>`].

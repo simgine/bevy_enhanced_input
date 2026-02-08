@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Rename `ActionState` into `TriggerState` to better align with UE
+
 ## [0.23.2] - 2026-02-05
 
 ### Added
