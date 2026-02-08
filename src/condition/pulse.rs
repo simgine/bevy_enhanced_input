@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Ongoing`] when input becomes actuated and [`ActionState::Fired`]
+/// Returns [`TriggerState::Ongoing`] when input becomes actuated and [`TriggerState::Fired`]
 /// on the defined time interval.
 ///
 /// Note: [`Complete`] only fires when the repeat limit is reached or when input is released
@@ -113,7 +113,7 @@ impl InputCondition for Pulse {
         _actions: &ActionsQuery,
         time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         if value.is_actuated(self.actuation) {
             let mut should_fire = false;
 
@@ -133,12 +133,12 @@ impl InputCondition for Pulse {
                             .set_duration(Duration::from_secs_f32(self.interval));
                     }
                     self.trigger_count += 1;
-                    ActionState::Fired
+                    TriggerState::Fired
                 } else {
-                    ActionState::Ongoing
+                    TriggerState::Ongoing
                 }
             } else {
-                ActionState::None
+                TriggerState::None
             }
         } else {
             if let Some(initial_delay) = self.initial_delay {
@@ -148,7 +148,7 @@ impl InputCondition for Pulse {
             self.timer.reset();
             self.trigger_count = 0;
             self.started_actuation = false;
-            ActionState::None
+            TriggerState::None
         }
     }
 }
@@ -169,7 +169,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
 
         world
@@ -179,11 +179,11 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
 
         world
@@ -193,11 +193,11 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 
@@ -210,7 +210,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
 
         world
@@ -220,11 +220,11 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None,
+            TriggerState::None,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
 
         world
@@ -234,11 +234,11 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 
@@ -250,7 +250,7 @@ mod tests {
         let mut condition = Pulse::new(1.0).trigger_on_start(false);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
     }
 
@@ -261,7 +261,7 @@ mod tests {
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
 
         world
@@ -270,7 +270,7 @@ mod tests {
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -279,7 +279,7 @@ mod tests {
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
             "should fire after initial delay",
         );
 
@@ -289,7 +289,7 @@ mod tests {
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -298,14 +298,14 @@ mod tests {
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
             "should fire after regular interval",
         );
 
         let (time, actions) = state.get(&world);
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None,
+            TriggerState::None,
         );
         assert_eq!(condition.timer().duration().as_secs_f32(), 1.0);
     }
@@ -318,11 +318,11 @@ mod tests {
         let mut condition = Pulse::new(1.0).with_trigger_limit(1);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 }

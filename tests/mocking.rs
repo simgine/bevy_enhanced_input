@@ -16,7 +16,7 @@ fn updates() {
         actions!(
             TestContext[(
                 Action::<Test>::new(),
-                ActionMock::once(ActionState::Fired, true)
+                ActionMock::once(TriggerState::Fired, true)
             )]
         ),
     ));
@@ -25,18 +25,18 @@ fn updates() {
 
     let mut actions = app
         .world_mut()
-        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+        .query::<(&Action<Test>, &TriggerState, &ActionEvents)>();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 
@@ -56,7 +56,7 @@ fn duration() {
         actions!(
             TestContext[(
                 Action::<Test>::new(),
-                ActionMock::new(ActionState::Fired, true, Duration::from_millis(2))
+                ActionMock::new(TriggerState::Fired, true, Duration::from_millis(2))
             )]
         ),
     ));
@@ -65,25 +65,25 @@ fn duration() {
 
     let mut actions = app
         .world_mut()
-        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+        .query::<(&Action<Test>, &TriggerState, &ActionEvents)>();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 
@@ -99,7 +99,7 @@ fn manual() {
         actions!(
             TestContext[(
                 Action::<Test>::new(),
-                ActionMock::new(ActionState::Fired, true, MockSpan::Manual),
+                ActionMock::new(TriggerState::Fired, true, MockSpan::Manual),
             )]
         ),
     ));
@@ -108,18 +108,18 @@ fn manual() {
 
     let mut actions = app
         .world_mut()
-        .query::<(&Action<Test>, &ActionState, &ActionEvents, &mut ActionMock)>();
+        .query::<(&Action<Test>, &TriggerState, &ActionEvents, &mut ActionMock)>();
 
     let (&action, &state, &events, _) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events, mut mock) = actions.single_mut(app.world_mut()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE);
 
     mock.enabled = false;
@@ -128,7 +128,7 @@ fn manual() {
 
     let (&action, &state, &events, _) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 
@@ -145,7 +145,7 @@ fn external_mock() {
             TestContext[(
                 Action::<Test>::new(),
                 ExternallyMocked,
-                ActionMock::once(ActionState::Fired, true)
+                ActionMock::once(TriggerState::Fired, true)
             )]
         ),
     ));
@@ -154,14 +154,14 @@ fn external_mock() {
 
     let mut actions = app
         .world_mut()
-        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+        .query::<(&Action<Test>, &TriggerState, &ActionEvents)>();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(
         !*action,
         "action shouldn't be updated because it marked as mocked externally"
     );
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert_eq!(events, ActionEvents::empty());
 }
 
@@ -179,19 +179,19 @@ fn entity_command() {
 
     let mut actions = app
         .world_mut()
-        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+        .query::<(&Action<Test>, &TriggerState, &ActionEvents)>();
 
     app.update();
 
     let (&action, &state, events) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert!(events.is_empty());
 
     app.world_mut()
         .commands()
         .entity(context)
-        .mock_once::<TestContext, Test>(ActionState::Fired, true);
+        .mock_once::<TestContext, Test>(TriggerState::Fired, true);
 
     // Update once to apply the command, and once to process the actual mock
     app.update();
@@ -199,14 +199,14 @@ fn entity_command() {
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 
@@ -224,32 +224,32 @@ fn world_entity() {
 
     let mut actions = app
         .world_mut()
-        .query::<(&Action<Test>, &ActionState, &ActionEvents)>();
+        .query::<(&Action<Test>, &TriggerState, &ActionEvents)>();
 
     app.update();
 
     let (&action, &state, events) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert!(events.is_empty());
 
     app.world_mut()
         .entity_mut(context)
-        .mock_once::<TestContext, Test>(ActionState::Fired, true)
+        .mock_once::<TestContext, Test>(TriggerState::Fired, true)
         .unwrap();
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
     assert_eq!(events, ActionEvents::FIRE | ActionEvents::START);
 
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 

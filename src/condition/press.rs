@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Like [`super::press::Down`] but returns [`ActionState::Fired`] only once until the next actuation.
+/// Like [`super::press::Down`] but returns [`TriggerState::Fired`] only once until the next actuation.
 ///
 /// Holding the input will not cause further triggers.
 ///
@@ -38,14 +38,14 @@ impl InputCondition for Press {
         _actions: &ActionsQuery,
         _time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         let previously_actuated = self.actuated;
         self.actuated = value.is_actuated(self.actuation);
 
         if self.actuated && !previously_actuated {
-            ActionState::Fired
+            TriggerState::Fired
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 }
@@ -63,11 +63,11 @@ mod tests {
         let mut condition = Press::default();
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
     }
 }

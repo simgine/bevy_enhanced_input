@@ -24,7 +24,7 @@
 //! in the library documentation for more details.
 //!
 //! Similarly, you can check the current state and value of an action at any time using the
-//! [`Action<C>`], [`ActionState`], [`ActionValue`] and [`ActionTime`] components.
+//! [`Action<C>`], [`TriggerState`], [`ActionValue`] and [`ActionTime`] components.
 //! See the section on [pull-style action handling](crate#pull-style-polling-action-state)
 //! in the library documentation for more details.
 //!
@@ -75,7 +75,7 @@ use fns::ActionFns;
     ActionFns::new::<A>(),
     ActionValue::zero(A::Output::DIM),
     ActionSettings,
-    ActionState,
+    TriggerState,
     ActionEvents,
     ActionTime,
     ActionMock,
@@ -189,14 +189,14 @@ pub struct ActionSettings {
     /// **not** affect the underlying Bevy input - only the action evaluation logic is impacted.
     ///
     /// Inputs are consumed only when the action state is not equal to
-    /// [`ActionState::None`].
+    /// [`TriggerState::None`].
     ///
     /// By default set to `false`.
     pub consume_input: bool,
 }
 
 /// Defines how [`ActionValue`] is calculated when multiple inputs are evaluated with the
-/// same most significant [`ActionState`] (excluding [`ActionState::None`]).
+/// same most significant [`TriggerState`] (excluding [`TriggerState::None`]).
 ///
 /// Stored inside [`ActionSettings`].
 #[derive(Reflect, Debug, Default, Clone, Copy)]
@@ -225,7 +225,7 @@ pub enum Accumulation {
 #[derive(Component, Reflect, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
-pub enum ActionState {
+pub enum TriggerState {
     /// Condition is not triggered.
     #[default]
     None,
@@ -244,31 +244,34 @@ pub enum ActionState {
     Fired,
 }
 
+#[deprecated(since = "0.23.1", note = "Renamed to `TriggerState`")]
+pub type ActionState = TriggerState;
+
 /// Timing information for [`Action<C>`].
 #[derive(Component, Reflect, Debug, Default, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionTime {
-    /// Time the action was in [`ActionState::Ongoing`] and [`ActionState::Fired`] states.
+    /// Time the action was in [`TriggerState::Ongoing`] and [`TriggerState::Fired`] states.
     pub elapsed_secs: f32,
 
-    /// Time the action was in [`ActionState::Fired`] state.
+    /// Time the action was in [`TriggerState::Fired`] state.
     pub fired_secs: f32,
 }
 
 impl ActionTime {
     /// Updates the timers based on the given delta time and action state.
-    pub fn update(&mut self, delta_secs: f32, state: ActionState) {
+    pub fn update(&mut self, delta_secs: f32, state: TriggerState) {
         match state {
-            ActionState::None => {
+            TriggerState::None => {
                 self.elapsed_secs = 0.0;
                 self.fired_secs = 0.0;
             }
-            ActionState::Ongoing => {
+            TriggerState::Ongoing => {
                 self.elapsed_secs += delta_secs;
                 self.fired_secs = 0.0;
             }
-            ActionState::Fired => {
+            TriggerState::Fired => {
                 self.elapsed_secs += delta_secs;
                 self.fired_secs += delta_secs;
             }

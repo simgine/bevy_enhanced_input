@@ -52,11 +52,11 @@ fn input_level() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::Y * 2.0);
-    assert_eq!(state, ActionState::Ongoing);
+    assert_eq!(state, TriggerState::Ongoing);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -66,7 +66,7 @@ fn input_level() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::Y * 2.0);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
     keys.release(Test::KEY1);
@@ -76,7 +76,7 @@ fn input_level() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::NEG_Y);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -86,7 +86,7 @@ fn input_level() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::Y);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -98,7 +98,7 @@ fn input_level() {
     assert_eq!(*action, Vec2::ZERO);
     assert_eq!(
         state,
-        ActionState::None,
+        TriggerState::None,
         "if a blocker condition fails, it should override other conditions"
     );
 }
@@ -141,11 +141,11 @@ fn action_level() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::NEG_Y * 2.0);
-    assert_eq!(state, ActionState::Ongoing);
+    assert_eq!(state, TriggerState::Ongoing);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -155,7 +155,7 @@ fn action_level() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::NEG_Y * 2.0);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
     keys.release(Test::KEY1);
@@ -165,7 +165,7 @@ fn action_level() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::NEG_Y * 2.0);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -175,7 +175,7 @@ fn action_level() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::NEG_Y * 4.0);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -187,7 +187,7 @@ fn action_level() {
     assert_eq!(*action, Vec2::NEG_Y * 4.0);
     assert_eq!(
         state,
-        ActionState::None,
+        TriggerState::None,
         "if a blocker condition fails, it should override other conditions"
     );
 }
@@ -230,11 +230,11 @@ fn both_levels() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::Y * 2.0);
-    assert_eq!(state, ActionState::Ongoing);
+    assert_eq!(state, TriggerState::Ongoing);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -244,7 +244,7 @@ fn both_levels() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::Y * 2.0);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
     keys.release(Test::KEY1);
@@ -254,7 +254,7 @@ fn both_levels() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::NEG_Y);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -264,7 +264,7 @@ fn both_levels() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, Vec2::Y);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -276,7 +276,7 @@ fn both_levels() {
     assert_eq!(*action, Vec2::Y);
     assert_eq!(
         state,
-        ActionState::None,
+        TriggerState::None,
         "if a blocker condition fails, it should override other conditions"
     );
 }

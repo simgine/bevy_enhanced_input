@@ -50,37 +50,37 @@ fn same_schedule() {
 
     let mut first_consume = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<FirstConsume>>>();
+        .query_filtered::<&TriggerState, With<Action<FirstConsume>>>();
 
     let first_consume_state = *first_consume.single(app.world()).unwrap();
-    assert_eq!(first_consume_state, ActionState::Fired);
+    assert_eq!(first_consume_state, TriggerState::Fired);
 
     let mut first_passthrough = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<FirstPassthrough>>>();
+        .query_filtered::<&TriggerState, With<Action<FirstPassthrough>>>();
 
     let first_passthrough_state = *first_passthrough.single(app.world()).unwrap();
-    assert_eq!(first_passthrough_state, ActionState::Fired);
+    assert_eq!(first_passthrough_state, TriggerState::Fired);
 
     let mut second_consume = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<SecondConsume>>>();
+        .query_filtered::<&TriggerState, With<Action<SecondConsume>>>();
 
     let second_consume_state = *second_consume.single(app.world()).unwrap();
     assert_eq!(
         second_consume_state,
-        ActionState::None,
+        TriggerState::None,
         "input should be consumed from a context with a higher priority"
     );
 
     let mut second_passthrough = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<SecondPassthrough>>>();
+        .query_filtered::<&TriggerState, With<Action<SecondPassthrough>>>();
 
     let second_passthrough_state = *second_passthrough.single(app.world()).unwrap();
     assert_eq!(
         second_passthrough_state,
-        ActionState::Fired,
+        TriggerState::Fired,
         "actions that doesn't consume inputs should still be triggered"
     );
 }
@@ -132,33 +132,33 @@ fn different_schedules() {
 
     let mut first_consume = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<FirstConsume>>>();
+        .query_filtered::<&TriggerState, With<Action<FirstConsume>>>();
     let mut first_passthrough = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<FirstPassthrough>>>();
+        .query_filtered::<&TriggerState, With<Action<FirstPassthrough>>>();
     let mut second_consume = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<SecondConsume>>>();
+        .query_filtered::<&TriggerState, With<Action<SecondConsume>>>();
     let mut second_passthrough = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<SecondPassthrough>>>();
+        .query_filtered::<&TriggerState, With<Action<SecondPassthrough>>>();
 
     for frame in 0..2 {
         app.update();
 
         let first_consume_state = *first_consume.single(app.world()).unwrap();
-        assert_eq!(first_consume_state, ActionState::Fired);
+        assert_eq!(first_consume_state, TriggerState::Fired);
 
         let first_passthrough_state = *first_passthrough.single(app.world()).unwrap();
-        assert_eq!(first_passthrough_state, ActionState::Fired);
+        assert_eq!(first_passthrough_state, TriggerState::Fired);
 
         let second_consume_state = *second_consume.single(app.world()).unwrap();
-        assert_eq!(second_consume_state, ActionState::None);
+        assert_eq!(second_consume_state, TriggerState::None);
 
         let second_passthrough_state = *second_passthrough.single(app.world()).unwrap();
         assert_eq!(
             second_passthrough_state,
-            ActionState::None,
+            TriggerState::None,
             "shouldn't fire on frame {frame} because the schedule hasn't run yet"
         );
     }
@@ -167,20 +167,20 @@ fn different_schedules() {
         app.update();
 
         let first_consume_state = *first_consume.single(app.world()).unwrap();
-        assert_eq!(first_consume_state, ActionState::Fired);
+        assert_eq!(first_consume_state, TriggerState::Fired);
 
         let first_passthrough_state = *first_passthrough.single(app.world()).unwrap();
-        assert_eq!(first_passthrough_state, ActionState::Fired);
+        assert_eq!(first_passthrough_state, TriggerState::Fired);
 
         let second_consume_state = *second_consume.single(app.world()).unwrap();
         assert_eq!(
             second_consume_state,
-            ActionState::None,
+            TriggerState::None,
             "shouldn't fire on frame {frame} because of the schedule evaluation order"
         );
 
         let second_passthrough_state = *second_passthrough.single(app.world()).unwrap();
-        assert_eq!(second_passthrough_state, ActionState::Fired);
+        assert_eq!(second_passthrough_state, TriggerState::Fired);
     }
 }
 
@@ -239,31 +239,31 @@ fn change() {
 
     let mut first_consume = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<FirstConsume>>>();
+        .query_filtered::<&TriggerState, With<Action<FirstConsume>>>();
 
     let first_consume_state = *first_consume.single(app.world()).unwrap();
-    assert_eq!(first_consume_state, ActionState::None);
+    assert_eq!(first_consume_state, TriggerState::None);
 
     let mut first_passthrough = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<FirstPassthrough>>>();
+        .query_filtered::<&TriggerState, With<Action<FirstPassthrough>>>();
 
     let first_passthrough_state = *first_passthrough.single(app.world()).unwrap();
-    assert_eq!(first_passthrough_state, ActionState::Fired);
+    assert_eq!(first_passthrough_state, TriggerState::Fired);
 
     let mut second_consume = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<SecondConsume>>>();
+        .query_filtered::<&TriggerState, With<Action<SecondConsume>>>();
 
     let second_consume_state = *second_consume.single(app.world()).unwrap();
-    assert_eq!(second_consume_state, ActionState::Fired);
+    assert_eq!(second_consume_state, TriggerState::Fired);
 
     let mut second_passthrough = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<SecondPassthrough>>>();
+        .query_filtered::<&TriggerState, With<Action<SecondPassthrough>>>();
 
     let second_passthrough_state = *second_passthrough.single(app.world()).unwrap();
-    assert_eq!(second_passthrough_state, ActionState::Fired);
+    assert_eq!(second_passthrough_state, TriggerState::Fired);
 }
 
 #[derive(Component)]

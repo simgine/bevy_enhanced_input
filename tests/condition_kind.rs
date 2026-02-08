@@ -16,11 +16,11 @@ fn explicit() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -30,7 +30,7 @@ fn explicit() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert!(*action);
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -40,7 +40,7 @@ fn explicit() {
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert!(!*action);
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
 }
 
 #[test]
@@ -68,17 +68,17 @@ fn implicit() {
 
     let mut release_actions = app
         .world_mut()
-        .query::<(&Action<OnRelease>, &ActionState)>();
+        .query::<(&Action<OnRelease>, &TriggerState)>();
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(!*release_action);
-    assert_eq!(release_state, ActionState::None);
+    assert_eq!(release_state, TriggerState::None);
 
-    let mut test_actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut test_actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(!*test_action);
-    assert_eq!(test_state, ActionState::None);
+    assert_eq!(test_state, TriggerState::None);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -88,11 +88,11 @@ fn implicit() {
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(*release_action);
-    assert_eq!(release_state, ActionState::Ongoing);
+    assert_eq!(release_state, TriggerState::Ongoing);
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(!*test_action);
-    assert_eq!(test_state, ActionState::Ongoing);
+    assert_eq!(test_state, TriggerState::Ongoing);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -102,21 +102,21 @@ fn implicit() {
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(!*release_action);
-    assert_eq!(release_state, ActionState::Fired);
+    assert_eq!(release_state, TriggerState::Fired);
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(!*test_action);
-    assert_eq!(test_state, ActionState::Fired);
+    assert_eq!(test_state, TriggerState::Fired);
 
     app.update();
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(!*release_action);
-    assert_eq!(release_state, ActionState::None);
+    assert_eq!(release_state, TriggerState::None);
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(!*test_action);
-    assert_eq!(test_state, ActionState::None);
+    assert_eq!(test_state, TriggerState::None);
 }
 
 #[test]
@@ -148,17 +148,17 @@ fn blocker() {
 
     let mut release_actions = app
         .world_mut()
-        .query::<(&Action<OnRelease>, &ActionState)>();
+        .query::<(&Action<OnRelease>, &TriggerState)>();
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(!*release_action);
-    assert_eq!(release_state, ActionState::None);
+    assert_eq!(release_state, TriggerState::None);
 
-    let mut test_actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut test_actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(!*test_action);
-    assert_eq!(test_state, ActionState::None);
+    assert_eq!(test_state, TriggerState::None);
 
     let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
     keys.press(OnRelease::KEY);
@@ -168,11 +168,11 @@ fn blocker() {
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(*release_action);
-    assert_eq!(release_state, ActionState::Ongoing);
+    assert_eq!(release_state, TriggerState::Ongoing);
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(*test_action);
-    assert_eq!(test_state, ActionState::Fired);
+    assert_eq!(test_state, TriggerState::Fired);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -182,21 +182,21 @@ fn blocker() {
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(!*release_action);
-    assert_eq!(release_state, ActionState::Fired);
+    assert_eq!(release_state, TriggerState::Fired);
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(*test_action);
-    assert_eq!(test_state, ActionState::None);
+    assert_eq!(test_state, TriggerState::None);
 
     app.update();
 
     let (&release_action, &release_state) = release_actions.single(app.world()).unwrap();
     assert!(!*release_action);
-    assert_eq!(release_state, ActionState::None);
+    assert_eq!(release_state, TriggerState::None);
 
     let (&test_action, &test_state) = test_actions.single(app.world()).unwrap();
     assert!(*test_action);
-    assert_eq!(test_state, ActionState::Fired);
+    assert_eq!(test_state, TriggerState::Fired);
 }
 
 #[derive(Component)]

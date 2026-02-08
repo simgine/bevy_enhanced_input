@@ -11,8 +11,8 @@ Sequence of actions that needs to be triggered in specific order.
 The combo resets if a step is triggered out of order or by any defined
 cancel action.
 
-After the first step, returns [`ActionState::Ongoing`] until the last step.
-Once all steps are completed, returns [`ActionState::Fired`] once, then resets.
+After the first step, returns [`TriggerState::Ongoing`] until the last step.
+Once all steps are completed, returns [`TriggerState::Fired`] once, then resets.
 
 Requires using [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
 because you need to pass [`Entity`] for step and cancel actions.
@@ -151,11 +151,11 @@ impl InputCondition for Combo {
         actions: &ActionsQuery,
         time: &ContextTime,
         _value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         if self.steps.is_empty() {
             // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
             warn!("combo has no steps");
-            return ActionState::None;
+            return TriggerState::None;
         }
 
         if self.is_cancelled(actions) {
@@ -179,7 +179,7 @@ impl InputCondition for Combo {
                 self.step_index, current_step.action
             );
             self.reset();
-            return ActionState::None;
+            return TriggerState::None;
         };
 
         if events.contains(current_step.events) {
@@ -188,7 +188,7 @@ impl InputCondition for Combo {
             if self.step_index >= self.steps.len() {
                 // Completed all combo actions.
                 self.reset();
-                return ActionState::Fired;
+                return TriggerState::Fired;
             } else {
                 let next_step = &self.steps[self.step_index];
                 self.timer.reset();
@@ -197,11 +197,11 @@ impl InputCondition for Combo {
             }
         }
 
-        if self.step_index > 0 || state > ActionState::None {
-            return ActionState::Ongoing;
+        if self.step_index > 0 || state > TriggerState::None {
+            return TriggerState::Ongoing;
         }
 
-        ActionState::None
+        TriggerState::None
     }
 
     fn kind(&self) -> ConditionKind {
@@ -298,7 +298,7 @@ mod tests {
         let mut condition = Combo::default();
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 
@@ -310,7 +310,7 @@ mod tests {
         let mut condition = Combo::default().with_step(Entity::PLACEHOLDER);
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -331,7 +331,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
             "first step shouldn't be affected by time"
         );
         assert_eq!(condition.step_index, 1);
@@ -345,7 +345,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -353,13 +353,13 @@ mod tests {
     #[test]
     fn first_step_ongoing() {
         let (mut world, mut state) = context::init_world();
-        let action_a = world.spawn((Action::<A>::new(), ActionState::Ongoing)).id();
+        let action_a = world.spawn((Action::<A>::new(), TriggerState::Ongoing)).id();
         let (time, actions) = state.get(&world);
 
         let mut condition = Combo::default().with_step(action_a);
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
     }
 
@@ -380,7 +380,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
         assert_eq!(condition.step_index, 1);
 
@@ -393,7 +393,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
         assert_eq!(condition.step_index, 2);
 
@@ -406,13 +406,13 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(condition.step_index, 0);
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -429,13 +429,13 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
         assert_eq!(condition.step_index, 1);
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -457,7 +457,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(condition.step_index, 0);
 
@@ -467,7 +467,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
         assert_eq!(condition.step_index, 1);
 
@@ -477,7 +477,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -493,7 +493,7 @@ mod tests {
         let mut condition = Combo::default().with_step(action_a).with_cancel(action_a);
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -511,7 +511,7 @@ mod tests {
             .with_cancel(Entity::PLACEHOLDER);
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(condition.step_index, 0);
     }
@@ -533,7 +533,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
         assert_eq!(condition.step_index, 1);
 
@@ -544,7 +544,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(condition.step_index, 0);
     }

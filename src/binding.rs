@@ -240,7 +240,7 @@ fn on_insert(mut world: DeferredWorld, ctx: HookContext) {
 
     if log_enabled!(Level::Warn) {
         if let Some(action) = entity.get::<BindingOf>().map(|b| **b) {
-            if world.get::<ActionState>(action).is_none() {
+            if world.get::<TriggerState>(action).is_none() {
                 let binding = world.get::<Binding>(ctx.entity).unwrap();
                 warn!(
                     "`{}` has binding `{binding:?}`, but the associated action `{action}` is invalid",

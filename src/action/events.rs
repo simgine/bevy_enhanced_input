@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
-/// Bitset with events caused by state transitions of [`ActionState`].
+/// Bitset with events caused by state transitions of [`TriggerState`].
 ///
 /// During [`EnhancedInputSystems::Apply`], events that correspond to bitflags will be triggered.
 ///
@@ -17,15 +17,15 @@ use crate::prelude::*;
 ///
 /// | Last state                  | New state                | Events                    |
 /// | --------------------------- | ------------------------ | ------------------------- |
-/// | [`ActionState::None`]       | [`ActionState::None`]    | No events                 |
-/// | [`ActionState::None`]       | [`ActionState::Ongoing`] | [`Start`] + [`Ongoing`] |
-/// | [`ActionState::None`]       | [`ActionState::Fired`]   | [`Start`] + [`Fire`]   |
-/// | [`ActionState::Ongoing`]    | [`ActionState::None`]    | [`Cancel`]              |
-/// | [`ActionState::Ongoing`]    | [`ActionState::Ongoing`] | [`Ongoing`]               |
-/// | [`ActionState::Ongoing`]    | [`ActionState::Fired`]   | [`Fire`]                 |
-/// | [`ActionState::Fired`]      | [`ActionState::Fired`]   | [`Fire`]                 |
-/// | [`ActionState::Fired`]      | [`ActionState::Ongoing`] | [`Ongoing`]               |
-/// | [`ActionState::Fired`]      | [`ActionState::None`]    | [`Complete`]             |
+/// | [`TriggerState::None`]       | [`TriggerState::None`]    | No events                 |
+/// | [`TriggerState::None`]       | [`TriggerState::Ongoing`] | [`Start`] + [`Ongoing`] |
+/// | [`TriggerState::None`]       | [`TriggerState::Fired`]   | [`Start`] + [`Fire`]   |
+/// | [`TriggerState::Ongoing`]    | [`TriggerState::None`]    | [`Cancel`]              |
+/// | [`TriggerState::Ongoing`]    | [`TriggerState::Ongoing`] | [`Ongoing`]               |
+/// | [`TriggerState::Ongoing`]    | [`TriggerState::Fired`]   | [`Fire`]                 |
+/// | [`TriggerState::Fired`]      | [`TriggerState::Fired`]   | [`Fire`]                 |
+/// | [`TriggerState::Fired`]      | [`TriggerState::Ongoing`] | [`Ongoing`]               |
+/// | [`TriggerState::Fired`]      | [`TriggerState::None`]    | [`Complete`]             |
 ///
 /// The meaning of each kind depends on the assigned [`InputCondition`]s. The events are
 /// triggered in the action evaluation order.
@@ -62,25 +62,25 @@ bitflags! {
 
 impl ActionEvents {
     /// Creates a new instance based on state transition.
-    pub fn new(previous: ActionState, current: ActionState) -> ActionEvents {
+    pub fn new(previous: TriggerState, current: TriggerState) -> ActionEvents {
         match (previous, current) {
-            (ActionState::None, ActionState::None) => ActionEvents::empty(),
-            (ActionState::None, ActionState::Ongoing) => {
+            (TriggerState::None, TriggerState::None) => ActionEvents::empty(),
+            (TriggerState::None, TriggerState::Ongoing) => {
                 ActionEvents::START | ActionEvents::ONGOING
             }
-            (ActionState::None, ActionState::Fired) => ActionEvents::START | ActionEvents::FIRE,
-            (ActionState::Ongoing, ActionState::None) => ActionEvents::CANCEL,
-            (ActionState::Ongoing, ActionState::Ongoing) => ActionEvents::ONGOING,
-            (ActionState::Ongoing, ActionState::Fired) => ActionEvents::FIRE,
-            (ActionState::Fired, ActionState::None) => ActionEvents::COMPLETE,
-            (ActionState::Fired, ActionState::Ongoing) => ActionEvents::ONGOING,
-            (ActionState::Fired, ActionState::Fired) => ActionEvents::FIRE,
+            (TriggerState::None, TriggerState::Fired) => ActionEvents::START | ActionEvents::FIRE,
+            (TriggerState::Ongoing, TriggerState::None) => ActionEvents::CANCEL,
+            (TriggerState::Ongoing, TriggerState::Ongoing) => ActionEvents::ONGOING,
+            (TriggerState::Ongoing, TriggerState::Fired) => ActionEvents::FIRE,
+            (TriggerState::Fired, TriggerState::None) => ActionEvents::COMPLETE,
+            (TriggerState::Fired, TriggerState::Ongoing) => ActionEvents::ONGOING,
+            (TriggerState::Fired, TriggerState::Fired) => ActionEvents::FIRE,
         }
     }
 }
 
-/// Triggers when an action switches its state from [`ActionState::None`]
-/// to [`ActionState::Fired`] or [`ActionState::Ongoing`].
+/// Triggers when an action switches its state from [`TriggerState::None`]
+/// to [`TriggerState::Fired`] or [`TriggerState::Ongoing`].
 ///
 /// Triggered before [`Fire`] and [`Ongoing`].
 ///
@@ -128,7 +128,7 @@ pub struct Start<A: InputAction> {
     pub value: A::Output,
 
     /// Current action state.
-    pub state: ActionState,
+    pub state: TriggerState,
 }
 
 impl<A: InputAction> Debug for Start<A> {
@@ -148,7 +148,7 @@ impl<A: InputAction> Clone for Start<A> {
 
 impl<A: InputAction> Copy for Start<A> {}
 
-/// Triggers every frame when an action state is [`ActionState::Ongoing`].
+/// Triggers every frame when an action state is [`TriggerState::Ongoing`].
 ///
 ///
 /// Usually useful in combination with [`Complete`] to apply some
@@ -205,9 +205,9 @@ pub struct Ongoing<A: InputAction> {
     pub value: A::Output,
 
     /// Current action state.
-    pub state: ActionState,
+    pub state: TriggerState,
 
-    /// Time that this action has been in [`ActionState::Ongoing`] state.
+    /// Time that this action has been in [`TriggerState::Ongoing`] state.
     pub elapsed_secs: f32,
 }
 
@@ -229,7 +229,7 @@ impl<A: InputAction> Clone for Ongoing<A> {
 
 impl<A: InputAction> Copy for Ongoing<A> {}
 
-/// Triggers every frame when an action state is [`ActionState::Fired`].
+/// Triggers every frame when an action state is [`TriggerState::Fired`].
 ///
 /// If you want to respond only on the first or last frame this state
 /// is active, see [`Start`] or [`Complete`] respectively.
@@ -276,12 +276,12 @@ pub struct Fire<A: InputAction> {
     pub value: A::Output,
 
     /// Current action state.
-    pub state: ActionState,
+    pub state: TriggerState,
 
-    /// Time that this action has been in [`ActionState::Fired`] state.
+    /// Time that this action has been in [`TriggerState::Fired`] state.
     pub fired_secs: f32,
 
-    /// Total time this action has been in both [`ActionState::Ongoing`] and [`ActionState::Fired`].
+    /// Total time this action has been in both [`TriggerState::Ongoing`] and [`TriggerState::Fired`].
     pub elapsed_secs: f32,
 }
 
@@ -304,7 +304,7 @@ impl<A: InputAction> Clone for Fire<A> {
 
 impl<A: InputAction> Copy for Fire<A> {}
 
-/// Triggers when action switches its state from [`ActionState::Ongoing`] to [`ActionState::None`].
+/// Triggers when action switches its state from [`TriggerState::Ongoing`] to [`TriggerState::None`].
 ///
 /// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
 /// To disambiguate, import `bevy_enhanced_input::prelude::{*, Cancel}`.
@@ -359,9 +359,9 @@ pub struct Cancel<A: InputAction> {
     pub value: A::Output,
 
     /// Current action state.
-    pub state: ActionState,
+    pub state: TriggerState,
 
-    /// Time that this action has been in [`ActionState::Ongoing`] state.
+    /// Time that this action has been in [`TriggerState::Ongoing`] state.
     pub elapsed_secs: f32,
 }
 
@@ -383,7 +383,7 @@ impl<A: InputAction> Clone for Cancel<A> {
 
 impl<A: InputAction> Copy for Cancel<A> {}
 
-/// Triggers when action switches its state from [`ActionState::Fired`] to [`ActionState::None`].
+/// Triggers when action switches its state from [`TriggerState::Fired`] to [`TriggerState::None`].
 ///
 /// See [`ActionEvents`] for all transitions.
 ///
@@ -457,12 +457,12 @@ pub struct Complete<A: InputAction> {
     pub value: A::Output,
 
     /// Current action state.
-    pub state: ActionState,
+    pub state: TriggerState,
 
-    /// Time that this action has been in [`ActionState::Fired`] state.
+    /// Time that this action has been in [`TriggerState::Fired`] state.
     pub fired_secs: f32,
 
-    /// Total time this action has been in both [`ActionState::Ongoing`] and [`ActionState::Fired`].
+    /// Total time this action has been in both [`TriggerState::Ongoing`] and [`TriggerState::Fired`].
     pub elapsed_secs: f32,
 }
 

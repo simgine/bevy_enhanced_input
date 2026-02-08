@@ -173,7 +173,7 @@ with performance playing a relatively minor role unless you have a very large nu
 ### Push-style: responding to action events
 
 When an action is triggered, we can notify your game logic using Bevy's [`Event`] system.
-These triggers are driven by changes (including transitions from a state to itself) in the action's [`ActionState`],
+These triggers are driven by changes (including transitions from a state to itself) in the action's [`TriggerState`],
 updated during [`EnhancedInputSystems::Apply`].
 
 There are a number of different [action events](crate::action::events), but the most commonly used are:
@@ -228,7 +228,7 @@ during other gameplay logic. For cases like you can use pull-style API.
 Since actions just entities, you can query [`Action<C>`] in a system to get the action value in a strongly typed form.
 Alternatively, you can query [`ActionValue`] in its dynamically typed form.
 
-To access the action state, use the [`ActionState`] component. State transitions from the last action evaluation are recorded
+To access the action state, use the [`TriggerState`] component. State transitions from the last action evaluation are recorded
 in the [`ActionEvents`] component, which lets you detect when an action has just started or stopped triggering.
 
 Timing information provided via [`ActionTime`] component.
@@ -358,7 +358,7 @@ pub mod prelude {
     pub use super::{
         EnhancedInputPlugin, EnhancedInputSystems,
         action::{
-            Accumulation, Action, ActionOutput, ActionSettings, ActionState, ActionTime,
+            Accumulation, Action, ActionOutput, ActionSettings, TriggerState, ActionTime,
             InputAction,
             events::*,
             mock::{ActionMock, MockEntityCommandsExt, MockEntityWorldMutExt, MockSpan},

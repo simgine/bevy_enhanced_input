@@ -148,13 +148,13 @@ fn reenabling() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<(&Action<Test>, &ActionState)>();
+    let mut actions = app.world_mut().query::<(&Action<Test>, &TriggerState)>();
 
     let (&action, &state) = actions.single(app.world()).unwrap();
     assert_eq!(*action, 2.0, "scale should work after re-enabling");
     assert_eq!(
         state,
-        ActionState::Ongoing,
+        TriggerState::Ongoing,
         "release should work after re-enabling"
     );
 }

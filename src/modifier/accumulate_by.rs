@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 /// Produces accumulated value when another action is fired within the same context.
 ///
-/// Continuously adds input values together as long as action `A` is [`ActionState::Fired`].
+/// Continuously adds input values together as long as action `A` is [`TriggerState::Fired`].
 /// When the action is inactive, it resets the accumulation with the current frame's input value.
 ///
 /// # Examples
@@ -70,7 +70,7 @@ impl InputModifier for AccumulateBy {
         value: ActionValue,
     ) -> ActionValue {
         if let Ok((_, &state, ..)) = actions.get(self.action) {
-            if state == ActionState::Fired {
+            if state == TriggerState::Fired {
                 self.value += value.as_axis3d();
             } else {
                 self.value = value.as_axis3d();
@@ -97,7 +97,7 @@ mod tests {
         let action = world
             .spawn((
                 Action::<Test>::new(),
-                ActionState::Fired,
+                TriggerState::Fired,
                 ActionValue::from(true),
             ))
             .id();

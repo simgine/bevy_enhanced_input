@@ -4,7 +4,7 @@ use smallvec::{SmallVec, smallvec};
 
 use crate::prelude::*;
 
-/// Returns [`ActionState::None`] when specific actions are active.
+/// Returns [`TriggerState::None`] when specific actions are active.
 ///
 /// # Examples
 ///
@@ -69,7 +69,7 @@ impl InputCondition for BlockBy {
         actions: &ActionsQuery,
         _time: &ContextTime,
         _value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         for &action in &self.actions {
             let Ok((_, &state, ..)) = actions.get(action) else {
                 // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
@@ -77,12 +77,12 @@ impl InputCondition for BlockBy {
                 continue;
             };
 
-            if state == ActionState::Fired {
-                return ActionState::None;
+            if state == TriggerState::Fired {
+                return TriggerState::None;
             }
         }
 
-        ActionState::Fired
+        TriggerState::Fired
     }
 
     fn kind(&self) -> ConditionKind {
@@ -101,14 +101,14 @@ mod tests {
     fn block() {
         let (mut world, mut state) = context::init_world();
         let action = world
-            .spawn((Action::<Test>::new(), ActionState::Fired))
+            .spawn((Action::<Test>::new(), TriggerState::Fired))
             .id();
         let (time, actions) = state.get(&world);
 
         let mut condition = BlockBy::single(action);
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
-            ActionState::None,
+            TriggerState::None,
         );
     }
 
@@ -120,7 +120,7 @@ mod tests {
         let mut condition = BlockBy::single(Entity::PLACEHOLDER);
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
     }
 

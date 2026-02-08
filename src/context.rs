@@ -51,7 +51,7 @@ Actions aren't despawned automatically via [`EntityWorldMut::remove_with_require
 despawn related entities when their relationship targets (like [`Actions<C>`]) are removed. For this reason, [`Actions<C>`]
 is not a required component for `C`. See [#20252](https://github.com/bevyengine/bevy/issues/20252) for more details.
 
-When an action is despawned, it automatically transitions its state to [`ActionState::None`] with [`ActionValue::zero`],
+When an action is despawned, it automatically transitions its state to [`TriggerState::None`] with [`ActionValue::zero`],
 triggering the corresponding events. Depending on your use case, using [`ContextActivity`] might be more convenient than removal.
 */
 
@@ -99,21 +99,21 @@ pub trait InputContextAppExt {
     ///
     /// Action evaluation follows these steps:
     ///
-    /// - If the action has an [`ActionMock`] component, use the mocked [`ActionValue`] and [`ActionState`] directly.
+    /// - If the action has an [`ActionMock`] component, use the mocked [`ActionValue`] and [`TriggerState`] directly.
     /// - Otherwise, evaluate the action from its bindings:
     ///     1. Iterate over each binding from the [`Bindings`] component.
     ///         1. Read the binding input as an [`ActionValue`], or [`ActionValue::zero`] if the input was already consumed by another action.
     ///            The enum variant depends on the input source.
     ///         2. Apply all binding-level [`InputModifier`]s.
     ///         3. Evaluate all input-level [`InputCondition`]s, combining their results based on their [`InputCondition::kind`].
-    ///     2. Select all [`ActionValue`]s with the most significant [`ActionState`] and combine them using the
+    ///     2. Select all [`ActionValue`]s with the most significant [`TriggerState`] and combine them using the
     ///        [`ActionSettings::accumulation`] strategy.
     ///     3. Convert the combined value to [`ActionOutput::DIM`] using [`ActionValue::convert`].
     ///     4. Apply all action-level [`InputModifier`]s.
     ///     5. Evaluate all action-level [`InputCondition`]s, combining their results based on their [`InputCondition::kind`].
     ///     6. Convert the final value to [`ActionOutput::DIM`] again using [`ActionValue::convert`].
-    ///     7. Apply the resulting [`ActionState`] and [`ActionValue`] to the action entity.
-    ///     8. If the final state is not [`ActionState::None`], consume the binding input value.
+    ///     7. Apply the resulting [`TriggerState`] and [`ActionValue`] to the action entity.
+    ///     8. If the final state is not [`TriggerState::None`], consume the binding input value.
     ///
     /// This logic may look complicated, but you don't have to memorize it. It behaves surprisingly intuitively.
     fn add_input_context<C: Component>(&mut self) -> &mut Self {
@@ -362,7 +362,7 @@ pub(crate) fn reset_action<C: Component>(
         &ActionFns,
         Option<&Bindings>,
         &mut ActionValue,
-        &mut ActionState,
+        &mut TriggerState,
         &mut ActionEvents,
         &mut ActionTime,
     )>,
@@ -376,7 +376,7 @@ pub(crate) fn reset_action<C: Component>(
     };
 
     *time = Default::default();
-    events.set_if_neq(ActionEvents::new(*state, ActionState::None));
+    events.set_if_neq(ActionEvents::new(*state, TriggerState::None));
     state.set_if_neq(Default::default());
     value.set_if_neq(ActionValue::zero(value.dim()));
 
@@ -401,7 +401,7 @@ pub(crate) fn reset_action<C: Component>(
 ///
 /// This allows modifying any action data without its values being overridden during evaluation.
 ///
-/// Takes precedence over [`ActionMock`], which drives specific [`ActionValue`] and [`ActionState`] during evaluation.
+/// Takes precedence over [`ActionMock`], which drives specific [`ActionValue`] and [`TriggerState`] during evaluation.
 #[derive(Component)]
 pub struct ExternallyMocked;
 
@@ -426,7 +426,7 @@ fn update<S: ScheduleLabel>(
     >,
     mut actions_data: Query<(
         &'static mut ActionValue,
-        &'static mut ActionState,
+        &'static mut TriggerState,
         &'static mut ActionEvents,
         &'static mut ActionTime,
     )>,
@@ -495,7 +495,7 @@ fn update<S: ScheduleLabel>(
             let (new_state, new_value) = if !context_active {
                 trace!("skipping updating `{action_name}` due to inactive context");
                 let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
-                (ActionState::None, ActionValue::zero(dim))
+                (TriggerState::None, ActionValue::zero(dim))
             } else if mock.enabled {
                 trace!("updating `{action_name}` from `{mock:?}`");
                 let expired = match &mut mock.span {
@@ -568,9 +568,9 @@ fn update<S: ScheduleLabel>(
                     }
 
                     let current_state = current_tracker.state();
-                    if current_state == ActionState::None {
+                    if current_state == TriggerState::None {
                         // Ignore non-active trackers to allow the action to fire even if all
-                        // input-level conditions return `ActionState::None`. This ensures that an
+                        // input-level conditions return `TriggerState::None`. This ensures that an
                         // action-level condition or modifier can still trigger the action.
                         continue;
                     }
@@ -605,7 +605,7 @@ fn update<S: ScheduleLabel>(
                 let new_value = tracker.value().convert(dim);
 
                 if action_settings.consume_input {
-                    if new_state != ActionState::None {
+                    if new_state != TriggerState::None {
                         for &binding in &consume_buffer {
                             reader.consume::<S>(binding);
                         }
@@ -634,7 +634,7 @@ pub type ActionsQuery<'w, 's> = Query<
     's,
     (
         &'static ActionValue,
-        &'static ActionState,
+        &'static TriggerState,
         &'static ActionEvents,
         &'static ActionTime,
     ),
@@ -669,7 +669,7 @@ fn apply<S: ScheduleLabel>(
             let value = *action.get::<ActionValue>().unwrap();
             fns.store_value(&mut action, value);
 
-            let state = *action.get::<ActionState>().unwrap();
+            let state = *action.get::<TriggerState>().unwrap();
             let events = *action.get::<ActionEvents>().unwrap();
             let time = *action.get::<ActionTime>().unwrap();
             fns.trigger(
@@ -690,7 +690,7 @@ fn apply<S: ScheduleLabel>(
 /// By default, all contexts are active.
 ///
 /// Inserting [`Self::INACTIVE`] is similar to removing the context. It transitions all context action states
-/// to [`ActionState::None`] with [`ActionValue::zero`], triggering the corresponding events.
+/// to [`TriggerState::None`] with [`ActionValue::zero`], triggering the corresponding events.
 /// For each action where [`ActionSettings::require_reset`] is set, it will require inputs for its bindings
 /// to be inactive before they will be visible to actions from other contexts.
 ///

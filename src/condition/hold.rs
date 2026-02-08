@@ -3,10 +3,10 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Ongoing`] when the input becomes actuated and
-/// [`ActionState::Fired`] when input remained actuated for the defined hold time.
+/// Returns [`TriggerState::Ongoing`] when the input becomes actuated and
+/// [`TriggerState::Fired`] when input remained actuated for the defined hold time.
 ///
-/// Returns [`ActionState::None`] when the input stops being actuated earlier than the defined hold time.
+/// Returns [`TriggerState::None`] when the input stops being actuated earlier than the defined hold time.
 /// May optionally fire once, or repeatedly fire.
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Hold {
@@ -65,7 +65,7 @@ impl InputCondition for Hold {
         _actions: &ActionsQuery,
         time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         let actuated = value.is_actuated(self.actuation);
         if actuated {
             self.timer.tick(time.delta_kind(self.time_kind));
@@ -75,14 +75,14 @@ impl InputCondition for Hold {
 
         if self.timer.is_finished() {
             if self.timer.just_finished() || !self.one_shot {
-                ActionState::Fired
+                TriggerState::Fired
             } else {
-                ActionState::None
+                TriggerState::None
             }
         } else if actuated {
-            ActionState::Ongoing
+            TriggerState::Ongoing
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 }
@@ -103,7 +103,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -113,15 +113,15 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
 
         world
@@ -131,7 +131,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
     }
 
@@ -146,11 +146,11 @@ mod tests {
         let mut condition = Hold::new(1.0).one_shot(true);
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 }

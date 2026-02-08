@@ -3,8 +3,8 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Ongoing`] when the input exceeds the actuation threshold and
-/// [`ActionState::Fired`] once when the input drops back below the actuation threshold.
+/// Returns [`TriggerState::Ongoing`] when the input exceeds the actuation threshold and
+/// [`TriggerState::Fired`] once when the input drops back below the actuation threshold.
 ///
 /// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
 /// To disambiguate, import `bevy_enhanced_input::prelude::{*, Release}`.
@@ -37,18 +37,18 @@ impl InputCondition for Release {
         _actions: &ActionsQuery,
         _time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         let previously_actuated = self.actuated;
         self.actuated = value.is_actuated(self.actuation);
 
         if self.actuated {
             // Ongoing on hold.
-            ActionState::Ongoing
+            TriggerState::Ongoing
         } else if previously_actuated {
             // Fired on release.
-            ActionState::Fired
+            TriggerState::Fired
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 }
@@ -66,15 +66,15 @@ mod tests {
         let mut condition = Release::default();
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
     }
 }

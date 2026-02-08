@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Fired`] when actuated, then [`ActionState::None`]
+/// Returns [`TriggerState::Fired`] when actuated, then [`TriggerState::None`]
 /// on subsequent actuations until the cooldown duration has elapsed.
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Cooldown {
@@ -59,7 +59,7 @@ impl InputCondition for Cooldown {
         _action: &ActionsQuery,
         time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         let last_actuated = self.actuated;
         self.actuated = value.is_actuated(self.actuation);
 
@@ -77,9 +77,9 @@ impl InputCondition for Cooldown {
         }
 
         if self.actuated && self.timer.is_finished() {
-            ActionState::Fired
+            TriggerState::Fired
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 
@@ -102,23 +102,23 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
             "should fire on the first actuation",
         );
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
             "should continue to fire while the input is actuated",
         );
 
         assert_eq!(
             condition.evaluate(&actions, &time, false.into()),
-            ActionState::None,
+            TriggerState::None,
         );
 
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
-            ActionState::None,
+            TriggerState::None,
             "shouldn't fire due to cooldown"
         );
 
@@ -129,13 +129,13 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, false.into()),
-            ActionState::None,
+            TriggerState::None,
             "should fire only when actuated"
         );
 
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
     }
 }
