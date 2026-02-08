@@ -3,10 +3,10 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Ongoing`] when input becomes actuated and [`ActionState::Fired`]
+/// Returns [`TriggerState::Ongoing`] when input becomes actuated and [`TriggerState::Fired`]
 /// when the input is released within the defined release time.
 ///
-/// Returns [`ActionState::None`] when the input is actuated more than the defined release time.
+/// Returns [`TriggerState::None`] when the input is actuated more than the defined release time.
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Tap {
     /// Trigger threshold.
@@ -57,7 +57,7 @@ impl InputCondition for Tap {
         _actions: &ActionsQuery,
         time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         let last_actuated = self.actuated;
         let finished = self.timer.is_finished();
         self.actuated = value.is_actuated(self.actuation);
@@ -69,14 +69,14 @@ impl InputCondition for Tap {
 
         if last_actuated && !self.actuated && !finished {
             // Only trigger if pressed then released quickly enough.
-            ActionState::Fired
+            TriggerState::Fired
         } else if self.timer.is_finished() {
             // Once we pass the threshold halt all triggering until released.
-            ActionState::None
+            TriggerState::None
         } else if self.actuated {
-            ActionState::Ongoing
+            TriggerState::Ongoing
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 }
@@ -97,7 +97,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -107,7 +107,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
 
         world
@@ -117,7 +117,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
 
         world
@@ -127,7 +127,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 }

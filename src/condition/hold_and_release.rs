@@ -3,10 +3,10 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Ongoing`] when input becomes actuated and [`ActionState::Fired`]
+/// Returns [`TriggerState::Ongoing`] when input becomes actuated and [`TriggerState::Fired`]
 /// when the input is released after having been actuated for the defined hold time.
 ///
-/// Returns [`ActionState::None`] when the input stops being actuated earlier than the defined hold time.
+/// Returns [`TriggerState::None`] when the input stops being actuated earlier than the defined hold time.
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct HoldAndRelease {
     /// Trigger threshold.
@@ -54,20 +54,20 @@ impl InputCondition for HoldAndRelease {
         _actions: &ActionsQuery,
         time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         self.timer.tick(time.delta_kind(self.time_kind));
 
         if value.is_actuated(self.actuation) {
-            ActionState::Ongoing
+            TriggerState::Ongoing
         } else {
             let finished = self.timer.is_finished();
             self.timer.reset();
 
             // Trigger if we've passed the threshold and released.
             if finished {
-                ActionState::Fired
+                TriggerState::Fired
             } else {
-                ActionState::None
+                TriggerState::None
             }
         }
     }
@@ -89,7 +89,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -99,7 +99,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
 
         world
@@ -109,11 +109,11 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 
@@ -125,7 +125,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -135,7 +135,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
 
         world
@@ -145,15 +145,15 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 
@@ -165,7 +165,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
 
         world
@@ -175,7 +175,7 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing
+            TriggerState::Ongoing
         );
 
         world
@@ -185,15 +185,15 @@ mod tests {
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Ongoing,
+            TriggerState::Ongoing,
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::Fired
+            TriggerState::Fired
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
     }
 }

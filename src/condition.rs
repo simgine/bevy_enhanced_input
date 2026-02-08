@@ -1,11 +1,11 @@
 /*!
-Instead of hardcoded states like "pressed" or "released", all actions use an abstract [`ActionState`] component
+Instead of hardcoded states like "pressed" or "released", all actions use an abstract [`TriggerState`] component
 (which is a required component of [`Action<C>`]). Its meaning depends on the assigned [input conditions](crate::condition),
 which determine when the action is triggered. This allows you to define flexible behaviors, such as "hold for 1 second".
 
 Input conditions are components that implement [`InputCondition`] trait. Similar to modifiers, you can attach them to
 both actions and bindings. They also evaluated during [`EnhancedInputSystems::Update`] right after modifiers in their insertion
-order and update [`ActionState`] on the associated action entity.
+order and update [`TriggerState`] on the associated action entity.
 
 If no conditions are attached, the action behaves like with [`Down`] condition with a zero actuation threshold,
 meaning it will trigger on any non-zero input value.
@@ -89,7 +89,7 @@ pub trait InputCondition: Debug {
         actions: &ActionsQuery,
         time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState;
+    ) -> TriggerState;
 
     /// Returns how the condition is combined with others.
     fn kind(&self) -> ConditionKind {
@@ -97,24 +97,24 @@ pub trait InputCondition: Debug {
     }
 }
 
-/// Determines how a condition contributes to the final [`ActionState`].
+/// Determines how a condition contributes to the final [`TriggerState`].
 ///
-/// If no conditions are provided, the state will be set to [`ActionState::Fired`]
+/// If no conditions are provided, the state will be set to [`TriggerState::Fired`]
 /// on any non-zero value, functioning similarly to a [`Down`] condition
 /// with a zero actuation threshold.
 ///
 /// For details about how actions are combined, see [`Actions`].
 pub enum ConditionKind {
-    /// The most significant [`ActionState`] from all explicit conditions will be the
+    /// The most significant [`TriggerState`] from all explicit conditions will be the
     /// resulting state.
     Explicit,
-    /// Like [`Self::Explicit`], but [`ActionState::Fired`] will be set only if all
+    /// Like [`Self::Explicit`], but [`TriggerState::Fired`] will be set only if all
     /// implicit conditions return it.
     ///
-    /// Otherwise, the most significant state will be capped at [`ActionState::Ongoing`].
+    /// Otherwise, the most significant state will be capped at [`TriggerState::Ongoing`].
     Implicit,
-    /// Any blocking condition that returns [`ActionState::None`] will override
-    /// the state with [`ActionState::None`].
+    /// Any blocking condition that returns [`TriggerState::None`] will override
+    /// the state with [`TriggerState::None`].
     ///
     /// Doesn't contribute to the state on its own.
     Blocker,

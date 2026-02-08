@@ -51,7 +51,7 @@ use crate::prelude::*;
 ///     actions!(Player[
 ///         (
 ///             Action::<Movement>::new(),
-///             ActionMock::new(ActionState::Fired, Vec2::Y, Duration::from_secs(2)),
+///             ActionMock::new(TriggerState::Fired, Vec2::Y, Duration::from_secs(2)),
 ///             Bindings::spawn(Cardinal::wasd_keys()), // Bindings will be ignored while mocked.
 ///         ),
 ///     ]),
@@ -69,7 +69,7 @@ use crate::prelude::*;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// fn mock_jump(mut commands: Commands, jump: Single<Entity, With<Action<Jump>>>) {
-///     commands.entity(*jump).insert(ActionMock::once(ActionState::Fired, true));
+///     commands.entity(*jump).insert(ActionMock::once(TriggerState::Fired, true));
 /// }
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
@@ -78,7 +78,7 @@ use crate::prelude::*;
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
 pub struct ActionMock {
-    pub state: ActionState,
+    pub state: TriggerState,
     pub value: ActionValue,
     pub span: MockSpan,
     pub enabled: bool,
@@ -89,7 +89,7 @@ impl ActionMock {
     ///
     /// See also [`mock_once`].
     #[must_use]
-    pub fn once(state: ActionState, value: impl Into<ActionValue>) -> Self {
+    pub fn once(state: TriggerState, value: impl Into<ActionValue>) -> Self {
         Self::new(state, value, MockSpan::once())
     }
 
@@ -98,7 +98,7 @@ impl ActionMock {
     /// See also [`mock`].
     #[must_use]
     pub fn new(
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> Self {
@@ -119,7 +119,7 @@ impl Default for ActionMock {
     /// or manually replace the entire component with their own values.
     fn default() -> Self {
         Self {
-            state: ActionState::None,
+            state: TriggerState::None,
             value: ActionValue::Bool(false),
             span: MockSpan::Manual,
             enabled: false,
@@ -164,7 +164,7 @@ pub trait MockEntityWorldMutExt {
     /// See [`MockEntityCommandsExt::mock`] for more details.
     fn mock<C: Component, A: InputAction>(
         self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> Result<()>;
@@ -174,7 +174,7 @@ pub trait MockEntityWorldMutExt {
     /// See also [`MockEntityCommandsExt::mock_once`].
     fn mock_once<C: Component, A: InputAction>(
         self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
     ) -> Result<()>;
 }
@@ -182,7 +182,7 @@ pub trait MockEntityWorldMutExt {
 impl MockEntityWorldMutExt for EntityWorldMut<'_> {
     fn mock<C: Component, A: InputAction>(
         self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> Result<()> {
@@ -191,7 +191,7 @@ impl MockEntityWorldMutExt for EntityWorldMut<'_> {
 
     fn mock_once<C: Component, A: InputAction>(
         self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
     ) -> Result<()> {
         mock_once::<C, A>(state, value).apply(self)
@@ -224,7 +224,7 @@ pub trait MockEntityCommandsExt {
     /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
     ///     commands
     ///         .entity(player.into_inner())
-    ///         .mock::<Player, PrimaryFire>(ActionState::Fired, true, Duration::from_secs(2));
+    ///         .mock::<Player, PrimaryFire>(TriggerState::Fired, true, Duration::from_secs(2));
     /// }
     /// # #[derive(Component)]
     /// # struct Player;
@@ -234,7 +234,7 @@ pub trait MockEntityCommandsExt {
     /// ```
     fn mock<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> &mut Self;
@@ -242,7 +242,7 @@ pub trait MockEntityCommandsExt {
     /// Like [`Self::mock`], but will not emit a warning in case of failure.
     fn try_mock<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> &mut Self;
@@ -252,14 +252,14 @@ pub trait MockEntityCommandsExt {
     /// See also [`MockEntityWorldMutExt::mock_once`].
     fn mock_once<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
     ) -> &mut Self;
 
     /// Like [`Self::mock_once`], but will not emit a warning in case of failure.
     fn try_mock_once<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
     ) -> &mut Self;
 }
@@ -267,7 +267,7 @@ pub trait MockEntityCommandsExt {
 impl MockEntityCommandsExt for EntityCommands<'_> {
     fn mock<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> &mut Self {
@@ -276,7 +276,7 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
 
     fn try_mock<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
         span: impl Into<MockSpan>,
     ) -> &mut Self {
@@ -285,7 +285,7 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
 
     fn mock_once<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
     ) -> &mut Self {
         self.queue_handled(mock_once::<C, A>(state, value), warn)
@@ -293,7 +293,7 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
 
     fn try_mock_once<C: Component, A: InputAction>(
         &mut self,
-        state: ActionState,
+        state: TriggerState,
         value: impl Into<ActionValue>,
     ) -> &mut Self {
         self.queue_silenced(mock_once::<C, A>(state, value))
@@ -304,7 +304,7 @@ impl MockEntityCommandsExt for EntityCommands<'_> {
 ///
 /// See also [`MockEntityCommandsExt::mock_once`] and [`MockEntityWorldMutExt::mock_once`].
 pub fn mock<C: Component, A: InputAction>(
-    state: ActionState,
+    state: TriggerState,
     value: impl Into<ActionValue>,
     span: impl Into<MockSpan>,
 ) -> impl EntityCommand<Result<()>> {
@@ -348,7 +348,7 @@ pub fn mock<C: Component, A: InputAction>(
 ///
 /// See also [`MockEntityCommandsExt::mock_once`] and [`MockEntityWorldMutExt::mock_once`].
 pub fn mock_once<C: Component, A: InputAction>(
-    state: ActionState,
+    state: TriggerState,
     value: impl Into<ActionValue>,
 ) -> impl EntityCommand<Result<()>> {
     mock::<C, A>(state, value, MockSpan::once())

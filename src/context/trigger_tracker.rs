@@ -3,7 +3,7 @@ use log::trace;
 
 use crate::{condition::fns::ConditionFns, modifier::fns::ModifierFns, prelude::*};
 
-/// Helper for computing [`ActionState`] and [`ActionValue`] based on modifiers and conditions.
+/// Helper for computing [`TriggerState`] and [`ActionValue`] based on modifiers and conditions.
 ///
 /// Can be used at both the input level and the action level.
 pub(super) struct TriggerTracker {
@@ -65,40 +65,40 @@ impl TriggerTracker {
             match condition.kind() {
                 ConditionKind::Explicit => {
                     self.found_explicit = true;
-                    self.any_explicit_fired |= state == ActionState::Fired;
-                    self.found_active |= state != ActionState::None;
+                    self.any_explicit_fired |= state == TriggerState::Fired;
+                    self.found_active |= state != TriggerState::None;
                 }
                 ConditionKind::Implicit => {
                     self.found_implicit = true;
-                    self.all_implicits_fired &= state == ActionState::Fired;
-                    self.found_active |= state != ActionState::None;
+                    self.all_implicits_fired &= state == TriggerState::Fired;
+                    self.found_active |= state != TriggerState::None;
                 }
                 ConditionKind::Blocker => {
-                    self.blocked |= state == ActionState::None;
+                    self.blocked |= state == TriggerState::None;
                 }
             }
         }
     }
 
-    pub(super) fn state(&self) -> ActionState {
+    pub(super) fn state(&self) -> TriggerState {
         if self.blocked {
-            return ActionState::None;
+            return TriggerState::None;
         }
 
         if !self.found_explicit && !self.found_implicit {
             if self.value.as_bool() {
-                return ActionState::Fired;
+                return TriggerState::Fired;
             } else {
-                return ActionState::None;
+                return TriggerState::None;
             }
         }
 
         if (!self.found_explicit || self.any_explicit_fired) && self.all_implicits_fired {
-            ActionState::Fired
+            TriggerState::Fired
         } else if self.found_active {
-            ActionState::Ongoing
+            TriggerState::Ongoing
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 

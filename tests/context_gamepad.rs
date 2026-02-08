@@ -25,9 +25,9 @@ fn any() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<&ActionState>();
+    let mut actions = app.world_mut().query::<&TriggerState>();
     let state = *actions.single(app.world()).unwrap();
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     let mut gamepad1 = app.world_mut().get_mut::<Gamepad>(gamepad_entity1).unwrap();
     gamepad1.analog_mut().set(Test::BUTTON, 0.0);
@@ -38,7 +38,7 @@ fn any() {
     app.update();
 
     let state = *actions.single(app.world()).unwrap();
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 }
 
 #[test]
@@ -64,9 +64,9 @@ fn by_id() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<&ActionState>();
+    let mut actions = app.world_mut().query::<&TriggerState>();
     let state = *actions.single(app.world()).unwrap();
-    assert_eq!(state, ActionState::Fired);
+    assert_eq!(state, TriggerState::Fired);
 
     let mut gamepad1 = app.world_mut().get_mut::<Gamepad>(gamepad_entity1).unwrap();
     gamepad1.analog_mut().set(Test::BUTTON, 0.0);
@@ -77,7 +77,7 @@ fn by_id() {
     app.update();
 
     let state = *actions.single(app.world()).unwrap();
-    assert_eq!(state, ActionState::None);
+    assert_eq!(state, TriggerState::None);
 }
 
 #[derive(Component)]

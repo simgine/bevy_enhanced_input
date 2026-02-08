@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
-/// Returns [`ActionState::Fired`] when the input exceeds the actuation threshold.
+/// Returns [`TriggerState::Fired`] when the input exceeds the actuation threshold.
 #[derive(Component, Reflect, Debug, Clone, Copy)]
 pub struct Down {
     /// Trigger threshold.
@@ -29,11 +29,11 @@ impl InputCondition for Down {
         _actions: &ActionsQuery,
         _time: &ContextTime,
         value: ActionValue,
-    ) -> ActionState {
+    ) -> TriggerState {
         if value.is_actuated(self.actuation) {
-            ActionState::Fired
+            TriggerState::Fired
         } else {
-            ActionState::None
+            TriggerState::None
         }
     }
 }
@@ -51,11 +51,11 @@ mod tests {
         let mut condition = Down::new(1.0);
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
-            ActionState::None
+            TriggerState::None
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
-            ActionState::Fired,
+            TriggerState::Fired,
         );
     }
 }

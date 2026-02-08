@@ -43,17 +43,21 @@ fn consume() {
 
     let mut first = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<First>>>();
+        .query_filtered::<&TriggerState, With<Action<First>>>();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(first_state, TriggerState::Fired);
 
     let mut second = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<Second>>>();
+        .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, ActionState::None, "action should be consumed");
+    assert_eq!(
+        second_state,
+        TriggerState::None,
+        "action should be consumed"
+    );
 }
 
 #[test]
@@ -97,19 +101,19 @@ fn passthrough() {
 
     let mut first = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<First>>>();
+        .query_filtered::<&TriggerState, With<Action<First>>>();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(first_state, TriggerState::Fired);
 
     let mut second = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<Second>>>();
+        .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
     assert_eq!(
         second_state,
-        ActionState::Fired,
+        TriggerState::Fired,
         "actions that doesn't consume inputs should still fire"
     );
 }
@@ -155,17 +159,21 @@ fn consume_then_passthrough() {
 
     let mut first = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<First>>>();
+        .query_filtered::<&TriggerState, With<Action<First>>>();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(first_state, TriggerState::Fired);
 
     let mut second = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<Second>>>();
+        .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, ActionState::None, "action should be consumed");
+    assert_eq!(
+        second_state,
+        TriggerState::None,
+        "action should be consumed"
+    );
 }
 
 #[test]
@@ -209,17 +217,17 @@ fn passthrough_then_consume() {
 
     let mut first = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<First>>>();
+        .query_filtered::<&TriggerState, With<Action<First>>>();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(first_state, TriggerState::Fired);
 
     let mut second = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<Second>>>();
+        .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, ActionState::Fired);
+    assert_eq!(second_state, TriggerState::Fired);
 }
 
 #[test]
@@ -261,17 +269,17 @@ fn modifiers() {
 
     let mut first = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<First>>>();
+        .query_filtered::<&TriggerState, With<Action<First>>>();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(first_state, TriggerState::Fired);
 
     let mut second = app
         .world_mut()
-        .query_filtered::<&ActionState, With<Action<Second>>>();
+        .query_filtered::<&TriggerState, With<Action<Second>>>();
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, ActionState::None);
+    assert_eq!(second_state, TriggerState::None);
 
     app.world_mut()
         .resource_mut::<ButtonInput<KeyCode>>()
@@ -280,10 +288,10 @@ fn modifiers() {
     app.update();
 
     let first_state = *first.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::None);
+    assert_eq!(first_state, TriggerState::None);
 
     let second_state = *second.single(app.world()).unwrap();
-    assert_eq!(second_state, ActionState::Fired);
+    assert_eq!(second_state, TriggerState::Fired);
 }
 
 #[derive(Component, Clone, Copy)]

@@ -115,10 +115,10 @@ fn switching_by_removal() {
 
     app.update();
 
-    let mut actions = app.world_mut().query::<&ActionState>();
+    let mut actions = app.world_mut().query::<&TriggerState>();
 
     let first_state = *actions.single(app.world()).unwrap();
-    assert_eq!(first_state, ActionState::Fired);
+    assert_eq!(first_state, TriggerState::Fired);
 
     app.world_mut()
         .entity_mut(context)
@@ -134,7 +134,7 @@ fn switching_by_removal() {
     let second_state = *actions.single(app.world()).unwrap();
     assert_eq!(
         second_state,
-        ActionState::None,
+        TriggerState::None,
         "action should still be consumed even after removal"
     );
 
@@ -151,7 +151,7 @@ fn switching_by_removal() {
     app.update();
 
     let second_state = *actions.single(app.world()).unwrap();
-    assert_eq!(second_state, ActionState::Fired);
+    assert_eq!(second_state, TriggerState::Fired);
 }
 
 #[test]

@@ -10,7 +10,7 @@ use crate::prelude::{Cancel, *};
 #[component(immutable)]
 pub(crate) struct ActionFns {
     store_value: fn(&mut EntityMut, ActionValue),
-    trigger: fn(&mut Commands, Entity, Entity, ActionState, ActionEvents, ActionValue, ActionTime),
+    trigger: fn(&mut Commands, Entity, Entity, TriggerState, ActionEvents, ActionValue, ActionTime),
 }
 
 impl ActionFns {
@@ -34,7 +34,7 @@ impl ActionFns {
         commands: &mut Commands,
         context: Entity,
         action: Entity,
-        state: ActionState,
+        state: TriggerState,
         events: ActionEvents,
         value: ActionValue,
         time: ActionTime,
@@ -65,7 +65,7 @@ fn trigger<A: InputAction>(
     commands: &mut Commands,
     context: Entity,
     action: Entity,
-    state: ActionState,
+    state: TriggerState,
     events: ActionEvents,
     value: ActionValue,
     time: ActionTime,
@@ -142,59 +142,59 @@ mod tests {
 
     #[test]
     fn none_none() {
-        let events = transition(ActionState::None, ActionState::None);
+        let events = transition(TriggerState::None, TriggerState::None);
         assert!(events.is_empty());
     }
 
     #[test]
     fn none_ongoing() {
-        let events = transition(ActionState::None, ActionState::Ongoing);
+        let events = transition(TriggerState::None, TriggerState::Ongoing);
         assert_eq!(events, ActionEvents::START | ActionEvents::ONGOING);
     }
 
     #[test]
     fn none_fired() {
-        let events = transition(ActionState::None, ActionState::Fired);
+        let events = transition(TriggerState::None, TriggerState::Fired);
         assert_eq!(events, ActionEvents::START | ActionEvents::FIRE);
     }
 
     #[test]
     fn ongoing_none() {
-        let events = transition(ActionState::Ongoing, ActionState::None);
+        let events = transition(TriggerState::Ongoing, TriggerState::None);
         assert_eq!(events, ActionEvents::CANCEL);
     }
 
     #[test]
     fn ongoing_ongoing() {
-        let events = transition(ActionState::Ongoing, ActionState::Ongoing);
+        let events = transition(TriggerState::Ongoing, TriggerState::Ongoing);
         assert_eq!(events, ActionEvents::ONGOING);
     }
 
     #[test]
     fn ongoing_fired() {
-        let events = transition(ActionState::Ongoing, ActionState::Fired);
+        let events = transition(TriggerState::Ongoing, TriggerState::Fired);
         assert_eq!(events, ActionEvents::FIRE);
     }
 
     #[test]
     fn fired_none() {
-        let events = transition(ActionState::Fired, ActionState::None);
+        let events = transition(TriggerState::Fired, TriggerState::None);
         assert_eq!(events, ActionEvents::COMPLETE);
     }
 
     #[test]
     fn fired_ongoing() {
-        let events = transition(ActionState::Fired, ActionState::Ongoing);
+        let events = transition(TriggerState::Fired, TriggerState::Ongoing);
         assert_eq!(events, ActionEvents::ONGOING);
     }
 
     #[test]
     fn fired_fired() {
-        let events = transition(ActionState::Fired, ActionState::Fired);
+        let events = transition(TriggerState::Fired, TriggerState::Fired);
         assert_eq!(events, ActionEvents::FIRE);
     }
 
-    fn transition(initial_state: ActionState, target_state: ActionState) -> ActionEvents {
+    fn transition(initial_state: TriggerState, target_state: TriggerState) -> ActionEvents {
         let mut world = World::new();
 
         world.init_resource::<TriggeredEvents>();
