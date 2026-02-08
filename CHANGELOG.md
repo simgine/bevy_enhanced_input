@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Rename `ActionState` into `TriggerState` to better align with UE
+- Rename `ActionState` into `TriggerState` to better align with Unreal Engine.
 
 ## [0.23.2] - 2026-02-05
 
