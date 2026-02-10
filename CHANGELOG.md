@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `reflect` feature (enabled by default) to gate all `Reflect` derives, allowing the crate to be used without reflection.
+
 ### Changed
 
 - Rename `ActionState` into `TriggerState` to improve clarity and better align with Unreal Engine conventions.
