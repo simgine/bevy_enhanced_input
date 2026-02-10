@@ -203,7 +203,7 @@ fn same_action_different_bindings() {
     assert_eq!(actions.iter(app.world()).map(|&a| *a).sum::<f32>(), 0.0);
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct TestContext;
 
 #[derive(InputAction)]

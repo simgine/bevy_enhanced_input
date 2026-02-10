@@ -18,7 +18,7 @@ enum GameState {
     Paused,
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(InputAction)]

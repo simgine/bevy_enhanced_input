@@ -96,7 +96,7 @@ fn exit_car(exit: On<Start<ExitCar>>, mut commands: Commands) {
         .despawn_related::<Actions<Driving>>();
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(InputAction)]
@@ -113,7 +113,7 @@ struct Jump;
 struct EnterCar;
 
 /// Overrides some actions from [`Player`].
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Driving;
 
 /// This action overrides [`Jump`] when the player is [`Driving`].

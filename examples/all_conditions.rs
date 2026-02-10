@@ -96,7 +96,7 @@ fn spawn(mut commands: Commands) {
     ));
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct TestContext;
 
 #[derive(InputAction)]

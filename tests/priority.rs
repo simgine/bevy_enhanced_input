@@ -266,10 +266,10 @@ fn change() {
     assert_eq!(second_passthrough_state, TriggerState::Fired);
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct First;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Second;
 
 /// A key used by all consume actions.

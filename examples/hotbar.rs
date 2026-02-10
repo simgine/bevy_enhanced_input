@@ -66,7 +66,7 @@ fn equip(
     }
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(InputAction)]

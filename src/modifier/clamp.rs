@@ -27,7 +27,7 @@ use crate::prelude::*;
 ///     ),
 /// ]);
 ///
-/// #[derive(Component, TypePath)]
+/// #[derive(Component)]
 /// struct Ui;
 ///
 /// #[derive(InputAction)]

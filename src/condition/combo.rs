@@ -48,7 +48,7 @@ struct Click;
 #[action_output(bool)]
 struct DoubleClick;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Menu;
 ```
 */

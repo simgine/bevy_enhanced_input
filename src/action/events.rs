@@ -115,7 +115,7 @@ impl ActionEvents {
 /// fn throw(throw: On<Start<Throw>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component, TypePath)]
+/// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -192,7 +192,7 @@ impl<A: InputAction> Copy for Start<A> {}
 /// fn heal(heal: On<Ongoing<Heal>>, players: Query<&mut Health>) {
 ///     // ..
 /// }
-/// # #[derive(Component, TypePath)]
+/// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -263,7 +263,7 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// fn primary_fire(fire: On<Fire<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component, TypePath)]
+/// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -346,7 +346,7 @@ impl<A: InputAction> Copy for Fire<A> {}
 /// fn weak_attack(attack: On<Cancel<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component, TypePath)]
+/// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -414,7 +414,7 @@ impl<A: InputAction> Copy for Cancel<A> {}
 /// fn jump(jump: On<Complete<Jump>>, players: Query<&mut Transform>) {
 ///     // ...
 /// }
-/// # #[derive(Component, TypePath)]
+/// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
@@ -444,7 +444,7 @@ impl<A: InputAction> Copy for Cancel<A> {}
 /// fn strong_attack(attack: On<Complete<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component, TypePath)]
+/// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;

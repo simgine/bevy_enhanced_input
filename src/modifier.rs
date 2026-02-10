@@ -33,7 +33,7 @@ and tweaks it further using both action and input-level modifiers.
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct FlyCam;
 
 #[derive(InputAction)]

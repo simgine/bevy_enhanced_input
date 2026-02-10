@@ -67,8 +67,6 @@ This behavior can be controlled with [`ContextPriority`].
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
 
-Context components must derive [`TypePath`].
-
 ## Putting it all together
 
 Let's summarize how contexts, actions, and bindings relate to each other in the ECS world.
@@ -94,7 +92,7 @@ Here's a complete example that demonstrates these concepts in action.
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(InputAction)]
@@ -256,7 +254,7 @@ fn apply_input(
     // but since translation expects `Vec3`, we extend it to 3 axes.
     player_transform.translation = movement.extend(0.0);
 }
-# #[derive(Component, TypePath)]
+# #[derive(Component)]
 # struct Player;
 # #[derive(InputAction)]
 # #[action_output(bool)]
@@ -295,7 +293,7 @@ fn apply_input(
         transform.translation = movement.extend(0.0);
     }
 }
-# #[derive(Component, TypePath)]
+# #[derive(Component)]
 # struct Player;
 # #[derive(InputAction)]
 # #[action_output(bool)]

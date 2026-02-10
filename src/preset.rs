@@ -8,7 +8,7 @@ With the help of [modifiers](crate::modifier) you can achieve this as follows:
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(InputAction)]
@@ -49,7 +49,7 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 let mut world = World::new();
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(InputAction)]

@@ -70,7 +70,7 @@ fn cumulative() {
     assert_eq!(*action, Vec2::ZERO, "up and down should cancel each other");
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct TestContext;
 
 #[derive(InputAction)]

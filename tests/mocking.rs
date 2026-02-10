@@ -253,7 +253,7 @@ fn world_entity() {
     assert_eq!(events, ActionEvents::COMPLETE);
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct TestContext;
 
 #[derive(InputAction)]

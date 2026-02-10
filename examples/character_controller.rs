@@ -95,7 +95,7 @@ fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut Pla
     }
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct Player;
 
 #[derive(Component, Default)]

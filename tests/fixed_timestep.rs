@@ -80,7 +80,7 @@ fn twice_in_one_frame() {
     );
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct TestContext;
 
 #[derive(InputAction)]

@@ -20,7 +20,7 @@ However, if you only want to remove a context from an entity, you must remove th
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct OnFoot;
 
 #[derive(InputAction)]
@@ -116,7 +116,7 @@ pub trait InputContextAppExt {
     ///     8. If the final state is not [`TriggerState::None`], consume the binding input value.
     ///
     /// This logic may look complicated, but you don't have to memorize it. It behaves surprisingly intuitively.
-    fn add_input_context<C: Component + TypePath>(&mut self) -> &mut Self {
+    fn add_input_context<C: Component>(&mut self) -> &mut Self {
         self.add_input_context_to::<PreUpdate, C>()
     }
 
@@ -126,15 +126,11 @@ pub trait InputContextAppExt {
     /// For example, if your game logic runs inside [`FixedMain`](bevy::app::FixedMain), you can set the schedule
     /// to [`FixedPreUpdate`]. This way, if the schedule runs multiple times per frame, events like [`Start`] or
     /// [`Complete`] will be triggered only once per schedule run.
-    fn add_input_context_to<S: ScheduleLabel + Default, C: Component + TypePath>(
-        &mut self,
-    ) -> &mut Self;
+    fn add_input_context_to<S: ScheduleLabel + Default, C: Component>(&mut self) -> &mut Self;
 }
 
 impl InputContextAppExt for App {
-    fn add_input_context_to<S: ScheduleLabel + Default, C: Component + TypePath>(
-        &mut self,
-    ) -> &mut Self {
+    fn add_input_context_to<S: ScheduleLabel + Default, C: Component>(&mut self) -> &mut Self {
         debug!(
             "registering `{}` for `{}`",
             ShortName::of::<C>(),
@@ -164,11 +160,6 @@ impl InputContextAppExt for App {
 
         let _ = self.try_register_required_components::<C, ContextPriority<C>>();
         let _ = self.try_register_required_components::<C, ContextActivity<C>>();
-
-        self.register_type::<ActionOf<C>>();
-        self.register_type::<Actions<C>>();
-        self.register_type::<ContextActivity<C>>();
-        self.register_type::<ContextPriority<C>>();
 
         self.add_observer(register::<C, S>)
             .add_observer(unregister::<C, S>)
@@ -791,10 +782,10 @@ impl<C> Copy for ContextActivity<C> {}
 ///     // Actions...
 /// ));
 ///
-/// #[derive(Component, TypePath)]
+/// #[derive(Component)]
 /// struct OnFoot;
 ///
-/// #[derive(Component, TypePath)]
+/// #[derive(Component)]
 /// struct InCar;
 /// ```
 #[derive(Component, Deref)]

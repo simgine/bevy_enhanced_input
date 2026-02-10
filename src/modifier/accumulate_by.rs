@@ -32,7 +32,7 @@ use crate::prelude::*;
 ///     ));
 /// }));
 ///
-/// #[derive(Component, TypePath)]
+/// #[derive(Component)]
 /// struct TestContext;
 ///
 /// #[derive(InputAction)]

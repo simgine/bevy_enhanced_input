@@ -184,10 +184,10 @@ enum TestState {
     C,
 }
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct ContextA;
 
-#[derive(Component, TypePath)]
+#[derive(Component)]
 struct ContextB;
 
 #[derive(InputAction)]
