@@ -8,9 +8,17 @@ use serde::{Deserialize, Serialize};
 ///
 /// Updated from [`Bindings`](crate::prelude::Bindings) and optionally modified by
 /// [`modifiers`](crate::modifier), or overridden by [`ActionMock`](super::ActionMock) if present.
-#[derive(Component, Reflect, Debug, PartialEq, Clone, Copy)]
+#[derive(Component, Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, PartialEq)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub enum ActionValue {
     Bool(bool),
     Axis1D(f32),
@@ -139,9 +147,13 @@ impl ActionValue {
 }
 
 /// A dimension discriminant for [`ActionValue`].
-#[derive(Debug, PartialEq, Eq, PartialOrd, Reflect, Ord, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug, PartialEq))]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub enum ActionValueDim {
     Bool,
     Axis1D,

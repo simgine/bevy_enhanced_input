@@ -29,9 +29,17 @@ use crate::prelude::*;
 ///
 /// The meaning of each kind depends on the assigned [`InputCondition`]s. The events are
 /// triggered in the action evaluation order.
-#[derive(Component, Reflect, Default, Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Component, Default, Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default, PartialEq)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub struct ActionEvents(u8);
 
 impl ActionEvents {

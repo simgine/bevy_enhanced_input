@@ -11,7 +11,8 @@ use crate::prelude::*;
 /// Useful to ensure consistent diagonal movement speed.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct DeadZone {
     /// Defines how axes are processed.
     ///
@@ -92,7 +93,8 @@ impl InputModifier for DeadZone {
 }
 
 /// Dead zone behavior.
-#[derive(Reflect, Default, Debug, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug, Default))]
 pub enum DeadZoneKind {
     /// Apply dead zone logic to all axes simultaneously.
     ///

@@ -5,7 +5,12 @@ use crate::prelude::*;
 /// Multiplies the input value by delta time for this frame.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Default, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Default, Debug, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default)
+)]
 pub struct DeltaScale {
     /// The type of time used to advance the timer.
     pub time_kind: TimeKind,

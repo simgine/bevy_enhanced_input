@@ -55,7 +55,8 @@ struct Modifier;
 struct Heal;
 ```
 */
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Chord {
     /// Actions whose state will be inherited when they are firing.
     pub actions: SmallVec<[Entity; 2]>,

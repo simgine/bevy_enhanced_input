@@ -15,15 +15,23 @@ use serde::{Deserialize, Serialize};
 /// Context entity associated with this action entity.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect)]
+#[derive(Component, Deref)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, PartialEq)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 #[relationship(relationship_target = Actions<C>)]
 pub struct ActionOf<C: Component> {
     #[deref]
     #[relationship]
     entity: Entity,
-    #[reflect(ignore)]
+    #[cfg_attr(feature = "reflect", reflect(ignore))]
     marker: PhantomData<C>,
 }
 
@@ -65,13 +73,14 @@ impl<C: Component> Eq for ActionOf<C> {}
 /// Action entities associated with context `C`.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect)]
+#[derive(Component, Deref)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
 #[relationship_target(relationship = ActionOf<C>, linked_spawn)]
 pub struct Actions<C: Component> {
     #[deref]
     #[relationship]
     entities: Vec<Entity>,
-    #[reflect(ignore)]
+    #[cfg_attr(feature = "reflect", reflect(ignore))]
     marker: PhantomData<C>,
 }
 

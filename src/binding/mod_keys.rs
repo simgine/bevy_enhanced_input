@@ -11,8 +11,16 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// order in which its action is evaluated. See
 /// [`ActionSettings::consume_input`](crate::prelude::ActionSettings::consume_input)
 /// for more details.
-#[derive(Default, Reflect, Debug, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[derive(Default, Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Debug, Default, PartialEq)
+)]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub struct ModKeys(u8);
 
 bitflags! {

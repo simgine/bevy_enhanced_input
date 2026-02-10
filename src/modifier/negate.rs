@@ -7,7 +7,8 @@ use crate::prelude::*;
 /// By default, all axes are inverted.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Negate {
     /// Whether to inverse the X axis.
     pub x: bool,

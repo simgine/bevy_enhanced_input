@@ -699,12 +699,17 @@ fn apply<S: ScheduleLabel>(
 /// Use removal when the context is truly going away and you don't need it back soon.
 ///
 /// Marked as required for `C` on context registration.
-#[derive(Component, Reflect, Deref)]
+#[derive(Component, Deref)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Default)
+)]
 #[component(immutable)]
 pub struct ContextActivity<C> {
     #[deref]
     active: bool,
-    #[reflect(ignore)]
+    #[cfg_attr(feature = "reflect", reflect(ignore))]
     marker: PhantomData<C>,
 }
 
@@ -783,12 +788,17 @@ impl<C> Copy for ContextActivity<C> {}
 /// #[derive(Component)]
 /// struct InCar;
 /// ```
-#[derive(Component, Reflect, Deref)]
+#[derive(Component, Deref)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Default)
+)]
 #[component(immutable)]
 pub struct ContextPriority<C> {
     #[deref]
     value: usize,
-    #[reflect(ignore)]
+    #[cfg_attr(feature = "reflect", reflect(ignore))]
     marker: PhantomData<C>,
 }
 
@@ -818,9 +828,17 @@ impl<C> Copy for ContextPriority<C> {}
 /// Associated gamepad for all input contexts on this entity.
 ///
 /// If not present, input will be read from all connected gamepads.
-#[derive(Component, Reflect, Debug, Default, Hash, PartialEq, Eq, Clone, Copy)]
+#[derive(Component, Debug, Default, Hash, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default, Hash, PartialEq)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub enum GamepadDevice {
     /// Matches input from any gamepad.
     ///

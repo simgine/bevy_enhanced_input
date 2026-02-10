@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `reflect` feature (enabled by default) to gate all `Reflect` derives, allowing the crate to be used without reflection. Crates that depend on `bevy_enhanced_input` should consider disabling this feature by default (`default-features = false`) and re-exporting it as part of their own `reflect` feature, so downstream users can control whether reflection is enabled.
+
 ### Changed
 
 - Rename `ActionState` into `TriggerState` to improve clarity and better align with Unreal Engine conventions.

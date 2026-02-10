@@ -74,9 +74,13 @@ use crate::prelude::*;
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
 /// # struct Jump;
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub struct ActionMock {
     pub state: TriggerState,
     pub value: ActionValue,
@@ -128,9 +132,13 @@ impl Default for ActionMock {
 }
 
 /// Specifies how long [`ActionMock`] should remain active.
-#[derive(Reflect, Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug))]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub enum MockSpan {
     /// Active for a fixed number of context evaluations.
     Updates(u32),

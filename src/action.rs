@@ -158,9 +158,17 @@ impl ActionOutput for Vec3 {
 }
 
 /// Behavior configuration for [`Action<C>`].
-#[derive(Component, Reflect, Default, Debug, Clone, Copy)]
+#[derive(Component, Default, Debug, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub struct ActionSettings {
     /// Accumulation behavior.
     ///
@@ -199,9 +207,13 @@ pub struct ActionSettings {
 /// same most significant [`TriggerState`] (excluding [`TriggerState::None`]).
 ///
 /// Stored inside [`ActionSettings`].
-#[derive(Reflect, Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug, Default))]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub enum Accumulation {
     /// Cumulatively add the key values for each mapping.
     ///
@@ -222,9 +234,17 @@ pub enum Accumulation {
 /// or overridden by [`ActionMock`] if present.
 ///
 /// During evaluation, [`ActionEvents`] are derived from the previous and current state.
-#[derive(Component, Reflect, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(Component, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default, PartialEq)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub enum TriggerState {
     /// Condition is not triggered.
     #[default]
@@ -248,9 +268,17 @@ pub enum TriggerState {
 pub type ActionState = TriggerState;
 
 /// Timing information for [`Action<C>`].
-#[derive(Component, Reflect, Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Component, Debug, Default, Clone, Copy, PartialEq)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default, PartialEq)
+)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub struct ActionTime {
     /// Time the action was in [`TriggerState::Ongoing`] and [`TriggerState::Fired`] states.
     pub elapsed_secs: f32,

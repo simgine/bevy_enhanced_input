@@ -28,7 +28,8 @@ impl ContextTime<'_> {
 /// Type of the [`Time`] resource to use.
 ///
 /// Used to configure time-based [modifiers](crate::modifier) and [conditions](crate::condition).
-#[derive(Reflect, Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug, Default))]
 pub enum TimeKind {
     /// Corresponds to [`Time<Real>`].
     ///
