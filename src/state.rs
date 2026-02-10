@@ -144,7 +144,11 @@ fn set_context_activity<C: Component>(
 /// Inserts [`ContextActivity::<C>::ACTIVE`] when the state matches one of the
 /// specified values, and [`ContextActivity::<C>::INACTIVE`] otherwise.
 #[derive(Component)]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, type_path = false))]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, type_path = false)
+)]
 pub struct ActiveInStates<C: Component, S: States> {
     states: SmallVec<[S; 1]>,
     #[cfg_attr(feature = "reflect", reflect(ignore))]
@@ -204,7 +208,11 @@ impl<C: Component, S: States> bevy::reflect::TypePath for ActiveInStates<C, S> {
         use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| {
-            format!("ActiveInStates<{}, {}>", ::core::any::type_name::<C>(), ::core::any::type_name::<S>())
+            format!(
+                "ActiveInStates<{}, {}>",
+                ::core::any::type_name::<C>(),
+                ::core::any::type_name::<S>()
+            )
         })
     }
 
