@@ -58,8 +58,6 @@ common to create a "controller" entity which applies the input to the desired en
 
 Contexts are stored using regular components, commonly on an entity for which the input is associated (player, button, dialog, etc.).
 
-Contexts also must derive [`TypePath`] or [`Reflect`] so that we can register types generic over the contexts for inspector/editor integration.
-
 Contexts can be activated or deactivated using the [`ContextActivity`] component.
 By default, contexts are active when the component is present.
 When active, all actions associated with the context are evaluated.
@@ -68,6 +66,8 @@ By default, contexts are evaluated in reverse spawn order, meaning the most rece
 This behavior can be controlled with [`ContextPriority`].
 To register a component as an input context, you need to call [`InputContextAppExt::add_input_context`]. By default, contexts are
 evaluated during [`PreUpdate`], but you can customize this by using [`InputContextAppExt::add_input_context_to`] instead.
+
+Context components must derive [`TypePath`].
 
 ## Putting it all together
 
