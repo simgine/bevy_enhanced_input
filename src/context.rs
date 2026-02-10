@@ -777,16 +777,20 @@ impl<C: 'static> TypePath for ContextActivity<C> {
             )
         })
     }
+
     fn short_type_path() -> &'static str {
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| format!("ContextActivity<{}>", type_name::<C>()))
     }
+
     fn type_ident() -> Option<&'static str> {
         Some("ContextActivity")
     }
+
     fn crate_name() -> Option<&'static str> {
         Some(module_path!().split(':').next().unwrap())
     }
+
     fn module_path() -> Option<&'static str> {
         Some(module_path!())
     }
@@ -874,16 +878,20 @@ impl<C: 'static> TypePath for ContextPriority<C> {
             )
         })
     }
+
     fn short_type_path() -> &'static str {
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| format!("ContextPriority<{}>", type_name::<C>()))
     }
+
     fn type_ident() -> Option<&'static str> {
         Some("ContextPriority")
     }
+
     fn module_path() -> Option<&'static str> {
         Some(module_path!())
     }
+
     fn crate_name() -> Option<&'static str> {
         Some(module_path!().split(':').next().unwrap())
     }

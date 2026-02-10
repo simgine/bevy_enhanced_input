@@ -82,16 +82,20 @@ impl<C: Component> TypePath for ActionOf<C> {
             format!(concat!(module_path!(), "::ActionOf<{}>"), type_name::<C>())
         })
     }
+
     fn short_type_path() -> &'static str {
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| format!("ActionOf<{}>", type_name::<C>()))
     }
+
     fn type_ident() -> Option<&'static str> {
         Some("ActionOf")
     }
+
     fn module_path() -> Option<&'static str> {
         Some(module_path!())
     }
+
     fn crate_name() -> Option<&'static str> {
         Some(module_path!().split(':').next().unwrap())
     }
@@ -166,16 +170,20 @@ impl<C: Component> TypePath for Actions<C> {
             format!(concat!(module_path!(), "::Actions<{}>"), type_name::<C>())
         })
     }
+
     fn short_type_path() -> &'static str {
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| format!("Actions<{}>", type_name::<C>()))
     }
+
     fn type_ident() -> Option<&'static str> {
         Some("Actions")
     }
+
     fn module_path() -> Option<&'static str> {
         Some(module_path!())
     }
+
     fn crate_name() -> Option<&'static str> {
         Some(module_path!().split(':').next().unwrap())
     }
