@@ -1,10 +1,14 @@
 use alloc::slice;
+#[cfg(feature = "reflect")]
+use core::any::type_name;
 use core::{
     fmt::{self, Debug, Formatter},
     iter::Copied,
     marker::PhantomData,
 };
 
+#[cfg(feature = "reflect")]
+use bevy::reflect::utility::GenericTypePathCell;
 use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},
     prelude::*,
@@ -19,7 +23,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
-    reflect(Clone, Component, Debug, PartialEq)
+    reflect(Clone, Component, Debug, PartialEq, type_path = false)
 )]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
@@ -70,11 +74,42 @@ impl<C: Component> PartialEq for ActionOf<C> {
 
 impl<C: Component> Eq for ActionOf<C> {}
 
+#[cfg(feature = "reflect")]
+impl<C: Component> TypePath for ActionOf<C> {
+    fn type_path() -> &'static str {
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(concat!(module_path!(), "::ActionOf<{}>"), type_name::<C>())
+        })
+    }
+
+    fn short_type_path() -> &'static str {
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| format!("ActionOf<{}>", type_name::<C>()))
+    }
+
+    fn type_ident() -> Option<&'static str> {
+        Some("ActionOf")
+    }
+
+    fn module_path() -> Option<&'static str> {
+        Some(module_path!())
+    }
+
+    fn crate_name() -> Option<&'static str> {
+        Some(module_path!().split(':').next().unwrap())
+    }
+}
+
 /// Action entities associated with context `C`.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
 #[derive(Component, Deref)]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Component, type_path = false)
+)]
 #[relationship_target(relationship = ActionOf<C>, linked_spawn)]
 pub struct Actions<C: Component> {
     #[deref]
@@ -126,6 +161,33 @@ impl<C: Component> PartialEq for Actions<C> {
 }
 
 impl<C: Component> Eq for Actions<C> {}
+
+#[cfg(feature = "reflect")]
+impl<C: Component> TypePath for Actions<C> {
+    fn type_path() -> &'static str {
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(concat!(module_path!(), "::Actions<{}>"), type_name::<C>())
+        })
+    }
+
+    fn short_type_path() -> &'static str {
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| format!("Actions<{}>", type_name::<C>()))
+    }
+
+    fn type_ident() -> Option<&'static str> {
+        Some("Actions")
+    }
+
+    fn module_path() -> Option<&'static str> {
+        Some(module_path!())
+    }
+
+    fn crate_name() -> Option<&'static str> {
+        Some(module_path!().split(':').next().unwrap())
+    }
+}
 
 /// A type alias over [`RelatedSpawner`] used to spawn action entities containing an [`ActionOf`] relationship.
 pub type ActionSpawner<'w, C> = RelatedSpawner<'w, ActionOf<C>>;

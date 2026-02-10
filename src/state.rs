@@ -42,8 +42,12 @@ app.world_mut().spawn((
 ```
 */
 
+#[cfg(feature = "reflect")]
+use core::any::type_name;
 use core::marker::PhantomData;
 
+#[cfg(feature = "reflect")]
+use bevy::reflect::utility::GenericTypePathCell;
 use bevy::{
     prelude::*,
     state::state::{StateTransitionEvent, StateTransitionSystems, States},
@@ -144,7 +148,11 @@ fn set_context_activity<C: Component>(
 /// Inserts [`ContextActivity::<C>::ACTIVE`] when the state matches one of the
 /// specified values, and [`ContextActivity::<C>::INACTIVE`] otherwise.
 #[derive(Component)]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component))]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, type_path = false)
+)]
 pub struct ActiveInStates<C: Component, S: States> {
     states: SmallVec<[S; 1]>,
     #[cfg_attr(feature = "reflect", reflect(ignore))]
@@ -183,5 +191,34 @@ impl<C: Component, S: States> Clone for ActiveInStates<C, S> {
             states: self.states.clone(),
             _marker: PhantomData,
         }
+    }
+}
+
+#[cfg(feature = "reflect")]
+impl<C: Component, S: States> TypePath for ActiveInStates<C, S> {
+    fn type_path() -> &'static str {
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(
+                concat!(module_path!(), "::ActiveInStates<{}, {}>"),
+                type_name::<C>(),
+                type_name::<S>()
+            )
+        })
+    }
+    fn short_type_path() -> &'static str {
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!("ActiveInStates<{}, {}>", type_name::<C>(), type_name::<S>())
+        })
+    }
+    fn type_ident() -> Option<&'static str> {
+        Some("ActiveInStates")
+    }
+    fn module_path() -> Option<&'static str> {
+        Some(module_path!())
+    }
+    fn crate_name() -> Option<&'static str> {
+        Some(module_path!().split(':').next().unwrap())
     }
 }
