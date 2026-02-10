@@ -8,7 +8,12 @@ use crate::prelude::*;
 ///
 /// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
 /// To disambiguate, import `bevy_enhanced_input::prelude::{*, Release}`.
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default)
+)]
 pub struct Release {
     /// Trigger threshold.
     pub actuation: f32,

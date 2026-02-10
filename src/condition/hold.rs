@@ -8,7 +8,8 @@ use crate::prelude::*;
 ///
 /// Returns [`TriggerState::None`] when the input stops being actuated earlier than the defined hold time.
 /// May optionally fire once, or repeatedly fire.
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Hold {
     /// Should this trigger fire only once, or fire every frame once the hold time threshold is met?
     pub one_shot: bool,

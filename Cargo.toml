@@ -19,7 +19,8 @@ name = "keybinding_menu"
 required-features = ["serialize"]
 
 [features]
-default = ["state"]
+default = ["reflect", "state"]
+reflect = []
 serialize = ["bevy/serialize", "dep:serde"]
 state = ["bevy/bevy_state"]
 

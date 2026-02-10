@@ -310,7 +310,8 @@ impl InputReader<'_, '_> {
 ///     action_sources.mouse_wheel = mouse_unused;
 /// }
 /// ```
-#[derive(Resource, Reflect)]
+#[derive(Resource)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Default, Resource))]
 pub struct ActionSources {
     pub keyboard: bool,
     pub mouse_buttons: bool,

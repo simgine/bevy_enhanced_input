@@ -7,7 +7,8 @@ use crate::prelude::*;
 /// when the input is released within the defined release time.
 ///
 /// Returns [`TriggerState::None`] when the input is actuated more than the defined release time.
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Tap {
     /// Trigger threshold.
     pub actuation: f32,

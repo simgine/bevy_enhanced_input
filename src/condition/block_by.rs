@@ -41,7 +41,8 @@ use crate::prelude::*;
 /// #[action_output(bool)]
 /// struct Melee;
 /// ```
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct BlockBy {
     /// Actions that block this action when they are firing.
     pub actions: SmallVec<[Entity; 2]>,

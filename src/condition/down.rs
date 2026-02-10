@@ -4,7 +4,12 @@ use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
 /// Returns [`TriggerState::Fired`] when the input exceeds the actuation threshold.
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default)
+)]
 pub struct Down {
     /// Trigger threshold.
     pub actuation: f32,

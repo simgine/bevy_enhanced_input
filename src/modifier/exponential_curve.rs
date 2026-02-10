@@ -7,7 +7,8 @@ use crate::prelude::*;
 /// Apply a simple exponential response curve to input values, per axis.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct ExponentialCurve {
     /// Curve exponent.
     pub exp: Vec3,

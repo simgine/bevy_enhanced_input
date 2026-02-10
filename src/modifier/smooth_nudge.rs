@@ -7,7 +7,12 @@ use crate::prelude::*;
 /// See [`StableInterpolate::smooth_nudge`] for details.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, Default)
+)]
 pub struct SmoothNudge {
     /// Multiplier for delta time, determines the rate of smoothing.
     ///

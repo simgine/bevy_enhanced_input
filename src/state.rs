@@ -143,10 +143,11 @@ fn set_context_activity<C: Component>(
 
 /// Inserts [`ContextActivity::<C>::ACTIVE`] when the state matches one of the
 /// specified values, and [`ContextActivity::<C>::INACTIVE`] otherwise.
-#[derive(Component, Reflect)]
+#[derive(Component)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component))]
 pub struct ActiveInStates<C: Component, S: States> {
     states: SmallVec<[S; 1]>,
-    #[reflect(ignore)]
+    #[cfg_attr(feature = "reflect", reflect(ignore))]
     _marker: PhantomData<C>,
 }
 
