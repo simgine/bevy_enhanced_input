@@ -206,18 +206,22 @@ impl<C: Component, S: States> TypePath for ActiveInStates<C, S> {
             )
         })
     }
+
     fn short_type_path() -> &'static str {
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| {
             format!("ActiveInStates<{}, {}>", type_name::<C>(), type_name::<S>())
         })
     }
+
     fn type_ident() -> Option<&'static str> {
         Some("ActiveInStates")
     }
+
     fn module_path() -> Option<&'static str> {
         Some(module_path!())
     }
+
     fn crate_name() -> Option<&'static str> {
         Some(module_path!().split(':').next().unwrap())
     }
