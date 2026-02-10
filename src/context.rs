@@ -60,6 +60,8 @@ mod instance;
 pub mod time;
 mod trigger_tracker;
 
+#[cfg(feature = "reflect")]
+use core::any::type_name;
 use core::{
     any::TypeId,
     cmp::{Ordering, Reverse},
@@ -68,6 +70,8 @@ use core::{
 
 #[cfg(test)]
 use bevy::ecs::system::SystemState;
+#[cfg(feature = "reflect")]
+use bevy::reflect::utility::GenericTypePathCell;
 use bevy::{
     ecs::{
         component::ComponentId,
@@ -765,30 +769,26 @@ impl<C> Copy for ContextActivity<C> {}
 #[cfg(feature = "reflect")]
 impl<C: 'static> TypePath for ContextActivity<C> {
     fn type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| {
             format!(
-                concat!(::core::module_path!(), "::ContextActivity<{}>"),
-                ::core::any::type_name::<C>()
+                concat!(module_path!(), "::ContextActivity<{}>"),
+                type_name::<C>()
             )
         })
     }
     fn short_type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
-        CELL.get_or_insert::<Self, _>(|| {
-            format!("ContextActivity<{}>", ::core::any::type_name::<C>())
-        })
+        CELL.get_or_insert::<Self, _>(|| format!("ContextActivity<{}>", type_name::<C>()))
     }
     fn type_ident() -> Option<&'static str> {
-        ::core::option::Option::Some("ContextActivity")
+        Some("ContextActivity")
     }
     fn crate_name() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+        Some(module_path!().split(':').next().unwrap())
     }
     fn module_path() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!())
+        Some(module_path!())
     }
 }
 
@@ -866,34 +866,26 @@ impl<C> Copy for ContextPriority<C> {}
 #[cfg(feature = "reflect")]
 impl<C: 'static> TypePath for ContextPriority<C> {
     fn type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| {
             format!(
-                concat!(::core::module_path!(), "::ContextPriority<{}>"),
-                ::core::any::type_name::<C>()
+                concat!(module_path!(), "::ContextPriority<{}>"),
+                type_name::<C>()
             )
         })
     }
-
     fn short_type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
-        CELL.get_or_insert::<Self, _>(|| {
-            format!("ContextPriority<{}>", ::core::any::type_name::<C>())
-        })
+        CELL.get_or_insert::<Self, _>(|| format!("ContextPriority<{}>", type_name::<C>()))
     }
-
     fn type_ident() -> Option<&'static str> {
-        ::core::option::Option::Some("ContextPriority")
+        Some("ContextPriority")
     }
-
     fn module_path() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!())
+        Some(module_path!())
     }
-
     fn crate_name() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+        Some(module_path!().split(':').next().unwrap())
     }
 }
 

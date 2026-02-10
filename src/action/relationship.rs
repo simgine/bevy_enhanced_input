@@ -1,10 +1,14 @@
 use alloc::slice;
+#[cfg(feature = "reflect")]
+use core::any::type_name;
 use core::{
     fmt::{self, Debug, Formatter},
     iter::Copied,
     marker::PhantomData,
 };
 
+#[cfg(feature = "reflect")]
+use bevy::reflect::utility::GenericTypePathCell;
 use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},
     prelude::*,
@@ -71,34 +75,25 @@ impl<C: Component> PartialEq for ActionOf<C> {
 impl<C: Component> Eq for ActionOf<C> {}
 
 #[cfg(feature = "reflect")]
-impl<C: Component> bevy::reflect::TypePath for ActionOf<C> {
+impl<C: Component> TypePath for ActionOf<C> {
     fn type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| {
-            format!(
-                concat!(::core::module_path!(), "::ActionOf<{}>"),
-                ::core::any::type_name::<C>()
-            )
+            format!(concat!(module_path!(), "::ActionOf<{}>"), type_name::<C>())
         })
     }
-
     fn short_type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
-        CELL.get_or_insert::<Self, _>(|| format!("ActionOf<{}>", ::core::any::type_name::<C>()))
+        CELL.get_or_insert::<Self, _>(|| format!("ActionOf<{}>", type_name::<C>()))
     }
-
     fn type_ident() -> Option<&'static str> {
-        ::core::option::Option::Some("ActionOf")
+        Some("ActionOf")
     }
-
     fn module_path() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!())
+        Some(module_path!())
     }
-
     fn crate_name() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+        Some(module_path!().split(':').next().unwrap())
     }
 }
 
@@ -164,34 +159,25 @@ impl<C: Component> PartialEq for Actions<C> {
 impl<C: Component> Eq for Actions<C> {}
 
 #[cfg(feature = "reflect")]
-impl<C: Component> bevy::reflect::TypePath for Actions<C> {
+impl<C: Component> TypePath for Actions<C> {
     fn type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
         CELL.get_or_insert::<Self, _>(|| {
-            format!(
-                concat!(::core::module_path!(), "::Actions<{}>"),
-                ::core::any::type_name::<C>()
-            )
+            format!(concat!(module_path!(), "::Actions<{}>"), type_name::<C>())
         })
     }
-
     fn short_type_path() -> &'static str {
-        use bevy::reflect::utility::GenericTypePathCell;
         static CELL: GenericTypePathCell = GenericTypePathCell::new();
-        CELL.get_or_insert::<Self, _>(|| format!("Actions<{}>", ::core::any::type_name::<C>()))
+        CELL.get_or_insert::<Self, _>(|| format!("Actions<{}>", type_name::<C>()))
     }
-
     fn type_ident() -> Option<&'static str> {
-        ::core::option::Option::Some("Actions")
+        Some("Actions")
     }
-
     fn module_path() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!())
+        Some(module_path!())
     }
-
     fn crate_name() -> Option<&'static str> {
-        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+        Some(module_path!().split(':').next().unwrap())
     }
 }
 
