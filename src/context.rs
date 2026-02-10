@@ -161,6 +161,14 @@ impl InputContextAppExt for App {
         let _ = self.try_register_required_components::<C, ContextPriority<C>>();
         let _ = self.try_register_required_components::<C, ContextActivity<C>>();
 
+        #[cfg(feature = "reflect")]
+        {
+            self.register_type::<ActionOf<C>>();
+            self.register_type::<Actions<C>>();
+            self.register_type::<ContextActivity<C>>();
+            self.register_type::<ContextPriority<C>>();
+        }
+
         self.add_observer(register::<C, S>)
             .add_observer(unregister::<C, S>)
             .add_observer(deactivate::<C>)
@@ -703,7 +711,7 @@ fn apply<S: ScheduleLabel>(
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
-    reflect(Clone, Component, Default)
+    reflect(Clone, Component, Default, type_path = false)
 )]
 #[component(immutable)]
 pub struct ContextActivity<C> {
@@ -754,6 +762,36 @@ impl<C> Clone for ContextActivity<C> {
 
 impl<C> Copy for ContextActivity<C> {}
 
+#[cfg(feature = "reflect")]
+impl<C: 'static> TypePath for ContextActivity<C> {
+    fn type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(
+                concat!(::core::module_path!(), "::ContextActivity<{}>"),
+                ::core::any::type_name::<C>()
+            )
+        })
+    }
+    fn short_type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!("ContextActivity<{}>", ::core::any::type_name::<C>())
+        })
+    }
+    fn type_ident() -> Option<&'static str> {
+        ::core::option::Option::Some("ContextActivity")
+    }
+    fn crate_name() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+    }
+    fn module_path() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!())
+    }
+}
+
 /// Determines the evaluation order of the input context `C` on the entity.
 ///
 /// Used to control how contexts are layered, as some [`Action<C>`]s may consume inputs.
@@ -792,7 +830,7 @@ impl<C> Copy for ContextActivity<C> {}
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
-    reflect(Clone, Component, Default)
+    reflect(Clone, Component, Default, type_path = false)
 )]
 #[component(immutable)]
 pub struct ContextPriority<C> {
@@ -824,6 +862,40 @@ impl<C> Clone for ContextPriority<C> {
 }
 
 impl<C> Copy for ContextPriority<C> {}
+
+#[cfg(feature = "reflect")]
+impl<C: 'static> TypePath for ContextPriority<C> {
+    fn type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(
+                concat!(::core::module_path!(), "::ContextPriority<{}>"),
+                ::core::any::type_name::<C>()
+            )
+        })
+    }
+
+    fn short_type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!("ContextPriority<{}>", ::core::any::type_name::<C>())
+        })
+    }
+
+    fn type_ident() -> Option<&'static str> {
+        ::core::option::Option::Some("ContextPriority")
+    }
+
+    fn module_path() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!())
+    }
+
+    fn crate_name() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+    }
+}
 
 /// Associated gamepad for all input contexts on this entity.
 ///

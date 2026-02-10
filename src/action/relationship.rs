@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
-    reflect(Clone, Component, Debug, PartialEq)
+    reflect(Clone, Component, Debug, PartialEq, type_path = false)
 )]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
@@ -70,11 +70,47 @@ impl<C: Component> PartialEq for ActionOf<C> {
 
 impl<C: Component> Eq for ActionOf<C> {}
 
+#[cfg(feature = "reflect")]
+impl<C: Component> bevy::reflect::TypePath for ActionOf<C> {
+    fn type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(
+                concat!(::core::module_path!(), "::ActionOf<{}>"),
+                ::core::any::type_name::<C>()
+            )
+        })
+    }
+
+    fn short_type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| format!("ActionOf<{}>", ::core::any::type_name::<C>()))
+    }
+
+    fn type_ident() -> Option<&'static str> {
+        ::core::option::Option::Some("ActionOf")
+    }
+
+    fn module_path() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!())
+    }
+
+    fn crate_name() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+    }
+}
+
 /// Action entities associated with context `C`.
 ///
 /// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
 #[derive(Component, Deref)]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Component, type_path = false)
+)]
 #[relationship_target(relationship = ActionOf<C>, linked_spawn)]
 pub struct Actions<C: Component> {
     #[deref]
@@ -126,6 +162,38 @@ impl<C: Component> PartialEq for Actions<C> {
 }
 
 impl<C: Component> Eq for Actions<C> {}
+
+#[cfg(feature = "reflect")]
+impl<C: Component> bevy::reflect::TypePath for Actions<C> {
+    fn type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(
+                concat!(::core::module_path!(), "::Actions<{}>"),
+                ::core::any::type_name::<C>()
+            )
+        })
+    }
+
+    fn short_type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| format!("Actions<{}>", ::core::any::type_name::<C>()))
+    }
+
+    fn type_ident() -> Option<&'static str> {
+        ::core::option::Option::Some("Actions")
+    }
+
+    fn module_path() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!())
+    }
+
+    fn crate_name() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
+    }
+}
 
 /// A type alias over [`RelatedSpawner`] used to spawn action entities containing an [`ActionOf`] relationship.
 pub type ActionSpawner<'w, C> = RelatedSpawner<'w, ActionOf<C>>;

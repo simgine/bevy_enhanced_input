@@ -144,7 +144,7 @@ fn set_context_activity<C: Component>(
 /// Inserts [`ContextActivity::<C>::ACTIVE`] when the state matches one of the
 /// specified values, and [`ContextActivity::<C>::INACTIVE`] otherwise.
 #[derive(Component)]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component))]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, type_path = false))]
 pub struct ActiveInStates<C: Component, S: States> {
     states: SmallVec<[S; 1]>,
     #[cfg_attr(feature = "reflect", reflect(ignore))]
@@ -183,5 +183,40 @@ impl<C: Component, S: States> Clone for ActiveInStates<C, S> {
             states: self.states.clone(),
             _marker: PhantomData,
         }
+    }
+}
+
+#[cfg(feature = "reflect")]
+impl<C: Component, S: States> bevy::reflect::TypePath for ActiveInStates<C, S> {
+    fn type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!(
+                concat!(::core::module_path!(), "::ActiveInStates<{}, {}>"),
+                ::core::any::type_name::<C>(),
+                ::core::any::type_name::<S>()
+            )
+        })
+    }
+
+    fn short_type_path() -> &'static str {
+        use bevy::reflect::utility::GenericTypePathCell;
+        static CELL: GenericTypePathCell = GenericTypePathCell::new();
+        CELL.get_or_insert::<Self, _>(|| {
+            format!("ActiveInStates<{}, {}>", ::core::any::type_name::<C>(), ::core::any::type_name::<S>())
+        })
+    }
+
+    fn type_ident() -> Option<&'static str> {
+        ::core::option::Option::Some("ActiveInStates")
+    }
+
+    fn module_path() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!())
+    }
+
+    fn crate_name() -> Option<&'static str> {
+        ::core::option::Option::Some(::core::module_path!().split(':').next().unwrap())
     }
 }
