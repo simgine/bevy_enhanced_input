@@ -38,7 +38,8 @@ use crate::prelude::*;
 /// #[action_output(bool)]
 /// struct Down;
 /// ```
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Clamp {
     /// Minimum value per axis.
     pub min: Vec3,

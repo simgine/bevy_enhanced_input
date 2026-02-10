@@ -7,7 +7,8 @@ use crate::prelude::*;
 /// when the input is released after having been actuated for the defined hold time.
 ///
 /// Returns [`TriggerState::None`] when the input stops being actuated earlier than the defined hold time.
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct HoldAndRelease {
     /// Trigger threshold.
     pub actuation: f32,

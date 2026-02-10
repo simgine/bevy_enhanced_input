@@ -7,7 +7,8 @@ use crate::prelude::*;
 
 /// Returns [`TriggerState::Fired`] when actuated, then [`TriggerState::None`]
 /// on subsequent actuations until the cooldown duration has elapsed.
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Cooldown {
     /// Trigger threshold.
     pub actuation: f32,

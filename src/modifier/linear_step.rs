@@ -6,7 +6,8 @@ use crate::prelude::*;
 /// Gradually steps the input value toward the target value at a constant linear rate.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`]
-#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct LinearStep {
     /// The fraction of the distance to step per frame while accelerating.
     ///

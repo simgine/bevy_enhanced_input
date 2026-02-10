@@ -10,7 +10,8 @@ use crate::prelude::*;
 ///
 /// Note: [`Complete`] only fires when the repeat limit is reached or when input is released
 /// immediately after being triggered. Otherwise, [`Cancel`] is fired when input is released.
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Pulse {
     /// Number of times the condition can be triggered (0 means no limit).
     pub trigger_limit: u32,

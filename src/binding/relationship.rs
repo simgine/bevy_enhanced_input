@@ -13,16 +13,29 @@ use crate::prelude::*;
 /// Action entity associated with this binding entity.
 ///
 /// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, PartialEq, Eq, Clone)]
+#[derive(Component, Deref, Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Clone, Component, Debug, PartialEq)
+)]
 #[relationship(relationship_target = Bindings)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serialize", reflect(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
 pub struct BindingOf(pub Entity);
 
 /// Binding entities associated with this action entity.
 ///
 /// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
-#[derive(Component, Deref, Reflect, Debug, Default, PartialEq, Eq)]
+#[derive(Component, Deref, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(
+    feature = "reflect",
+    derive(Reflect),
+    reflect(Component, Debug, Default, PartialEq)
+)]
 #[relationship_target(relationship = BindingOf, linked_spawn)]
 pub struct Bindings(Vec<Entity>);
 
