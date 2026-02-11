@@ -69,6 +69,27 @@ jobs:
       - name: Rustdoc
         run: cargo rustdoc -- -D warnings
 
+  feature-combinations:
+    name: Feature combinations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v6
+
+      - name: Instal stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Cargo Hack
+        run: cargo install cargo-hack
+
+      - name: Check feature combinations
+        run: cargo hack check --feature-powerset
+        env:
+          RUSTFLAGS: -Dwarnings
+
   no-std-portable-atomic:
     name: Without atomics and std
     runs-on: ubuntu-latest
