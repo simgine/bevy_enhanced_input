@@ -76,7 +76,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v6
 
-      - name: Instal stable toolchain
+      - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache crates
