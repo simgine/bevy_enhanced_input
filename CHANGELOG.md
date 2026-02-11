@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `ModKeys` changed to supports using both or using only the left or right key for the modifier.
 - Rename `ActionState` into `TriggerState` to improve clarity and better align with Unreal Engine conventions.
 
 ## [0.23.2] - 2026-02-05
