@@ -219,13 +219,22 @@ impl InputReader<'_, '_> {
             return false;
         }
 
-        for keys in mod_keys.iter_keys() {
-            if self.keys.as_ref().is_none_or(|k| !k.any_pressed(keys)) {
-                return false;
+        let mut active = true;
+        mod_keys.iter_keys().for_each(|modifier| {
+            let mut count = 0;
+            for key in modifier {
+                if let Some(key) = key
+                    && self.keys.as_ref().is_some_and(|k| k.pressed(key))
+                {
+                    count += 1;
+                }
             }
-        }
+            if count == 0 {
+                active = false;
+            }
+        });
 
-        true
+        active
     }
 
     fn ignored(&self, binding: impl Into<Binding>) -> bool {

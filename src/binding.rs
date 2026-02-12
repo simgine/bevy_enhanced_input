@@ -304,7 +304,7 @@ mod tests {
                 mod_keys: ModKeys::ALT_LEFT
             }
             .to_string(),
-            "LeftAlt + KeyC"
+            "Left Alt + KeyC"
         );
         assert_eq!(
             Binding::MouseButton {

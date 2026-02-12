@@ -25,25 +25,28 @@ pub struct ModKeys(u8);
 
 bitflags! {
     impl ModKeys: u8 {
-        /// Corresponds to [`KeyCode::ControlLeft`] and [`KeyCode::ControlRight`].
+        /// Corresponds to [`KeyCode::ControlLeft`] or [`KeyCode::ControlRight`].
         const CONTROL = 0b00010001;
         /// Corresponds to [`KeyCode::ControlLeft`].
         const CONTROL_LEFT = 0b00000001;
         /// Corresponds to [`KeyCode::ControlRight`].
         const CONTROL_RIGHT = 0b00010000;
-        /// Corresponds to [`KeyCode::ShiftLeft`] and [`KeyCode::ShiftRight`].
+
+        /// Corresponds to [`KeyCode::ShiftLeft`] or [KeyCode::ShiftRight`].
         const SHIFT = 0b00100010;
         /// Corresponds to [`KeyCode::ShiftLeft`].
         const SHIFT_LEFT = 0b00000010;
         /// Corresponds to [`KeyCode::ShiftRight`].
         const SHIFT_RIGHT = 0b00100000;
-        /// Corresponds to [`KeyCode::AltLeft`] and [`KeyCode::AltRight`].
+
+        /// Corresponds to [`KeyCode::AltLeft`] or [`KeyCode::AltRight`].
         const ALT = 0b01000100;
         /// Corresponds to [`KeyCode::AltLeft`].
         const ALT_LEFT = 0b00000100;
         /// Corresponds to [`KeyCode::AltRight`].
         const ALT_RIGHT = 0b01000000;
-        /// Corresponds to [`KeyCode::SuperLeft`] and [`KeyCode::SuperRight`].
+
+        /// Corresponds to [`KeyCode::SuperLeft`] or [KeyCode::SuperRight`].
         const SUPER = 0b10001000;
         /// Corresponds to [`KeyCode::SuperLeft`].
         const SUPER_LEFT = 0b00001000;
@@ -74,17 +77,21 @@ impl Display for ModKeys {
             }
             match mod_key {
                 ModKeys::CONTROL => write!(f, "Ctrl")?,
-                ModKeys::CONTROL_LEFT => write!(f, "LeftCtrl")?,
-                ModKeys::CONTROL_RIGHT => write!(f, "RightCtrl")?,
+                ModKeys::CONTROL_LEFT => write!(f, "Left Ctrl")?,
+                ModKeys::CONTROL_RIGHT => write!(f, "Right Ctrl")?,
+
                 ModKeys::SHIFT => write!(f, "Shift")?,
-                ModKeys::SHIFT_LEFT => write!(f, "LeftShift")?,
-                ModKeys::SHIFT_RIGHT => write!(f, "RightShift")?,
+                ModKeys::SHIFT_LEFT => write!(f, "Left Shift")?,
+                ModKeys::SHIFT_RIGHT => write!(f, "Right Shift")?,
+
                 ModKeys::ALT => write!(f, "Alt")?,
-                ModKeys::ALT_LEFT => write!(f, "LeftAlt")?,
-                ModKeys::ALT_RIGHT => write!(f, "RightAlt")?,
+                ModKeys::ALT_LEFT => write!(f, "Left Alt")?,
+                ModKeys::ALT_RIGHT => write!(f, "Right Alt")?,
+
                 ModKeys::SUPER => write!(f, "Super")?,
-                ModKeys::SUPER_LEFT => write!(f, "LeftSuper")?,
-                ModKeys::SUPER_RIGHT => write!(f, "RightSuper")?,
+                ModKeys::SUPER_LEFT => write!(f, "Left Super")?,
+                ModKeys::SUPER_RIGHT => write!(f, "Right Super")?,
+
                 _ => unreachable!("iteration should yield only named flags"),
             }
         }
@@ -95,14 +102,18 @@ impl Display for ModKeys {
 
 impl ModKeys {
     /// Returns an instance with currently active modifiers.
+    ///
+    /// * `unique_side` - Output the specific modifier keys when pressed
+    ///   instead of the modifiers.
     #[must_use]
     pub fn pressed(keys: &ButtonInput<KeyCode>, unique_side: bool) -> Self {
         let mut mod_keys = Self::empty();
-        for modifier in Self::all().iter_keys() {
-            modifier.into_iter().for_each(|key: KeyCode| {
-                if keys.pressed(key) {
+        Self::all().iter_keys().for_each(|modifier| {
+            for key in modifier {
+                if let Some(key) = key
+                    && keys.pressed(key)
+                {
                     let mod_key: ModKeys = key.into();
-                    mod_keys |= mod_key;
                     if !unique_side {
                         if ModKeys::CONTROL.intersects(mod_key) {
                             mod_keys |= ModKeys::CONTROL;
@@ -117,27 +128,31 @@ impl ModKeys {
                         mod_keys |= mod_key;
                     }
                 }
-            });
-        }
+            }
+        });
 
         mod_keys
     }
 
     /// Returns an iterator over the key codes corresponding to the set modifier bits.
-    pub fn iter_keys(self) -> impl Iterator<Item = Vec<KeyCode>> {
+    pub fn iter_keys(self) -> impl Iterator<Item = [Option<KeyCode>; 2]> {
         self.iter_names().map(|(_, mod_key)| match mod_key {
-            ModKeys::CONTROL => vec![KeyCode::ControlLeft, KeyCode::ControlRight],
-            ModKeys::CONTROL_LEFT => vec![KeyCode::ControlLeft],
-            ModKeys::CONTROL_RIGHT => vec![KeyCode::ControlRight],
-            ModKeys::SHIFT => vec![KeyCode::ShiftLeft, KeyCode::ShiftRight],
-            ModKeys::SHIFT_LEFT => vec![KeyCode::ShiftLeft],
-            ModKeys::SHIFT_RIGHT => vec![KeyCode::ShiftRight],
-            ModKeys::ALT => vec![KeyCode::AltLeft, KeyCode::AltRight],
-            ModKeys::ALT_LEFT => vec![KeyCode::AltLeft],
-            ModKeys::ALT_RIGHT => vec![KeyCode::AltRight],
-            ModKeys::SUPER => vec![KeyCode::SuperLeft, KeyCode::SuperRight],
-            ModKeys::SUPER_LEFT => vec![KeyCode::SuperLeft],
-            ModKeys::SUPER_RIGHT => vec![KeyCode::SuperRight],
+            ModKeys::CONTROL => [Some(KeyCode::ControlLeft), Some(KeyCode::ControlRight)],
+            ModKeys::CONTROL_LEFT => [Some(KeyCode::ControlLeft), None],
+            ModKeys::CONTROL_RIGHT => [Some(KeyCode::ControlRight), None],
+
+            ModKeys::SHIFT => [Some(KeyCode::ShiftLeft), Some(KeyCode::ShiftRight)],
+            ModKeys::SHIFT_LEFT => [Some(KeyCode::ShiftLeft), None],
+            ModKeys::SHIFT_RIGHT => [Some(KeyCode::ShiftRight), None],
+
+            ModKeys::ALT => [Some(KeyCode::AltLeft), Some(KeyCode::AltRight)],
+            ModKeys::ALT_LEFT => [Some(KeyCode::AltLeft), None],
+            ModKeys::ALT_RIGHT => [Some(KeyCode::AltRight), None],
+
+            ModKeys::SUPER => [Some(KeyCode::SuperLeft), Some(KeyCode::SuperRight)],
+            ModKeys::SUPER_LEFT => [Some(KeyCode::SuperLeft), None],
+            ModKeys::SUPER_RIGHT => [Some(KeyCode::SuperRight), None],
+
             _ => unreachable!("iteration should yield only named flags"),
         })
     }
@@ -151,12 +166,16 @@ impl From<KeyCode> for ModKeys {
         match value {
             KeyCode::ControlLeft => ModKeys::CONTROL_LEFT,
             KeyCode::ControlRight => ModKeys::CONTROL_RIGHT,
+
             KeyCode::ShiftLeft => ModKeys::SHIFT_LEFT,
             KeyCode::ShiftRight => ModKeys::SHIFT_RIGHT,
+
             KeyCode::AltLeft => ModKeys::ALT_LEFT,
             KeyCode::AltRight => ModKeys::ALT_RIGHT,
+
             KeyCode::SuperLeft => ModKeys::SUPER_LEFT,
             KeyCode::SuperRight => ModKeys::SUPER_RIGHT,
+
             _ => ModKeys::empty(),
         }
     }
@@ -199,7 +218,7 @@ mod tests {
         assert_eq!(ModKeys::CONTROL.to_string(), "Ctrl");
         assert_eq!(ModKeys::all().to_string(), "Ctrl + Shift + Alt + Super");
         assert_eq!(ModKeys::empty().to_string(), "");
-        assert_eq!(ModKeys::ALT_LEFT.to_string(), "LeftAlt");
+        assert_eq!(ModKeys::ALT_LEFT.to_string(), "Left Alt");
     }
 
     #[cfg(feature = "serialize")]
