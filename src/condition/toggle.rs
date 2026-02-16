@@ -111,12 +111,10 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
-            "should toggle on"
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
-            "should stay on while held"
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -126,7 +124,6 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::None,
-            "should toggle off"
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -135,7 +132,6 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
-            "should toggle on again"
         );
     }
 
@@ -149,7 +145,6 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 0.5.into()),
             TriggerState::None,
-            "below threshold should not toggle"
         );
         assert_eq!(
             condition.evaluate(&actions, &time, 0.8.into()),
