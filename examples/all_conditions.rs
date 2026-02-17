@@ -59,6 +59,11 @@ fn spawn(mut commands: Commands) {
                 Tap::new(0.5),
                 bindings![TestTap::KEY],
             ));
+            context.spawn((
+                Action::<TestToggle>::new(),
+                Toggle::default(),
+                bindings![TestToggle::KEY],
+            ));
 
             let member1 = context
                 .spawn((Action::<ChordMember1>::new(), bindings![ChordMember1::KEY]))
@@ -153,6 +158,14 @@ struct TestTap;
 
 impl TestTap {
     const KEY: KeyCode = KeyCode::Digit7;
+}
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct TestToggle;
+
+impl TestToggle {
+    const KEY: KeyCode = KeyCode::Backspace;
 }
 
 #[derive(InputAction)]

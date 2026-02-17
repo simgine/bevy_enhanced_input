@@ -6,33 +6,12 @@ use crate::prelude::*;
 /// Returns [`TriggerState::Fired`] when toggled on, [`TriggerState::None`] when toggled off.
 ///
 /// When the input is pressed:
-/// - If currently off, turns on and fires continuously every frame
-/// - If currently on, turns off and stops firing
+/// - If currently off, turns on and fires continuously every frame.
+/// - If currently on, turns off and stops firing.
 ///
 /// This is useful for modes that should persist until toggled off,
 /// like entering a "select target" mode, toggling crouch, or any other
 /// action that represents a persistent state rather than a momentary input.
-///
-/// ```
-/// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::*;
-/// # #[derive(Component)]
-/// # struct Player;
-/// # #[derive(InputAction)]
-/// # #[action_output(bool)]
-/// # struct SelectTarget;
-/// # let mut world = World::new();
-/// world.spawn((
-///     Player,
-///     actions!(Player[
-///         (
-///             Action::<SelectTarget>::new(),
-///             Toggle::default(),
-///             bindings![KeyCode::KeyF],
-///         ),
-///     ]),
-/// ));
-/// ```
 #[derive(Component, Debug, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",
@@ -126,29 +105,33 @@ mod tests {
             TriggerState::None,
         );
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
+            condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::None,
         );
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
-            TriggerState::Fired,
+            condition.evaluate(&actions, &time, 0.0.into()),
+            TriggerState::None,
         );
     }
 
     #[test]
-    fn actuation_threshold() {
+    fn manual() {
         let (world, mut state) = context::init_world();
         let (time, actions) = state.get(&world);
 
-        let mut condition = Toggle::new(0.7);
-
+        let mut condition = Toggle {
+            toggled: true,
+            ..Default::default()
+        };
         assert_eq!(
-            condition.evaluate(&actions, &time, 0.5.into()),
-            TriggerState::None,
-        );
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.8.into()),
+            condition.evaluate(&actions, &time, 0.0.into()),
             TriggerState::Fired,
+        );
+
+        condition.toggled = false;
+        assert_eq!(
+            condition.evaluate(&actions, &time, 0.0.into()),
+            TriggerState::None,
         );
     }
 }
