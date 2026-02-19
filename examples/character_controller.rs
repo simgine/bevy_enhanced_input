@@ -46,6 +46,8 @@ fn setup(
                 Action::<Movement>::new(),
                 DeadZone::default(),
                 SmoothNudge::default(),
+                // We don't apply `DeltaScale` here because the movement vector is
+                // multiplied by delta time during the physics calculation.
                 Scale::splat(450.0),
                 Bindings::spawn((
                     Bidirectional::new(KeyCode::KeyA, KeyCode::KeyD),

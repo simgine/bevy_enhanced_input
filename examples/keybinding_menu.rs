@@ -583,6 +583,9 @@ fn player_bundle(settings: InputSettings) -> impl Bundle {
             Player[
                 (
                     Action::<Movement>::new(),
+                    DeadZone::default(),
+                    DeltaScale::default(),
+                    Scale::splat(10.0),
                     Bindings::spawn((
                         Cardinal {
                             north: settings.forward[0],
