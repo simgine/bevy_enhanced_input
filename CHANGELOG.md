@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `Toggle` input condition that keeps an action firing after the input is released, toggling off on the next press.
-- `reflect` feature (enabled by default) to gate all `Reflect` derives, allowing the crate to be used without reflection. Crates that depend on `bevy_enhanced_input` should consider disabling this feature by default (`default-features = false`) and re-exporting it as part of their own `reflect` feature, so downstream users can control whether reflection is enabled.
-- Generic wrapper types (`ContextActivity<C>`, `ContextPriority<C>`, `ActionOf<C>`, `Actions<C>`, `ActiveInStates<C, S>`) are now registered by the crate for use in the inspector/editor.
+- `Toggle` input condition.
+- `reflect` feature (enabled by default) to gate all `Reflect` derives. Crates that depend on `bevy_enhanced_input` should consider disabling this feature by default (`default-features = false`) and re-exporting it as part of their own `reflect` feature, so downstream users can control whether reflection is enabled.
+- Generic wrapper types are now automatically registered by the crate for use in the inspector/editor.
 
 ### Changed
 
