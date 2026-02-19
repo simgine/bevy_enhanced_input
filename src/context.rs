@@ -326,7 +326,7 @@ fn register<C: Component, S: ScheduleLabel>(
 }
 
 fn unregister<C: Component, S: ScheduleLabel>(
-    replace: On<Replace, ContextPriority<C>>,
+    replace: On<Discard, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
 ) {
     debug!(
