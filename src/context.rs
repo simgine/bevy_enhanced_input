@@ -656,7 +656,7 @@ fn apply<S: ScheduleLabel>(
     mut commands: Commands,
     instances: Res<ContextInstances<S>>,
     contexts: Query<FilteredEntityRef, Without<ActionFns>>,
-    mut actions: Query<EntityMut, With<ActionFns>>,
+    mut actions: Query<EntityMut, (With<ActionFns>, Without<ContextInstances<S>>)>,
 ) {
     for instance in &**instances {
         let Ok(context) = contexts.get(instance.entity) else {
