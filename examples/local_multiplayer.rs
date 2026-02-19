@@ -133,7 +133,8 @@ fn player_bundle(
                 Action::<Movement>::new(),
                 DeadZone::default(),
                 SmoothNudge::default(),
-                Scale::splat(0.4),
+                DeltaScale::default(),
+                Scale::splat(10.0),
                 move_bindings,
             )]
         ),

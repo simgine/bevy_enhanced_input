@@ -65,6 +65,8 @@ fn player_bundle() -> impl Bundle {
             (
                 Action::<Movement>::new(),
                 DeadZone::default(),
+                DeltaScale::default(),
+                Scale::splat(10.0),
                 Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
             ),
             (
