@@ -50,8 +50,8 @@ fn setup(
                 // multiplied by delta time during the physics calculation.
                 Scale::splat(450.0),
                 Bindings::spawn((
-                    Bidirectional::new(KeyCode::KeyA, KeyCode::KeyD),
-                    Bidirectional::new(KeyCode::ArrowLeft, KeyCode::ArrowRight),
+                    Bidirectional::new(KeyCode::KeyD, KeyCode::KeyA),
+                    Bidirectional::new(KeyCode::ArrowRight, KeyCode::ArrowLeft),
                     Axial::left_stick(),
                 )),
             ),
