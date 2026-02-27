@@ -150,7 +150,7 @@ fn spawn_scene(
         MeshMaterial3d(materials.add(Color::from(SILVER))),
     ));
 
-    // cube for oriantation
+    // cube for orientation
     commands.spawn((
         Mesh3d(meshes.add(Cuboid::from_length(2.0))),
         MeshMaterial3d(materials.add(Color::from(BLUE_500))),
