@@ -587,7 +587,7 @@ This update features a big rewrite into a component-based API. The core concepts
 Initial release.
 
 [unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...HEAD
-[0.23.2]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...v0.24.0
+[0.24.0]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...v0.24.0
 [0.23.1]: https://github.com/simgine/bevy_replicon/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/simgine/bevy_replicon/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...v0.22.2
