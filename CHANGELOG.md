@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.1] - 2026-02-28
+
 ### Fixed
 
 - Re-add `ActionState` to prelude to aid in migrating from prior versions
@@ -586,7 +588,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.1...HEAD
+[0.24.1]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...v0.24.0
 [0.23.1]: https://github.com/simgine/bevy_replicon/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/simgine/bevy_replicon/compare/v0.22.2...v0.23.0
