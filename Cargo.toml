@@ -26,7 +26,7 @@ state = ["bevy/bevy_state"]
 
 [dependencies]
 bevy_enhanced_input_macros = { path = "macros", version = "0.24.0" }
-bevy = { version = "0.18.0", default-features = false, features = [
+bevy = { git = "https://github.com/cart/bevy", branch = "next-generation-scenes", default-features = false, features = [
   "mouse",
   "keyboard",
   "gamepad",
@@ -41,7 +41,7 @@ serde = { version = "1.0", default-features = false, features = [
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.18.0", default-features = false, features = [
+bevy = { git = "https://github.com/cart/bevy", branch = "next-generation-scenes", default-features = false, features = [
   "bevy_gilrs",
   "bevy_log",
   "bevy_pbr",
