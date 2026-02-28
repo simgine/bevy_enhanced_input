@@ -353,6 +353,8 @@ pub mod preset;
 pub mod state;
 
 pub mod prelude {
+    #[allow(deprecated)]
+    pub use super::action::ActionState;
     #[cfg(feature = "state")]
     pub use super::state::{ActiveInStates, StateContextAppExt};
     pub use super::{
