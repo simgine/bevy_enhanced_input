@@ -326,15 +326,15 @@ fn register<C: Component, S: ScheduleLabel>(
 }
 
 fn unregister<C: Component, S: ScheduleLabel>(
-    replace: On<Replace, ContextPriority<C>>,
+    discard: On<Discard, ContextPriority<C>>,
     mut instances: ResMut<ContextInstances<S>>,
 ) {
     debug!(
         "unregistering `{}` from `{}`",
         ShortName::of::<C>(),
-        replace.entity,
+        discard.entity,
     );
-    instances.remove::<C>(replace.entity);
+    instances.remove::<C>(discard.entity);
 }
 
 fn deactivate<C: Component>(
