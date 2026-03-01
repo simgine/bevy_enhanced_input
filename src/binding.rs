@@ -299,6 +299,14 @@ mod tests {
             "Ctrl + KeyA"
         );
         assert_eq!(
+            Binding::Keyboard {
+                key: KeyCode::KeyC,
+                mod_keys: ModKeys::ALT_LEFT
+            }
+            .to_string(),
+            "Left Alt + KeyC"
+        );
+        assert_eq!(
             Binding::MouseButton {
                 button: MouseButton::Left,
                 mod_keys: ModKeys::empty()
