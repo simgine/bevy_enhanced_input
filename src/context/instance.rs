@@ -14,9 +14,11 @@ use crate::{context::ContextActivity, prelude::*};
 ///
 /// Used to iterate over them in a defined order and operate in a type-erased manner.
 #[derive(Resource, Default, Deref)]
-pub(crate) struct ContextInstances<S: ScheduleLabel> {
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Resource))]
+pub struct ContextInstances<S: ScheduleLabel> {
     #[deref]
-    instances: Vec<ContextInstance>,
+    #[reflect(ignore)]
+    pub instances: Vec<ContextInstance>,
     marker: PhantomData<S>,
 }
 
@@ -38,7 +40,8 @@ impl<S: ScheduleLabel> ContextInstances<S> {
 }
 
 /// Meta information for context on an entity.
-pub(crate) struct ContextInstance {
+#[derive(Debug)]
+pub struct ContextInstance {
     pub(super) entity: Entity,
     pub(super) name: ShortName<'static>,
     type_id: TypeId,

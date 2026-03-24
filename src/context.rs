@@ -56,7 +56,7 @@ triggering the corresponding events. Depending on your use case, using [`Context
 */
 
 pub mod input_reader;
-mod instance;
+pub mod instance;
 pub mod time;
 mod trigger_tracker;
 
