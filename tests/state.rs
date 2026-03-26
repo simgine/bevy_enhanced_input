@@ -176,12 +176,146 @@ fn on_spawn() {
     );
 }
 
+#[test]
+fn substate_on_spawn() {
+    let mut app = App::new();
+    app.add_plugins((
+        MinimalPlugins,
+        InputPlugin,
+        StatesPlugin,
+        EnhancedInputPlugin,
+    ))
+    .init_state::<ParentState>()
+    .add_sub_state::<TestSubState>()
+    .add_input_context::<ContextA>()
+    .sync_context_to_state::<ContextA, TestSubState>()
+    .finish();
+
+    app.world_mut().spawn((
+        ContextA,
+        ContextActivity::<ContextA>::INACTIVE,
+        ActiveInStates::<ContextA, _>::single(TestSubState::Active),
+        actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
+    ));
+
+    app.update();
+
+    let mut activities = app
+        .world_mut()
+        .query_filtered::<&ContextActivity<ContextA>, With<ContextA>>();
+    assert!(
+        !**activities.single(app.world()).unwrap(),
+        "should stay inactive while the substate resource is absent"
+    );
+
+    app.world_mut()
+        .resource_mut::<NextState<ParentState>>()
+        .set(ParentState::Playing);
+    app.update();
+
+    assert!(
+        **activities.single(app.world()).unwrap(),
+        "should activate once the parent state creates the matching substate"
+    );
+
+    app.world_mut()
+        .resource_mut::<NextState<ParentState>>()
+        .set(ParentState::Menu);
+    app.update();
+
+    assert!(
+        !**activities.single(app.world()).unwrap(),
+        "should deactivate again when the substate resource is removed"
+    );
+}
+
+#[test]
+fn computed_state_on_spawn() {
+    let mut app = App::new();
+    app.add_plugins((
+        MinimalPlugins,
+        InputPlugin,
+        StatesPlugin,
+        EnhancedInputPlugin,
+    ))
+    .init_state::<ParentState>()
+    .add_computed_state::<PlayingMarker>()
+    .add_input_context::<ContextA>()
+    .sync_context_to_state::<ContextA, PlayingMarker>()
+    .finish();
+
+    app.world_mut().spawn((
+        ContextA,
+        ContextActivity::<ContextA>::INACTIVE,
+        ActiveInStates::<ContextA, _>::single(PlayingMarker),
+        actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
+    ));
+
+    app.update();
+
+    let mut activities = app
+        .world_mut()
+        .query_filtered::<&ContextActivity<ContextA>, With<ContextA>>();
+    assert!(
+        !**activities.single(app.world()).unwrap(),
+        "should stay inactive while the computed state resource is absent"
+    );
+
+    app.world_mut()
+        .resource_mut::<NextState<ParentState>>()
+        .set(ParentState::Playing);
+    app.update();
+
+    assert!(
+        **activities.single(app.world()).unwrap(),
+        "should activate once the computed state exists"
+    );
+
+    app.world_mut()
+        .resource_mut::<NextState<ParentState>>()
+        .set(ParentState::Menu);
+    app.update();
+
+    assert!(
+        !**activities.single(app.world()).unwrap(),
+        "should deactivate again when the computed state is removed"
+    );
+}
+
 #[derive(States, Clone, PartialEq, Eq, Hash, Debug, Default)]
 enum TestState {
     #[default]
     A,
     B,
     C,
+}
+
+#[derive(States, Clone, PartialEq, Eq, Hash, Debug, Default)]
+enum ParentState {
+    #[default]
+    Menu,
+    Playing,
+}
+
+#[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+#[source(ParentState = ParentState::Playing)]
+enum TestSubState {
+    #[default]
+    Active,
+}
+
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+struct PlayingMarker;
+
+impl bevy::state::state::ComputedStates for PlayingMarker {
+    type SourceStates = ParentState;
+
+    fn compute(sources: Self::SourceStates) -> Option<Self> {
+        match sources {
+            ParentState::Playing => Some(Self),
+            ParentState::Menu => None,
+        }
+    }
 }
 
 #[derive(Component)]
