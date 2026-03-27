@@ -86,7 +86,8 @@ impl StateContextAppExt for App {
 fn sync_on_insert<C: Component, S: States>(
     insert: On<Insert, ActiveInStates<C, S>>,
     mut commands: Commands,
-    current_state: Res<State<S>>,
+    // The state resource may be absent for inactive substates or computed states.
+    current_state: Option<Res<State<S>>>,
     contexts: Query<&ActiveInStates<C, S>>,
     activity: Query<&ContextActivity<C>>,
 ) {
@@ -97,7 +98,7 @@ fn sync_on_insert<C: Component, S: States>(
         &mut commands,
         &activity,
         insert.entity,
-        active_in.matches(current_state.get()),
+        active_in.matches_state(current_state.as_ref().map(|s| s.get())),
     );
 }
 
@@ -111,17 +112,13 @@ fn sync_state_contexts<C: Component, S: States>(
         return;
     };
 
-    match &transition.entered {
-        Some(entered) => {
-            for (entity, active_in) in &contexts {
-                set_context_activity(&mut commands, &activity, entity, active_in.matches(entered));
-            }
-        }
-        None => {
-            for (entity, _) in &contexts {
-                set_context_activity(&mut commands, &activity, entity, false);
-            }
-        }
+    for (entity, active_in) in &contexts {
+        set_context_activity(
+            &mut commands,
+            &activity,
+            entity,
+            active_in.matches_state(transition.entered.as_ref()),
+        );
     }
 }
 
@@ -182,6 +179,12 @@ impl<C: Component, S: States> ActiveInStates<C, S> {
     #[must_use]
     pub fn matches(&self, current: &S) -> bool {
         self.states.contains(current)
+    }
+
+    /// Returns `true` if the state exists and matches any of the active states.
+    #[must_use]
+    fn matches_state(&self, current: Option<&S>) -> bool {
+        current.is_some_and(|current| self.matches(current))
     }
 }
 
