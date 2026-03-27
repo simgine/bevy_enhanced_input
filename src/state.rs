@@ -62,9 +62,7 @@ pub trait StateContextAppExt {
     /// Registers automatic synchronization between context `C` and state `S`.
     ///
     /// When [`State<S>`] transitions, entities with [`ActiveInStates<C, S>`]
-    /// will have their [`ContextActivity<C>`] updated. If [`State<S>`] is
-    /// absent, such as for inactive sub-states or computed states, matching
-    /// contexts stay inactive until the state exists.
+    /// will have their [`ContextActivity<C>`] updated.
     fn sync_context_to_state<C: Component, S: States>(&mut self) -> &mut Self;
 }
 
@@ -88,6 +86,7 @@ impl StateContextAppExt for App {
 fn sync_on_insert<C: Component, S: States>(
     insert: On<Insert, ActiveInStates<C, S>>,
     mut commands: Commands,
+    // The state resource may be absent for inactive substates or computed states.
     current_state: Option<Res<State<S>>>,
     contexts: Query<&ActiveInStates<C, S>>,
     activity: Query<&ContextActivity<C>>,
@@ -99,11 +98,7 @@ fn sync_on_insert<C: Component, S: States>(
         &mut commands,
         &activity,
         insert.entity,
-        active_in.matches_state(
-            current_state
-                .as_ref()
-                .map(|current_state| current_state.get()),
-        ),
+        active_in.matches_state(current_state.as_ref().map(|s| s.get())),
     );
 }
 
@@ -188,7 +183,7 @@ impl<C: Component, S: States> ActiveInStates<C, S> {
 
     /// Returns `true` if the state exists and matches any of the active states.
     #[must_use]
-    pub fn matches_state(&self, current: Option<&S>) -> bool {
+    fn matches_state(&self, current: Option<&S>) -> bool {
         current.is_some_and(|current| self.matches(current))
     }
 }

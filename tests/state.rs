@@ -1,6 +1,10 @@
 #![cfg(feature = "state")]
 
-use bevy::{input::InputPlugin, prelude::*, state::app::StatesPlugin};
+use bevy::{
+    input::InputPlugin,
+    prelude::*,
+    state::{app::StatesPlugin, state::ComputedStates},
+};
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
@@ -177,7 +181,7 @@ fn on_spawn() {
 }
 
 #[test]
-fn substate_on_spawn() {
+fn substate() {
     let mut app = App::new();
     app.add_plugins((
         MinimalPlugins,
@@ -185,7 +189,7 @@ fn substate_on_spawn() {
         StatesPlugin,
         EnhancedInputPlugin,
     ))
-    .init_state::<ParentState>()
+    .init_state::<DerivedState>()
     .add_sub_state::<TestSubState>()
     .add_input_context::<ContextA>()
     .sync_context_to_state::<ContextA, TestSubState>()
@@ -209,8 +213,8 @@ fn substate_on_spawn() {
     );
 
     app.world_mut()
-        .resource_mut::<NextState<ParentState>>()
-        .set(ParentState::Playing);
+        .resource_mut::<NextState<DerivedState>>()
+        .set(DerivedState::B);
     app.update();
 
     assert!(
@@ -219,8 +223,8 @@ fn substate_on_spawn() {
     );
 
     app.world_mut()
-        .resource_mut::<NextState<ParentState>>()
-        .set(ParentState::Menu);
+        .resource_mut::<NextState<DerivedState>>()
+        .set(DerivedState::A);
     app.update();
 
     assert!(
@@ -230,7 +234,7 @@ fn substate_on_spawn() {
 }
 
 #[test]
-fn computed_state_on_spawn() {
+fn computed_state() {
     let mut app = App::new();
     app.add_plugins((
         MinimalPlugins,
@@ -238,16 +242,16 @@ fn computed_state_on_spawn() {
         StatesPlugin,
         EnhancedInputPlugin,
     ))
-    .init_state::<ParentState>()
-    .add_computed_state::<PlayingMarker>()
+    .init_state::<DerivedState>()
+    .add_computed_state::<TestComputedState>()
     .add_input_context::<ContextA>()
-    .sync_context_to_state::<ContextA, PlayingMarker>()
+    .sync_context_to_state::<ContextA, TestComputedState>()
     .finish();
 
     app.world_mut().spawn((
         ContextA,
         ContextActivity::<ContextA>::INACTIVE,
-        ActiveInStates::<ContextA, _>::single(PlayingMarker),
+        ActiveInStates::<ContextA, _>::single(TestComputedState),
         actions!(ContextA[(Action::<TestAction>::new(), bindings![KeyCode::KeyA])]),
     ));
 
@@ -262,8 +266,8 @@ fn computed_state_on_spawn() {
     );
 
     app.world_mut()
-        .resource_mut::<NextState<ParentState>>()
-        .set(ParentState::Playing);
+        .resource_mut::<NextState<DerivedState>>()
+        .set(DerivedState::B);
     app.update();
 
     assert!(
@@ -272,8 +276,8 @@ fn computed_state_on_spawn() {
     );
 
     app.world_mut()
-        .resource_mut::<NextState<ParentState>>()
-        .set(ParentState::Menu);
+        .resource_mut::<NextState<DerivedState>>()
+        .set(DerivedState::A);
     app.update();
 
     assert!(
@@ -291,29 +295,29 @@ enum TestState {
 }
 
 #[derive(States, Clone, PartialEq, Eq, Hash, Debug, Default)]
-enum ParentState {
+enum DerivedState {
     #[default]
-    Menu,
-    Playing,
+    A,
+    B,
 }
 
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
-#[source(ParentState = ParentState::Playing)]
+#[source(DerivedState = DerivedState::B)]
 enum TestSubState {
     #[default]
     Active,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-struct PlayingMarker;
+struct TestComputedState;
 
-impl bevy::state::state::ComputedStates for PlayingMarker {
-    type SourceStates = ParentState;
+impl ComputedStates for TestComputedState {
+    type SourceStates = DerivedState;
 
     fn compute(sources: Self::SourceStates) -> Option<Self> {
         match sources {
-            ParentState::Playing => Some(Self),
-            ParentState::Menu => None,
+            DerivedState::B => Some(Self),
+            DerivedState::A => None,
         }
     }
 }
