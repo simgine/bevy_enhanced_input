@@ -39,8 +39,8 @@ impl<S: ScheduleLabel> ContextInstances<S> {
 
 /// Meta information for context on an entity.
 pub struct ContextInstance {
-    pub(super) entity: Entity,
-    pub(super) name: ShortName<'static>,
+    entity: Entity,
+    name: ShortName<'static>,
     type_id: TypeId,
     priority: usize,
     is_active: fn(&Self, &FilteredEntityRef) -> bool,
@@ -105,10 +105,12 @@ impl ContextInstance {
             .map(|a| a.map_unchanged(|a| &mut **a.collection_mut_risky()))
     }
 
+    /// Entity of the context.
     pub fn entity(&self) -> Entity {
         self.entity
     }
 
+    /// Returns the context type name.
     pub fn name(&self) -> ShortName<'_> {
         self.name
     }
