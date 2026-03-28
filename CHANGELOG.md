@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Public `ActiveInStates::matches` in favor of a private helper used by state synchronization.
 
+## [0.24.3] - 2026-03-27
+
+### Changed
+
+- Make `ContextInstances` pub.
+
 ## [0.24.2] - 2026-03-27
 
 ### Fixed
@@ -598,7 +604,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.2...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.3...HEAD
+[0.24.3]: https://github.com/simgine/bevy_replicon/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/simgine/bevy_replicon/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...v0.24.0
