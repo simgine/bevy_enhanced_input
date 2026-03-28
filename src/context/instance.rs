@@ -105,11 +105,11 @@ impl ContextInstance {
             .map(|a| a.map_unchanged(|a| &mut **a.collection_mut_risky()))
     }
 
-    pub fn get_entity(&self) -> Entity {
+    pub fn entity(&self) -> Entity {
         self.entity
     }
 
-    pub fn get_name(&self) -> ShortName<'_> {
+    pub fn name(&self) -> ShortName<'_> {
         self.name
     }
 }
