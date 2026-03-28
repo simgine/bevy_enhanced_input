@@ -98,7 +98,7 @@ fn sync_on_insert<C: Component, S: States>(
         &mut commands,
         &activity,
         insert.entity,
-        active_in.matches_state(current_state.as_ref().map(|s| s.get())),
+        active_in.matches(current_state.as_ref().map(|s| s.get())),
     );
 }
 
@@ -117,7 +117,7 @@ fn sync_state_contexts<C: Component, S: States>(
             &mut commands,
             &activity,
             entity,
-            active_in.matches_state(transition.entered.as_ref()),
+            active_in.matches(transition.entered.as_ref()),
         );
     }
 }
@@ -175,16 +175,10 @@ impl<C: Component, S: States> ActiveInStates<C, S> {
         }
     }
 
-    /// Returns `true` if the current state matches any of the active states.
-    #[must_use]
-    pub fn matches(&self, current: &S) -> bool {
-        self.states.contains(current)
-    }
-
     /// Returns `true` if the state exists and matches any of the active states.
     #[must_use]
-    fn matches_state(&self, current: Option<&S>) -> bool {
-        current.is_some_and(|current| self.matches(current))
+    fn matches(&self, current: Option<&S>) -> bool {
+        current.is_some_and(|current| self.states.contains(current))
     }
 }
 
