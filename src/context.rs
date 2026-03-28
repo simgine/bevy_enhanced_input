@@ -56,7 +56,7 @@ triggering the corresponding events. Depending on your use case, using [`Context
 */
 
 pub mod input_reader;
-mod instance;
+pub mod instance;
 pub mod time;
 mod trigger_tracker;
 
@@ -457,10 +457,11 @@ fn update<S: ScheduleLabel>(
     reader.clear_consumed::<S>();
 
     for instance in &**instances {
-        let Ok(mut context) = contexts.get_mut(instance.entity) else {
+        let Ok(mut context) = contexts.get_mut(instance.entity()) else {
             trace!(
                 "skipping updating `{}` on disabled `{}`",
-                instance.name, instance.entity
+                instance.name(),
+                instance.entity()
             );
             continue;
         };
@@ -488,7 +489,7 @@ fn update<S: ScheduleLabel>(
             context_actions.sort_by_cached_key(mods_count);
         }
 
-        trace!("updating `{}` on `{}`", instance.name, instance.entity);
+        trace!("updating `{}` on `{}`", instance.name(), instance.entity());
 
         reader.set_gamepad(gamepad);
 
@@ -659,10 +660,11 @@ fn apply<S: ScheduleLabel>(
     mut actions: Query<EntityMut, With<ActionFns>>,
 ) {
     for instance in &**instances {
-        let Ok(context) = contexts.get(instance.entity) else {
+        let Ok(context) = contexts.get(instance.entity()) else {
             trace!(
                 "skipping triggering for `{}` on disabled `{}`",
-                instance.name, instance.entity,
+                instance.name(),
+                instance.entity(),
             );
             continue;
         };
@@ -672,7 +674,8 @@ fn apply<S: ScheduleLabel>(
 
         trace!(
             "running triggers for `{}` on `{}`",
-            instance.name, instance.entity,
+            instance.name(),
+            instance.entity(),
         );
 
         let mut actions_iter = actions.iter_many_mut(context_actions);
