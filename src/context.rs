@@ -460,7 +460,8 @@ fn update<S: ScheduleLabel>(
         let Ok(mut context) = contexts.get_mut(instance.entity()) else {
             trace!(
                 "skipping updating `{}` on disabled `{}`",
-                instance.name(), instance.entity()
+                instance.name(),
+                instance.entity()
             );
             continue;
         };
@@ -662,7 +663,8 @@ fn apply<S: ScheduleLabel>(
         let Ok(context) = contexts.get(instance.entity()) else {
             trace!(
                 "skipping triggering for `{}` on disabled `{}`",
-                instance.name(), instance.entity(),
+                instance.name(),
+                instance.entity(),
             );
             continue;
         };
@@ -672,7 +674,8 @@ fn apply<S: ScheduleLabel>(
 
         trace!(
             "running triggers for `{}` on `{}`",
-            instance.name(), instance.entity(),
+            instance.name(),
+            instance.entity(),
         );
 
         let mut actions_iter = actions.iter_many_mut(context_actions);
