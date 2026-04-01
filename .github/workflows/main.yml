@@ -22,7 +22,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v6
 
-      - name: Check typos
+      - name: Check for typos
         uses: crate-ci/typos@v1.44.0
 
   format:
@@ -38,7 +38,7 @@ jobs:
       - name: Install Taplo
         run: cargo install --locked taplo-cli
 
-      - name: Format
+      - name: Check formatting
         run: |
           cargo fmt --all --check
           taplo fmt --check
@@ -63,10 +63,10 @@ jobs:
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
 
-      - name: Clippy
+      - name: Run Clippy
         run: cargo clippy --tests --examples -- -D warnings
 
-      - name: Rustdoc
+      - name: Check docs
         run: cargo rustdoc -- -D warnings
 
   feature-combinations:
