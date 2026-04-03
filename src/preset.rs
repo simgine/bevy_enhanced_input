@@ -22,8 +22,10 @@ world.spawn((
         (
             Action::<Movement>::new(),
             // Modifier components at the action level.
-            DeadZone::default(),    // Applies non-uniform normalization.
-            SmoothNudge::default(), // Smoothes movement.
+            DeadZone::default(), // Apply non-uniform normalization that works for both digital and analog inputs, otherwise diagonal movement will be faster.
+            SmoothNudge::default(), // Apply smoothing.
+            DeltaScale::default(), // Multiply by delta time to make it framerate-independent.
+            Scale::splat(30.0), // Additionally multiply by a constant to achieve the desired speed.
             bindings![
                 // Keyboard keys captured as `bool`, but the output of `Movement` is defined as `Vec2`,
                 // so you need to assign keys to axes using swizzle to reorder them and negation.
@@ -63,6 +65,8 @@ world.spawn((
             Action::<Movement>::new(),
             DeadZone::default(),
             SmoothNudge::default(),
+            DeltaScale::default(),
+            Scale::splat(30.0),
             Bindings::spawn((
                 Cardinal::wasd_keys(),
                 Axial::left_stick(),
@@ -111,7 +115,7 @@ Bindings::spawn((
         positive: (Binding::from(KeyCode::NumpadAdd), Scale::splat(2.0)),
         negative: Binding::from(KeyCode::NumpadSubtract),
     },
-    Axial::left_stick().with((Scale::splat(1.0), SmoothNudge::default())), // Attach components to each field.
+    Axial::left_stick().with((Scale::splat(1.0), Negate::all())), // Attach components to each field.
 ));
 ```
 

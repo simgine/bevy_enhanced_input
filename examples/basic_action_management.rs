@@ -45,8 +45,9 @@ fn setup(
                 Action::<Movement>::new(),
                 // Conditions and modifiers as components.
                 DeadZone::default(), // Apply non-uniform normalization that works for both digital and analog inputs, otherwise diagonal movement will be faster.
-                SmoothNudge::default(), // Make movement smooth and independent of the framerate. To only make it framerate-independent, use `DeltaScale`.
-                Scale::splat(0.3), // Additionally multiply by a constant to achieve the desired speed.
+                SmoothNudge::default(), // Apply smoothing.
+                DeltaScale::default(), // Multiply by delta time to make it framerate-independent.
+                Scale::splat(10.0), // Additionally multiply by a constant to achieve the desired speed.
                 // Bindings are entities related to actions.
                 // An action can have multiple bindings and will respond to any of them.
                 Bindings::spawn((
@@ -58,11 +59,12 @@ fn setup(
             ),
             (
                 Action::<Rotate>::new(),
+                DeltaScale::default(),
                 Bindings::spawn((
                     // Bevy requires single entities to be wrapped in `Spawn`.
                     // You can attach modifiers to individual bindings as well.
-                    Spawn((Binding::mouse_motion(), Scale::splat(0.1), Negate::all())),
-                    Axial::right_stick().with((Scale::splat(2.0), Negate::x())),
+                    Spawn((Binding::mouse_motion(), Negate::all())),
+                    Axial::right_stick().with((Scale::splat(100.0), Negate::x())),
                 )),
             ),
             (
