@@ -104,7 +104,7 @@ mod tests {
         let action = world
             .spawn((Action::<Test>::new(), TriggerState::Fired))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = BlockBy::single(action);
         assert_eq!(
@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn missing_action() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = BlockBy::single(Entity::PLACEHOLDER);
         assert_eq!(

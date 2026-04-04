@@ -54,7 +54,7 @@ mod tests {
     #[test]
     fn scaling() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = Scale::splat(2.0);
         assert_eq!(modifier.transform(&actions, &time, true.into()), 2.0.into());

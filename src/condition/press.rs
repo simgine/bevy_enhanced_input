@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn press() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Press::default();
         assert_eq!(

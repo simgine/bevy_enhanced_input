@@ -125,7 +125,7 @@ mod tests {
     #[test]
     fn x() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = Negate::x();
         assert_eq!(
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn y() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = Negate::y();
         assert_eq!(modifier.transform(&actions, &time, true.into()), 1.0.into());
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn z() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = Negate::z();
         assert_eq!(modifier.transform(&actions, &time, true.into()), 1.0.into());
@@ -197,7 +197,7 @@ mod tests {
     #[test]
     fn all() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = Negate::all();
         assert_eq!(

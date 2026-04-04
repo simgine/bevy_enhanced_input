@@ -103,7 +103,7 @@ mod tests {
     #[test]
     fn clamping() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = Clamp::splat(0.0, 1.0);
         assert_eq!(modifier.transform(&actions, &time, true.into()), 1.0.into());
