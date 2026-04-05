@@ -32,6 +32,7 @@ struct Jump;
 struct Fire;
 
 let mut world = World::new();
+let before = world.entities().count_spawned();
 let mut player = world.spawn((
     OnFoot,
     actions!(OnFoot[
@@ -44,7 +45,8 @@ player
     .remove_with_requires::<OnFoot>()
     .despawn_related::<Actions<OnFoot>>();
 
-assert_eq!(world.entities().count_spawned(), 1, "only the player entity should be left");
+let after = world.entities().count_spawned();
+assert_eq!(before - after, 1, "only the player entity should be left");
 ```
 
 Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically

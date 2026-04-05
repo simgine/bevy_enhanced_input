@@ -212,11 +212,12 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut world = World::new();
+/// # let before = world.entities().count_spawned();
 /// world.spawn(actions!(Player[
 ///     Action::<Fire>::new(),
 ///     Action::<Jump>::new()
 /// ]));
-/// # assert_eq!(world.entities().count_spawned(), 3);
+/// # assert_eq!(before - world.entities().count_spawned(), 3);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
@@ -233,11 +234,12 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut world = World::new();
+/// # let before = world.entities().count_spawned();
 /// world.spawn(actions!(Player[(
 ///     Action::<Fire>::new(),
 ///     bindings![MouseButton::Left],
 /// )]));
-/// # assert_eq!(world.entities().count_spawned(), 3);
+/// # assert_eq!(before - world.entities().count_spawned(), 3);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]
@@ -251,6 +253,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut world = World::new();
+/// # let before = world.entities().count_spawned();
 /// world.spawn(actions!(Player[
 ///     (
 ///         Action::<Movement>::new(),
@@ -261,7 +264,7 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 ///         bindings![KeyCode::Space],
 ///     ),
 /// ]));
-/// # assert_eq!(world.entities().count_spawned(), 8);
+/// # assert_eq!(before - world.entities().count_spawned(), 8);
 /// # #[derive(Component)]
 /// # struct Player;
 /// # #[derive(InputAction)]

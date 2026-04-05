@@ -76,8 +76,9 @@ pub type BindingSpawnerCommands<'w> = RelatedSpawnerCommands<'w, BindingOf>;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut world = World::new();
+/// # let before = world.entities().count_spawned();
 /// world.spawn(bindings![KeyCode::Space, GamepadButton::South]);
-/// # assert_eq!(world.entities().count_spawned(), 3);
+/// # assert_eq!(before - world.entities().count_spawned(), 3);
 /// ```
 ///
 /// A single action binding with the first component constructed from a value implementing [`Into<Binding>`],
@@ -87,11 +88,12 @@ pub type BindingSpawnerCommands<'w> = RelatedSpawnerCommands<'w, BindingOf>;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut world = World::new();
+/// # let before = world.entities().count_spawned();
 /// world.spawn(bindings![(
 ///     GamepadButton::RightTrigger2,
 ///     Down::new(0.3),
 /// )]);
-/// # assert_eq!(world.entities().count_spawned(), 2);
+/// # assert_eq!(before - world.entities().count_spawned(), 2);
 /// ```
 ///
 /// A list of action bindings with the first component constructed from a value implementing [`Into<Binding>`],
@@ -101,11 +103,12 @@ pub type BindingSpawnerCommands<'w> = RelatedSpawnerCommands<'w, BindingOf>;
 /// # use bevy::prelude::*;
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut world = World::new();
+/// # let before = world.entities().count_spawned();
 /// world.spawn(bindings![
 ///     (GamepadButton::RightTrigger2, Down::new(0.3)),
 ///     MouseButton::Left,
 /// ]);
-/// # assert_eq!(world.entities().count_spawned(), 3);
+/// # assert_eq!(before - world.entities().count_spawned(), 3);
 /// ```
 ///
 /// [`SpawnableList`]: bevy::ecs::spawn::SpawnableList
