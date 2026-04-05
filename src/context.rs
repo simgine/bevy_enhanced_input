@@ -46,7 +46,7 @@ player
     .despawn_related::<Actions<OnFoot>>();
 
 let after = world.entities().count_spawned();
-assert_eq!(before - after, 1, "only the player entity should be left");
+assert_eq!(after - before, 1, "only the player entity should be left");
 ```
 
 Actions aren't despawned automatically via [`EntityWorldMut::remove_with_requires`], since Bevy doesn't automatically
