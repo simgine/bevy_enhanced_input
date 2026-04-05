@@ -97,7 +97,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = LinearStep::splat(0.1);
         // Forward
@@ -118,7 +118,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = LinearStep::splat(2.0);
         assert_eq!(modifier.transform(&actions, &time, 1.0.into()), 1.0.into());
@@ -134,7 +134,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = LinearStep::splat(0.1);
         assert_eq!(
@@ -150,7 +150,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = LinearStep {
             current_value: Vec3::X * 0.95,

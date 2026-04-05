@@ -315,7 +315,7 @@ pub fn mock<C: Component, A: InputAction>(
     state: TriggerState,
     value: impl Into<ActionValue>,
     span: impl Into<MockSpan>,
-) -> impl EntityCommand<Result<()>> {
+) -> impl EntityCommand<Out = Result<()>> {
     let value = value.into();
     let span = span.into();
     move |entity: EntityWorldMut| -> Result<()> {
@@ -358,6 +358,6 @@ pub fn mock<C: Component, A: InputAction>(
 pub fn mock_once<C: Component, A: InputAction>(
     state: TriggerState,
     value: impl Into<ActionValue>,
-) -> impl EntityCommand<Result<()>> {
+) -> impl EntityCommand<Out = Result<()>> {
     mock::<C, A>(state, value, MockSpan::once())
 }

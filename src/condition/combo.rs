@@ -300,7 +300,7 @@ mod tests {
     #[test]
     fn empty() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default();
         assert_eq!(
@@ -312,7 +312,7 @@ mod tests {
     #[test]
     fn invalid_step() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default().with_step(Entity::PLACEHOLDER);
         assert_eq!(
@@ -332,7 +332,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default().with_step(action_a).with_step(action_b);
 
@@ -348,7 +348,7 @@ mod tests {
             .advance_by(Duration::from_secs(1));
         world.entity_mut(action_a).insert(ActionEvents::empty()); // Clear `Complete` event.
         world.entity_mut(action_b).insert(ActionEvents::COMPLETE);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -363,7 +363,7 @@ mod tests {
         let action_a = world
             .spawn((Action::<A>::new(), TriggerState::Ongoing))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default().with_step(action_a);
         assert_eq!(
@@ -380,7 +380,7 @@ mod tests {
             .id();
         let action_b = world.spawn(Action::<B>::new()).id();
         let action_c = world.spawn(Action::<C>::new()).id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default()
             .with_step(ComboStep::new(action_a).with_events(ActionEvents::ONGOING))
@@ -398,7 +398,7 @@ mod tests {
             .advance_by(Duration::from_secs_f32(0.5));
         world.entity_mut(action_a).insert(ActionEvents::empty());
         world.entity_mut(action_b).insert(ActionEvents::COMPLETE);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -411,7 +411,7 @@ mod tests {
             .advance_by(Duration::from_secs_f32(0.2));
         world.entity_mut(action_b).insert(ActionEvents::empty());
         world.entity_mut(action_c).insert(ActionEvents::COMPLETE);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -432,7 +432,7 @@ mod tests {
         let action_a = world
             .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default().with_step(action_a).with_step(action_a);
 
@@ -457,7 +457,7 @@ mod tests {
             .spawn((Action::<B>::new(), ActionEvents::COMPLETE))
             .id();
         let action_c = world.spawn(Action::<C>::new()).id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default()
             .with_step(action_a)
@@ -472,7 +472,7 @@ mod tests {
 
         world.entity_mut(action_b).insert(ActionEvents::empty());
         world.entity_mut(action_a).insert(ActionEvents::COMPLETE);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -482,7 +482,7 @@ mod tests {
 
         world.entity_mut(action_a).insert(ActionEvents::empty());
         world.entity_mut(action_c).insert(ActionEvents::COMPLETE);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -497,7 +497,7 @@ mod tests {
         let action_a = world
             .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default().with_step(action_a).with_cancel(action_a);
         assert_eq!(
@@ -513,7 +513,7 @@ mod tests {
         let action_a = world
             .spawn((Action::<A>::new(), ActionEvents::COMPLETE))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default()
             .with_step(action_a)
@@ -533,7 +533,7 @@ mod tests {
             .id();
         let action_b = world.spawn(Action::<B>::new()).id();
         let action_c = world.spawn(Action::<C>::new()).id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Combo::default()
             .with_step(action_a)
@@ -549,7 +549,7 @@ mod tests {
         world.entity_mut(action_a).insert(ActionEvents::empty());
         world.entity_mut(action_b).insert(ActionEvents::COMPLETE);
         world.entity_mut(action_c).insert(ActionEvents::FIRE);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),

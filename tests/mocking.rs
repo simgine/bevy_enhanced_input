@@ -193,8 +193,6 @@ fn entity_command() {
         .entity(context)
         .mock_once::<TestContext, Test>(TriggerState::Fired, true);
 
-    // Update once to apply the command, and once to process the actual mock
-    app.update();
     app.update();
 
     let (&action, &state, &events) = actions.single(app.world()).unwrap();

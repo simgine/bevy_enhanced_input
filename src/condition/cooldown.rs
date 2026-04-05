@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn cooldown() {
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Cooldown::new(1.0);
 
@@ -126,7 +126,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, false.into()),

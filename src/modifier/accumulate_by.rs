@@ -102,7 +102,7 @@ mod tests {
                 ActionValue::from(true),
             ))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = AccumulateBy::new(action);
         assert_eq!(modifier.transform(&actions, &time, 1.0.into()), 1.0.into());
@@ -113,7 +113,7 @@ mod tests {
     fn accumulation_inactive() {
         let (mut world, mut state) = context::init_world();
         let action = world.spawn(Action::<Test>::new()).id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = AccumulateBy::new(action);
         assert_eq!(modifier.transform(&actions, &time, 1.0.into()), 1.0.into());
@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn missing_action() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = AccumulateBy::new(Entity::PLACEHOLDER);
         assert_eq!(modifier.transform(&actions, &time, 1.0.into()), 1.0.into());
