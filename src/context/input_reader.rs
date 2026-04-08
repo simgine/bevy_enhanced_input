@@ -3,15 +3,15 @@ use core::{any::TypeId, hash::Hash, iter, mem};
 
 use bevy::{
     ecs::{schedule::ScheduleLabel, system::SystemParam},
-    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll},
     input::keyboard::Key,
+    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll},
     platform::collections::HashSet,
     prelude::*,
     utils::TypeIdMap,
 };
 use log::{debug, trace};
 
-use crate::prelude::*;
+use crate::{binding::BindingKey, prelude::*};
 
 pub(crate) fn update_pending(mut reader: InputReader) {
     reader.update_pending();
@@ -22,8 +22,8 @@ pub(crate) fn update_pending(mut reader: InputReader) {
 /// Actions can read binding values and optionally consume them without affecting Bevy input resources.
 #[derive(SystemParam)]
 pub(crate) struct InputReader<'w, 's> {
-    keys: Option<Res<'w, ButtonInput<KeyCode>>>,
-    logical_keys: Option<Res<'w, ButtonInput<Key>>>,
+    keys: Option<Res<'w, ButtonInput<Key>>>,
+    key_codes: Option<Res<'w, ButtonInput<KeyCode>>>,
     mouse_buttons: Option<Res<'w, ButtonInput<MouseButton>>>,
     mouse_motion: Option<Res<'w, AccumulatedMouseMotion>>,
     mouse_scroll: Option<Res<'w, AccumulatedMouseScroll>>,
@@ -75,17 +75,19 @@ impl InputReader<'_, '_> {
     pub(crate) fn value(&self, binding: impl Into<Binding>) -> ActionValue {
         let binding = binding.into();
         match binding {
-            Binding::Keyboard { key, mod_keys } => {
-                let pressed = self.action_sources.keyboard
-                    && self.keys.as_ref().is_some_and(|k| k.pressed(key))
-                    && self.mod_keys_pressed(mod_keys)
-                    && !self.ignored(binding);
+            Binding::Keyboard { ref key, mod_keys } => {
+                let match_key = match key {
+                    BindingKey::Key(key) => {
+                        self.keys.as_ref().is_some_and(|k| k.pressed(key.clone()))
+                    }
+                    BindingKey::KeyCode(key_code) => self
+                        .key_codes
+                        .as_ref()
+                        .is_some_and(|k| k.pressed(*key_code)),
+                };
 
-                pressed.into()
-            }
-            Binding::LogicalKeyboard { key, mod_keys } => {
                 let pressed = self.action_sources.keyboard
-                    && self.logical_keys.as_ref().is_some_and(|k| k.pressed(key))
+                    && match_key
                     && self.mod_keys_pressed(mod_keys)
                     && !self.ignored(binding);
 
@@ -178,13 +180,20 @@ impl InputReader<'_, '_> {
                     return false.into();
                 }
 
-                if self.action_sources.keyboard
-                    && self
-                        .keys
-                        .iter()
-                        .flat_map(|k| k.get_pressed())
-                        .any(|&k| !self.ignored(k))
-                {
+                // Unsure if both should be checked for ignore state + unioned
+                let keys_pressed = self
+                    .keys
+                    .iter()
+                    .flat_map(|k| k.get_pressed())
+                    .any(|k| !self.ignored(k.clone()));
+
+                let key_codes_pressed = self
+                    .key_codes
+                    .iter()
+                    .flat_map(|k| k.get_pressed())
+                    .any(|&k| !self.ignored(k));
+
+                if self.action_sources.keyboard && (keys_pressed || key_codes_pressed) {
                     return true.into();
                 }
 
@@ -230,7 +239,7 @@ impl InputReader<'_, '_> {
         }
 
         for keys in mod_keys.iter_keys() {
-            if self.keys.as_ref().is_none_or(|k| !k.any_pressed(keys)) {
+            if self.key_codes.as_ref().is_none_or(|k| !k.any_pressed(keys)) {
                 return false;
             }
         }
@@ -248,12 +257,13 @@ impl InputReader<'_, '_> {
         let mut iter = iter::once(&self.pending.ignored).chain(self.consumed.values());
         match binding.into() {
             Binding::Keyboard { key, mod_keys } => {
-                iter.any(|i| i.keys.contains(&key) || i.mod_keys.intersects(mod_keys))
-                    || keys_ignored
-            }
-            Binding::LogicalKeyboard { key, mod_keys } => {
-                iter.any(|i| i.logical_keys.contains(&key) || i.mod_keys.intersects(mod_keys))
-                    || keys_ignored
+                iter.any(|i| {
+                    let contains = match &key {
+                        BindingKey::Key(key) => i.keys.contains(key),
+                        BindingKey::KeyCode(key_code) => i.key_codes.contains(key_code),
+                    };
+                    return contains || i.mod_keys.intersects(mod_keys);
+                }) || keys_ignored
             }
             Binding::MouseButton { button, mod_keys } => {
                 iter.any(|i| i.mouse_buttons.contains(&button) || i.mod_keys.intersects(mod_keys))
@@ -380,8 +390,8 @@ impl PendingBindings {
 
 #[derive(Default)]
 pub(crate) struct IgnoredInputs {
-    keys: HashSet<KeyCode>,
-    logical_keys: HashSet<Key>,
+    keys: HashSet<Key>,
+    key_codes: HashSet<KeyCode>,
     mod_keys: ModKeys,
     mouse_buttons: HashSet<MouseButton>,
     mouse_motion: bool,
@@ -395,11 +405,14 @@ impl IgnoredInputs {
     fn add(&mut self, binding: Binding, gamepad: GamepadDevice) {
         match binding {
             Binding::Keyboard { key, mod_keys } => {
-                self.keys.insert(key);
-                self.mod_keys.insert(mod_keys);
-            }
-            Binding::LogicalKeyboard { key, mod_keys } => {
-                self.logical_keys.insert(key);
+                match key {
+                    BindingKey::Key(key) => {
+                        self.keys.insert(key);
+                    }
+                    BindingKey::KeyCode(key_code) => {
+                        self.key_codes.insert(key_code);
+                    }
+                }
                 self.mod_keys.insert(mod_keys);
             }
             Binding::MouseButton { button, mod_keys } => {
@@ -437,7 +450,7 @@ impl IgnoredInputs {
 
     fn clear(&mut self) {
         self.keys.clear();
-        self.logical_keys.clear();
+        self.key_codes.clear();
         self.mod_keys = ModKeys::empty();
         self.mouse_buttons.clear();
         self.mouse_motion = false;
