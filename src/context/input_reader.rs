@@ -262,7 +262,7 @@ impl InputReader<'_, '_> {
                         BindingKey::Key(key) => i.keys.contains(key),
                         BindingKey::KeyCode(key_code) => i.key_codes.contains(key_code),
                     };
-                    return contains || i.mod_keys.intersects(mod_keys);
+                    contains || i.mod_keys.intersects(mod_keys)
                 }) || keys_ignored
             }
             Binding::MouseButton { button, mod_keys } => {

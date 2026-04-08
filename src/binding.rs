@@ -318,19 +318,35 @@ mod tests {
     fn input_display() {
         assert_eq!(
             Binding::Keyboard {
-                key: BindingKey::KeyCode(KeyCode::KeyA),
+                key: KeyCode::KeyA.into(),
                 mod_keys: ModKeys::empty()
             }
             .to_string(),
-            "KeyA"
+            "KeyCode(KeyA)"
         );
         assert_eq!(
             Binding::Keyboard {
-                key: BindingKey::KeyCode(KeyCode::KeyA),
+                key: KeyCode::KeyA.into(),
                 mod_keys: ModKeys::CONTROL
             }
             .to_string(),
-            "Ctrl + KeyA"
+            "Ctrl + KeyCode(KeyA)"
+        );
+        assert_eq!(
+            Binding::Keyboard {
+                key: Key::Character("Z".into()).into(),
+                mod_keys: ModKeys::empty()
+            }
+            .to_string(),
+            "Key(Character(Z))"
+        );
+        assert_eq!(
+            Binding::Keyboard {
+                key: Key::Character("Z".into()).into(),
+                mod_keys: ModKeys::CONTROL
+            }
+            .to_string(),
+            "Ctrl + Key(Character(Z))"
         );
         assert_eq!(
             Binding::MouseButton {
