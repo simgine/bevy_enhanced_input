@@ -135,16 +135,16 @@ let settings = InputSettings {
 
 Bindings::spawn((
     Cardinal {
-        north: settings.forward[0],
-        east: settings.right[0],
-        south: settings.backward[0],
-        west: settings.left[0],
+        north: settings.forward[0].clone(),
+        east: settings.right[0].clone(),
+        south: settings.backward[0].clone(),
+        west: settings.left[0].clone(),
     },
     Cardinal {
-        north: settings.forward[1],
-        east: settings.right[1],
-        south: settings.backward[1],
-        west: settings.left[1],
+        north: settings.forward[1].clone(),
+        east: settings.right[1].clone(),
+        south: settings.backward[1].clone(),
+        west: settings.left[1].clone(),
     },
 ));
 
