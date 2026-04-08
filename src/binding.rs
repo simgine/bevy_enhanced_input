@@ -60,7 +60,7 @@ impl From<KeyCode> for BindingKey {
 ///
 /// If the action's dimension differs from the captured input, it will be converted using
 /// [`ActionValue::convert`](crate::action::value::ActionValue::convert).
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
+#[derive(Component, Debug, PartialEq, Clone)]
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
@@ -161,12 +161,12 @@ impl Binding {
 
     /// Returns associated keyboard modifiers.
     #[must_use]
-    pub const fn mod_keys(self) -> ModKeys {
+    pub const fn mod_keys(&self) -> ModKeys {
         match self {
             Binding::Keyboard { mod_keys, .. }
             | Binding::MouseButton { mod_keys, .. }
             | Binding::MouseMotion { mod_keys }
-            | Binding::MouseWheel { mod_keys } => mod_keys,
+            | Binding::MouseWheel { mod_keys } => *mod_keys,
             Binding::GamepadButton(_)
             | Binding::GamepadAxis(_)
             | Binding::AnyKey

@@ -45,9 +45,9 @@ impl InputReader<'_, '_> {
         // Temporary take the original value to avoid issues with the borrow checker.
         let mut pending = mem::take(&mut *self.pending);
         pending.ignored.clear();
-        pending.bindings.retain(|&binding| {
-            if self.value(binding).as_bool() {
-                pending.ignored.add(binding, *self.gamepad_device);
+        pending.bindings.retain(|binding| {
+            if self.value(binding.clone()).as_bool() {
+                pending.ignored.add(binding.clone(), *self.gamepad_device);
                 true
             } else {
                 trace!("'{binding}' reset and no longer ignored");
@@ -528,14 +528,14 @@ mod tests {
         let binding = Binding::mouse_motion();
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
-        assert_eq!(reader.value(binding), value.into());
+        assert_eq!(reader.value(binding.clone()), value.into());
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::SHIFT)),
+            reader.value(binding.clone().with_mod_keys(ModKeys::SHIFT)),
             Vec2::ZERO.into()
         );
 
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), Vec2::ZERO.into());
+        reader.consume::<PreUpdate>(binding.clone());
+        assert_eq!(reader.value(binding.clone()), Vec2::ZERO.into());
     }
 
     #[test]
@@ -551,14 +551,14 @@ mod tests {
         let binding = Binding::mouse_wheel();
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
-        assert_eq!(reader.value(binding), value.into());
+        assert_eq!(reader.value(binding.clone()), value.into());
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::SUPER)),
+            reader.value(binding.clone().with_mod_keys(ModKeys::SUPER)),
             Vec2::ZERO.into()
         );
 
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), Vec2::ZERO.into());
+        reader.consume::<PreUpdate>(binding.clone());
+        assert_eq!(reader.value(binding.clone()), Vec2::ZERO.into());
     }
 
     #[test]
@@ -735,20 +735,24 @@ mod tests {
 
         let binding = key.with_mod_keys(modifier.into());
         let mut reader = state.get_mut(&mut world);
-        assert_eq!(reader.value(binding), true.into());
+        assert_eq!(reader.value(binding.clone()), true.into());
         assert_eq!(reader.value(key), true.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::ALT)),
+            reader.value(binding.clone().with_mod_keys(ModKeys::ALT)),
             false.into()
         );
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::CONTROL | ModKeys::ALT)),
+            reader.value(
+                binding
+                    .clone()
+                    .with_mod_keys(ModKeys::CONTROL | ModKeys::ALT)
+            ),
             false.into()
         );
 
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), false.into());
+        reader.consume::<PreUpdate>(binding.clone());
+        assert_eq!(reader.value(binding.clone()), false.into());
         assert_eq!(
             reader.value(Binding::AnyKey),
             true.into(),
@@ -779,20 +783,24 @@ mod tests {
 
         let binding = button.with_mod_keys(modifier.into());
         let mut reader = state.get_mut(&mut world);
-        assert_eq!(reader.value(binding), true.into());
+        assert_eq!(reader.value(binding.clone()), true.into());
         assert_eq!(reader.value(button), true.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::CONTROL)),
+            reader.value(binding.clone().with_mod_keys(ModKeys::CONTROL)),
             false.into()
         );
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::CONTROL | ModKeys::ALT)),
+            reader.value(
+                binding
+                    .clone()
+                    .with_mod_keys(ModKeys::CONTROL | ModKeys::ALT)
+            ),
             false.into()
         );
 
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), false.into());
+        reader.consume::<PreUpdate>(binding.clone());
+        assert_eq!(reader.value(binding.clone()), false.into());
         assert_eq!(
             reader.value(Binding::AnyKey),
             true.into(),
@@ -812,19 +820,26 @@ mod tests {
         let binding = Binding::mouse_motion().with_mod_keys(modifier.into());
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
-        assert_eq!(reader.value(binding), value.into());
-        assert_eq!(reader.value(binding.without_mod_keys()), value.into());
+        assert_eq!(reader.value(binding.clone()), value.into());
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::SUPER)),
+            reader.value(binding.clone().without_mod_keys()),
+            value.into()
+        );
+        assert_eq!(
+            reader.value(binding.clone().with_mod_keys(ModKeys::SUPER)),
             Vec2::ZERO.into()
         );
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::SHIFT | ModKeys::SUPER)),
+            reader.value(
+                binding
+                    .clone()
+                    .with_mod_keys(ModKeys::SHIFT | ModKeys::SUPER)
+            ),
             Vec2::ZERO.into()
         );
 
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), Vec2::ZERO.into());
+        reader.consume::<PreUpdate>(binding.clone());
+        assert_eq!(reader.value(binding.clone()), Vec2::ZERO.into());
     }
 
     #[test]
@@ -842,19 +857,26 @@ mod tests {
         let binding = Binding::mouse_wheel().with_mod_keys(modifier.into());
         let mut reader = state.get_mut(&mut world);
         reader.clear_consumed::<PreUpdate>();
-        assert_eq!(reader.value(binding), value.into());
-        assert_eq!(reader.value(binding.without_mod_keys()), value.into());
+        assert_eq!(reader.value(binding.clone()), value.into());
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::SHIFT)),
+            reader.value(binding.clone().without_mod_keys()),
+            value.into()
+        );
+        assert_eq!(
+            reader.value(binding.clone().with_mod_keys(ModKeys::SHIFT)),
             Vec2::ZERO.into()
         );
         assert_eq!(
-            reader.value(binding.with_mod_keys(ModKeys::SHIFT | ModKeys::SUPER)),
+            reader.value(
+                binding
+                    .clone()
+                    .with_mod_keys(ModKeys::SHIFT | ModKeys::SUPER)
+            ),
             Vec2::ZERO.into()
         );
 
-        reader.consume::<PreUpdate>(binding);
-        assert_eq!(reader.value(binding), Vec2::ZERO.into());
+        reader.consume::<PreUpdate>(binding.clone());
+        assert_eq!(reader.value(binding.clone()), Vec2::ZERO.into());
     }
 
     #[test]

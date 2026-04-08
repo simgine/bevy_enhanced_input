@@ -357,7 +357,7 @@ fn deactivate<C: Component>(
     if !*active {
         for (settings, action_bindings) in actions.iter_many(context_actions) {
             if settings.require_reset {
-                pending.extend(bindings.iter_many(action_bindings).copied());
+                pending.extend(bindings.iter_many(action_bindings).cloned());
             }
         }
     }
@@ -405,7 +405,7 @@ pub(crate) fn reset_action<C: Component>(
     if let Some(action_bindings) = action_bindings
         && settings.require_reset
     {
-        pending.extend(bindings.iter_many(action_bindings).copied());
+        pending.extend(bindings.iter_many(action_bindings).cloned());
     }
 }
 
@@ -479,7 +479,7 @@ fn update<S: ScheduleLabel>(
 
             let value = bindings
                 .iter_many(action_bindings.into_iter().flatten())
-                .map(|(_, b, ..)| b.mod_keys_count())
+                .map(|(_, b, ..)| b.clone().mod_keys_count())
                 .max()
                 .unwrap_or(0);
             Reverse(value)
@@ -541,18 +541,18 @@ fn update<S: ScheduleLabel>(
                     bindings.iter_many_mut(action_bindings.into_iter().flatten());
                 while let Some((
                     binding_entity,
-                    &binding,
+                    binding,
                     mut first_activation,
                     modifiers,
                     conditions,
                 )) = bindings_iter.fetch_next()
                 {
-                    let new_value = reader.value(binding);
+                    let new_value = reader.value(binding.clone());
                     if action_settings.require_reset && **first_activation {
                         // Ignore until we read zero for this mapping.
                         if new_value.as_bool() {
                             // Mark the binding input as consumed regardless of the end action state.
-                            reader.consume::<S>(binding);
+                            reader.consume::<S>(binding.clone());
                             continue;
                         } else {
                             **first_activation = false;
@@ -593,14 +593,14 @@ fn update<S: ScheduleLabel>(
                         Ordering::Equal => {
                             tracker.combine(current_tracker, action_settings.accumulation);
                             if action_settings.consume_input {
-                                consume_buffer.push(binding);
+                                consume_buffer.push(binding.clone());
                             }
                         }
                         Ordering::Greater => {
                             tracker.overwrite(current_tracker);
                             if action_settings.consume_input {
                                 consume_buffer.clear();
-                                consume_buffer.push(binding);
+                                consume_buffer.push(binding.clone());
                             }
                         }
                     }
@@ -619,8 +619,8 @@ fn update<S: ScheduleLabel>(
 
                 if action_settings.consume_input {
                     if new_state != TriggerState::None {
-                        for &binding in &consume_buffer {
-                            reader.consume::<S>(binding);
+                        for binding in &consume_buffer {
+                            reader.consume::<S>(binding.clone());
                         }
                     }
                     consume_buffer.clear();
