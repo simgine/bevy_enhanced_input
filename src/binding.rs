@@ -18,6 +18,7 @@ use core::fmt::{self, Display, Formatter};
 
 use bevy::{
     ecs::{lifecycle::HookContext, world::DeferredWorld},
+    input::keyboard::Key,
     prelude::*,
 };
 use log::{Level, error, log_enabled, warn};
@@ -51,6 +52,8 @@ use crate::prelude::*;
 pub enum Binding {
     /// Keyboard button, captured as [`ActionValue::Bool`].
     Keyboard { key: KeyCode, mod_keys: ModKeys },
+    /// Logical Keyboard button, captured as [`ActionValue::Bool`].
+    LogicalKeyboard { key: Key, mod_keys: ModKeys },
     /// Mouse button, captured as [`ActionValue::Bool`].
     MouseButton {
         button: MouseButton,
@@ -139,6 +142,7 @@ impl Binding {
     pub const fn mod_keys(self) -> ModKeys {
         match self {
             Binding::Keyboard { mod_keys, .. }
+            | Binding::LogicalKeyboard { mod_keys, .. }
             | Binding::MouseButton { mod_keys, .. }
             | Binding::MouseMotion { mod_keys }
             | Binding::MouseWheel { mod_keys } => mod_keys,
@@ -169,6 +173,7 @@ impl Display for Binding {
 
         match self {
             Binding::Keyboard { key, .. } => write!(f, "{key:?}"),
+            Binding::LogicalKeyboard { key, .. } => write!(f, "{key:?}"),
             Binding::MouseButton { button, .. } => write!(f, "Mouse {button:?}"),
             Binding::MouseMotion { .. } => write!(f, "Mouse Motion"),
             Binding::MouseWheel { .. } => write!(f, "Scroll Wheel"),
@@ -183,6 +188,15 @@ impl Display for Binding {
 impl From<KeyCode> for Binding {
     fn from(key: KeyCode) -> Self {
         Self::Keyboard {
+            key,
+            mod_keys: Default::default(),
+        }
+    }
+}
+
+impl From<Key> for Binding {
+    fn from(key: Key) -> Self {
+        Self::LogicalKeyboard {
             key,
             mod_keys: Default::default(),
         }
@@ -226,6 +240,7 @@ impl<I: Into<Binding>> InputModKeys for I {
         let binding = self.into();
         match binding {
             Binding::Keyboard { key, .. } => Binding::Keyboard { key, mod_keys },
+            Binding::LogicalKeyboard { key, .. } => Binding::LogicalKeyboard { key, mod_keys },
             Binding::MouseButton { button, .. } => Binding::MouseButton { button, mod_keys },
             Binding::MouseMotion { .. } => Binding::MouseMotion { mod_keys },
             Binding::MouseWheel { .. } => Binding::MouseWheel { mod_keys },
@@ -297,6 +312,22 @@ mod tests {
             }
             .to_string(),
             "Ctrl + KeyA"
+        );
+        assert_eq!(
+            Binding::LogicalKeyboard {
+                key: Key::Character("Z".into()),
+                mod_keys: ModKeys::empty()
+            }
+            .to_string(),
+            "Character(Z)"
+        );
+        assert_eq!(
+            Binding::LogicalKeyboard {
+                key: Key::Character("Z".into()),
+                mod_keys: ModKeys::CONTROL
+            }
+            .to_string(),
+            "Ctrl + Character(Z)"
         );
         assert_eq!(
             Binding::MouseButton {

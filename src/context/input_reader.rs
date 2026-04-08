@@ -4,6 +4,7 @@ use core::{any::TypeId, hash::Hash, iter, mem};
 use bevy::{
     ecs::{schedule::ScheduleLabel, system::SystemParam},
     input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll},
+    input::keyboard::Key,
     platform::collections::HashSet,
     prelude::*,
     utils::TypeIdMap,
@@ -22,6 +23,7 @@ pub(crate) fn update_pending(mut reader: InputReader) {
 #[derive(SystemParam)]
 pub(crate) struct InputReader<'w, 's> {
     keys: Option<Res<'w, ButtonInput<KeyCode>>>,
+    logical_keys: Option<Res<'w, ButtonInput<Key>>>,
     mouse_buttons: Option<Res<'w, ButtonInput<MouseButton>>>,
     mouse_motion: Option<Res<'w, AccumulatedMouseMotion>>,
     mouse_scroll: Option<Res<'w, AccumulatedMouseScroll>>,
@@ -76,6 +78,14 @@ impl InputReader<'_, '_> {
             Binding::Keyboard { key, mod_keys } => {
                 let pressed = self.action_sources.keyboard
                     && self.keys.as_ref().is_some_and(|k| k.pressed(key))
+                    && self.mod_keys_pressed(mod_keys)
+                    && !self.ignored(binding);
+
+                pressed.into()
+            }
+            Binding::LogicalKeyboard { key, mod_keys } => {
+                let pressed = self.action_sources.keyboard
+                    && self.logical_keys.as_ref().is_some_and(|k| k.pressed(key))
                     && self.mod_keys_pressed(mod_keys)
                     && !self.ignored(binding);
 
@@ -241,6 +251,10 @@ impl InputReader<'_, '_> {
                 iter.any(|i| i.keys.contains(&key) || i.mod_keys.intersects(mod_keys))
                     || keys_ignored
             }
+            Binding::LogicalKeyboard { key, mod_keys } => {
+                iter.any(|i| i.logical_keys.contains(&key) || i.mod_keys.intersects(mod_keys))
+                    || keys_ignored
+            }
             Binding::MouseButton { button, mod_keys } => {
                 iter.any(|i| i.mouse_buttons.contains(&button) || i.mod_keys.intersects(mod_keys))
                     || keys_ignored
@@ -367,6 +381,7 @@ impl PendingBindings {
 #[derive(Default)]
 pub(crate) struct IgnoredInputs {
     keys: HashSet<KeyCode>,
+    logical_keys: HashSet<Key>,
     mod_keys: ModKeys,
     mouse_buttons: HashSet<MouseButton>,
     mouse_motion: bool,
@@ -381,6 +396,10 @@ impl IgnoredInputs {
         match binding {
             Binding::Keyboard { key, mod_keys } => {
                 self.keys.insert(key);
+                self.mod_keys.insert(mod_keys);
+            }
+            Binding::LogicalKeyboard { key, mod_keys } => {
+                self.logical_keys.insert(key);
                 self.mod_keys.insert(mod_keys);
             }
             Binding::MouseButton { button, mod_keys } => {
@@ -418,6 +437,7 @@ impl IgnoredInputs {
 
     fn clear(&mut self) {
         self.keys.clear();
+        self.logical_keys.clear();
         self.mod_keys = ModKeys::empty();
         self.mouse_buttons.clear();
         self.mouse_motion = false;
