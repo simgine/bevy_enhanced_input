@@ -355,7 +355,7 @@ mod tests {
                 mod_keys: ModKeys::CONTROL
             }
             .to_string(),
-            "Ctrl + Character(Z)"
+            "Ctrl + Character(\"Z\")"
         );
         assert_eq!(
             Binding::MouseButton {
