@@ -347,7 +347,7 @@ mod tests {
                 mod_keys: ModKeys::empty()
             }
             .to_string(),
-            "Character(Z)"
+            r#"Character(\"Z\")"#
         );
         assert_eq!(
             Binding::Keyboard {
