@@ -180,7 +180,6 @@ impl InputReader<'_, '_> {
                     return false.into();
                 }
 
-                // Unsure if both should be checked for ignore state + unioned
                 let keys_pressed = self
                     .keys
                     .iter()

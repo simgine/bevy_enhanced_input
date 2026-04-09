@@ -39,6 +39,15 @@ pub enum BindingKey {
     KeyCode(KeyCode),
 }
 
+impl Display for BindingKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Key(key) => write!(f, "{:?}", key),
+            Self::KeyCode(key_code) => write!(f, "{:?}", key_code),
+        }
+    }
+}
+
 impl From<Key> for BindingKey {
     fn from(key: Key) -> Self {
         Self::Key(key)
@@ -322,7 +331,7 @@ mod tests {
                 mod_keys: ModKeys::empty()
             }
             .to_string(),
-            "KeyCode(KeyA)"
+            "KeyA"
         );
         assert_eq!(
             Binding::Keyboard {
@@ -330,7 +339,7 @@ mod tests {
                 mod_keys: ModKeys::CONTROL
             }
             .to_string(),
-            "Ctrl + KeyCode(KeyA)"
+            "Ctrl + KeyA"
         );
         assert_eq!(
             Binding::Keyboard {
@@ -338,7 +347,7 @@ mod tests {
                 mod_keys: ModKeys::empty()
             }
             .to_string(),
-            "Key(Character(Z))"
+            "Character(Z)"
         );
         assert_eq!(
             Binding::Keyboard {
@@ -346,7 +355,7 @@ mod tests {
                 mod_keys: ModKeys::CONTROL
             }
             .to_string(),
-            "Ctrl + Key(Character(Z))"
+            "Ctrl + Character(Z)"
         );
         assert_eq!(
             Binding::MouseButton {
