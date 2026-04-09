@@ -254,7 +254,7 @@ fn modifiers() {
                     consume_input: true,
                     ..Default::default()
                 },
-                bindings![Binding::Keyboard { key: KEY, mod_keys: MOD }],
+                bindings![Binding::Keyboard { key: KEY.into(), mod_keys: MOD }],
             )
         ]),
     ));

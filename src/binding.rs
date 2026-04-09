@@ -18,6 +18,7 @@ use core::fmt::{self, Display, Formatter};
 
 use bevy::{
     ecs::{lifecycle::HookContext, world::DeferredWorld},
+    input::keyboard::Key,
     prelude::*,
 };
 use log::{Level, error, log_enabled, warn};
@@ -25,6 +26,39 @@ use log::{Level, error, log_enabled, warn};
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
+
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug, PartialEq))]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(
+    all(feature = "reflect", feature = "serialize"),
+    reflect(Serialize, Deserialize)
+)]
+pub enum BindingKey {
+    Key(Key),
+    KeyCode(KeyCode),
+}
+
+impl Display for BindingKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Key(key) => write!(f, "{:?}", key),
+            Self::KeyCode(key_code) => write!(f, "{:?}", key_code),
+        }
+    }
+}
+
+impl From<Key> for BindingKey {
+    fn from(key: Key) -> Self {
+        Self::Key(key)
+    }
+}
+
+impl From<KeyCode> for BindingKey {
+    fn from(key_code: KeyCode) -> Self {
+        Self::KeyCode(key_code)
+    }
+}
 
 /// A an input bound to an [`Action<C>`].
 ///
@@ -35,7 +69,7 @@ use crate::prelude::*;
 ///
 /// If the action's dimension differs from the captured input, it will be converted using
 /// [`ActionValue::convert`](crate::action::value::ActionValue::convert).
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
+#[derive(Component, Debug, PartialEq, Clone)]
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
@@ -50,7 +84,7 @@ use crate::prelude::*;
 #[require(FirstActivation)]
 pub enum Binding {
     /// Keyboard button, captured as [`ActionValue::Bool`].
-    Keyboard { key: KeyCode, mod_keys: ModKeys },
+    Keyboard { key: BindingKey, mod_keys: ModKeys },
     /// Mouse button, captured as [`ActionValue::Bool`].
     MouseButton {
         button: MouseButton,
@@ -136,12 +170,12 @@ impl Binding {
 
     /// Returns associated keyboard modifiers.
     #[must_use]
-    pub const fn mod_keys(self) -> ModKeys {
+    pub const fn mod_keys(&self) -> ModKeys {
         match self {
             Binding::Keyboard { mod_keys, .. }
             | Binding::MouseButton { mod_keys, .. }
             | Binding::MouseMotion { mod_keys }
-            | Binding::MouseWheel { mod_keys } => mod_keys,
+            | Binding::MouseWheel { mod_keys } => *mod_keys,
             Binding::GamepadButton(_)
             | Binding::GamepadAxis(_)
             | Binding::AnyKey
@@ -168,7 +202,7 @@ impl Display for Binding {
         }
 
         match self {
-            Binding::Keyboard { key, .. } => write!(f, "{key:?}"),
+            Binding::Keyboard { key, .. } => write!(f, "{key}"),
             Binding::MouseButton { button, .. } => write!(f, "Mouse {button:?}"),
             Binding::MouseMotion { .. } => write!(f, "Mouse Motion"),
             Binding::MouseWheel { .. } => write!(f, "Scroll Wheel"),
@@ -180,10 +214,19 @@ impl Display for Binding {
     }
 }
 
-impl From<KeyCode> for Binding {
-    fn from(key: KeyCode) -> Self {
+impl From<Key> for Binding {
+    fn from(key: Key) -> Self {
         Self::Keyboard {
-            key,
+            key: BindingKey::Key(key),
+            mod_keys: Default::default(),
+        }
+    }
+}
+
+impl From<KeyCode> for Binding {
+    fn from(key_code: KeyCode) -> Self {
+        Self::Keyboard {
+            key: BindingKey::KeyCode(key_code),
             mod_keys: Default::default(),
         }
     }
@@ -284,7 +327,7 @@ mod tests {
     fn input_display() {
         assert_eq!(
             Binding::Keyboard {
-                key: KeyCode::KeyA,
+                key: KeyCode::KeyA.into(),
                 mod_keys: ModKeys::empty()
             }
             .to_string(),
@@ -292,11 +335,27 @@ mod tests {
         );
         assert_eq!(
             Binding::Keyboard {
-                key: KeyCode::KeyA,
+                key: KeyCode::KeyA.into(),
                 mod_keys: ModKeys::CONTROL
             }
             .to_string(),
             "Ctrl + KeyA"
+        );
+        assert_eq!(
+            Binding::Keyboard {
+                key: Key::Character("Z".into()).into(),
+                mod_keys: ModKeys::empty()
+            }
+            .to_string(),
+            "Character(\"Z\")"
+        );
+        assert_eq!(
+            Binding::Keyboard {
+                key: Key::Character("Z".into()).into(),
+                mod_keys: ModKeys::CONTROL
+            }
+            .to_string(),
+            "Ctrl + Character(\"Z\")"
         );
         assert_eq!(
             Binding::MouseButton {
