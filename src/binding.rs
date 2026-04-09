@@ -202,7 +202,7 @@ impl Display for Binding {
         }
 
         match self {
-            Binding::Keyboard { key, .. } => write!(f, "{key:?}"),
+            Binding::Keyboard { key, .. } => write!(f, "{key}"),
             Binding::MouseButton { button, .. } => write!(f, "Mouse {button:?}"),
             Binding::MouseMotion { .. } => write!(f, "Mouse Motion"),
             Binding::MouseWheel { .. } => write!(f, "Scroll Wheel"),
