@@ -129,7 +129,7 @@ mod tests {
         let action = world
             .spawn((Action::<Test>::new(), TriggerState::Fired))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Chord::single(action);
         assert_eq!(
@@ -147,7 +147,7 @@ mod tests {
         let action2 = world
             .spawn((Action::<Test>::new(), TriggerState::None))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Chord::new([action1, action2]);
         assert_eq!(
@@ -165,7 +165,7 @@ mod tests {
         let action2 = world
             .spawn((Action::<Test>::new(), TriggerState::None))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Chord::new([action1, action2]);
         assert_eq!(
@@ -177,7 +177,7 @@ mod tests {
     #[test]
     fn missing_action() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Chord::single(Entity::PLACEHOLDER);
         assert_eq!(
