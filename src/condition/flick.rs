@@ -84,7 +84,6 @@ impl InputCondition for Flick {
             return TriggerState::None;
         }
 
-        // Reach this line only if both exit and enter regions are actuated
         let finished = self.timer.is_finished();
 
         if finished {
@@ -97,7 +96,7 @@ impl InputCondition for Flick {
             self.fired = true;
             TriggerState::Fired
         } else {
-            // Ongoing until we exit the enter region
+            // Ongoing until we exit the actuation threshold
             TriggerState::Ongoing
         }
     }
@@ -117,11 +116,15 @@ mod tests {
 
         let mut condition = Flick::new(0.5).with_actuation(0.9);
 
-        // Check successful flick
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
             TriggerState::None,
         );
+
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::from_secs_f32(0.1));
+        let (time, actions) = state.get(&world);
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.4.into()),
@@ -130,7 +133,7 @@ mod tests {
 
         world
             .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.25));
+            .advance_by(Duration::from_secs_f32(0.1));
         let (time, actions) = state.get(&world);
 
         assert_eq!(
@@ -138,12 +141,16 @@ mod tests {
             TriggerState::None,
         );
 
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::from_secs_f32(0.1));
+        let (time, actions) = state.get(&world);
+
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
         );
 
-        // Check to see that Ongoing still continues
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
@@ -154,24 +161,14 @@ mod tests {
             TriggerState::Ongoing,
         );
 
-        // Check a flick that takes too long
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
-            TriggerState::None,
-        );
-
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.4.into()),
-            TriggerState::None,
-        );
-
         world
             .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs(1));
+            .advance_by(Duration::from_secs_f32(0.1));
         let (time, actions) = state.get(&world);
 
+        // Check successful flick again to ensure that state resets
         assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
+            condition.evaluate(&actions, &time, 0.0.into()),
             TriggerState::None,
         );
 
@@ -179,12 +176,6 @@ mod tests {
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs_f32(0.1));
         let (time, actions) = state.get(&world);
-
-        // Check successful flick again to ensure it reset properly
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
-            TriggerState::None,
-        );
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.4.into()),
@@ -201,9 +192,47 @@ mod tests {
             TriggerState::None,
         );
 
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::from_secs_f32(0.1));
+        let (time, actions) = state.get(&world);
+
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
+        );
+    }
+
+    #[test]
+    fn time_out() {
+        let (mut world, mut state) = context::init_world();
+        let (time, actions) = state.get(&world);
+
+        let mut condition = Flick::new(0.5).with_actuation(0.9).with_rest_threshold(0.1);
+
+        assert_eq!(
+            condition.evaluate(&actions, &time, 0.0.into()),
+            TriggerState::None,
+        );
+
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::from_secs(1));
+        let (time, actions) = state.get(&world);
+
+        assert_eq!(
+            condition.evaluate(&actions, &time, 0.4.into()),
+            TriggerState::None,
+        );
+
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::from_secs(1));
+        let (time, actions) = state.get(&world);
+
+        assert_eq!(
+            condition.evaluate(&actions, &time, 1.0.into()),
+            TriggerState::None,
         );
     }
 }
