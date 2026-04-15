@@ -4,17 +4,19 @@ use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
 /// Returns [`TriggerState::Fired`] when the input transitions from a rest threshold
-/// to an actuation threshold in an amount of time set by the user, then
+/// to an actuation threshold in a specified amount of time, then
 /// [`TriggerState::Ongoing`] until the actuation threshold is exited.
 #[derive(Component, Debug, Clone)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Flick {
-    /// The threshold the input must reach to activate
+    /// The threshold the input must reach to activate.
     pub actuation: f32,
 
     /// The threshold the input must exit to start the timer and the threshold
-    /// the stick must enter to begin a flick
-    pub max_rest_threshold: f32,
+    /// the stick must enter to begin a flick.
+    ///
+    /// By default it's set to [`Self::DEFAULT_EXIT_ACTUATION`].
+    pub rest_threshold: f32,
 
     /// The type of time used to advance the timer.
     pub time_kind: TimeKind,
@@ -25,7 +27,7 @@ pub struct Flick {
 }
 
 impl Flick {
-    const DEFAULT_EXIT_ACTUATION: f32 = 0.3;
+    pub const DEFAULT_EXIT_ACTUATION: f32 = 0.3;
 
     /// Creates a new instance where the input must be in between the enter actuation
     /// and exit actuation for less than `flick_time` in seconds in order to fire.
@@ -33,7 +35,7 @@ impl Flick {
     pub fn new(flick_time: f32) -> Self {
         Self {
             actuation: DEFAULT_ACTUATION,
-            max_rest_threshold: Self::DEFAULT_EXIT_ACTUATION,
+            rest_threshold: Self::DEFAULT_EXIT_ACTUATION,
             time_kind: Default::default(),
             timer: Timer::from_seconds(flick_time, TimerMode::Once),
             fired: false,
@@ -45,6 +47,18 @@ impl Flick {
         self.actuation = enter_actuation;
         self
     }
+
+    #[must_use]
+    pub fn with_time_kind(mut self, kind: TimeKind) -> Self {
+        self.time_kind = kind;
+        self
+    }
+
+    #[must_use]
+    pub fn with_rest_threshold(mut self, rest_threshold: f32) -> Self {
+        self.rest_threshold = rest_threshold;
+        self
+    }
 }
 
 impl InputCondition for Flick {
@@ -54,7 +68,7 @@ impl InputCondition for Flick {
         time: &ContextTime,
         value: ActionValue,
     ) -> TriggerState {
-        let exit_actuated = value.is_actuated(self.max_rest_threshold);
+        let exit_actuated = value.is_actuated(self.rest_threshold);
         let enter_actuated = value.is_actuated(self.actuation);
 
         if !exit_actuated {
