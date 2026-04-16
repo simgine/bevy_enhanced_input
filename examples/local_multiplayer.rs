@@ -13,7 +13,8 @@ use bevy_enhanced_input::prelude::{Press, *};
 const BORDER_WIDTH: f32 = 650.0;
 const STROKE_WIDTH: f32 = 5.0;
 const BALL_RAD: f32 = 16.0;
-const ACCELERATION: f32 = 150.0;
+const ACCELERATION: f32 = 800.0;
+const MAX_ROLL_SPEED: f32 = 400.0;
 const KICK_IMPULSE: f32 = 1000.0;
 const FRICTION: f32 = 25.0;
 const KINETIC_FRICTION_COEFF: f32 = 3.0;
@@ -154,8 +155,8 @@ fn player_bundle(
         Actions::<Player>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
             context.spawn((
                 Action::<Roll>::new(),
+                DeadZone::default(),
                 DeltaScale::default(),
-                Scale::splat(ACCELERATION),
                 move_bindings,
             ));
 
@@ -185,7 +186,20 @@ fn player_bundle(
 
 fn apply_roll(roll: On<Fire<Roll>>, mut physics: Query<&mut PlayerPhysics>) {
     let mut physics = physics.get_mut(roll.context).unwrap();
-    physics.velocity += roll.value;
+    let cur_vel = physics.velocity;
+    let input_dir = roll.value;
+    let mut delta_v = ACCELERATION * input_dir;
+
+    // Cap speed, but allow pulling against speed when moving too fast
+    if (cur_vel + delta_v).length_squared() >= MAX_ROLL_SPEED * MAX_ROLL_SPEED {
+        // Only apply perpendicular component of velocity to disallow user
+        // from speeding up past max
+        let perp_v = Vec2::new(cur_vel.y, -cur_vel.x).normalize_or_zero();
+        let dot = input_dir.dot(perp_v);
+        delta_v = perp_v * dot * ACCELERATION;
+    }
+
+    physics.velocity += delta_v;
 }
 
 fn apply_kick(kick: On<Fire<Kick>>, mut physics: Query<&mut PlayerPhysics>) {
