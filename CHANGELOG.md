@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Flick` input condition.
+
 ## [0.24.3] - 2026-03-27
 
 ### Changed

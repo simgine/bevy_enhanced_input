@@ -78,7 +78,7 @@ fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
                     // We set `require_reset` to `true` because `EnterCar` action uses the same input,
                     // and we want it to be triggerable only after the button is released.
                     require_reset: true,
-                    // We also set `consume_input` to `true` otherwise, we would immediatly re-trigger `EnterCar`.
+                    // We also set `consume_input` to `true` otherwise, we would immediately re-trigger `EnterCar`.
                     consume_input: true,
                     ..Default::default()
                 },
