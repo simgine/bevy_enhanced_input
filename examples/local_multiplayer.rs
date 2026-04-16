@@ -42,18 +42,21 @@ fn setup(
     // Border
     let border_mesh = meshes.add(Rectangle::new(BORDER_WIDTH, STROKE_WIDTH));
     let border_mat = materials.add(Color::WHITE);
+
     // Bottom
     commands.spawn((
         Mesh2d(border_mesh.clone()),
         MeshMaterial2d(border_mat.clone()),
         Transform::from_translation(Vec3::Y * (-BORDER_WIDTH / 2.0)),
     ));
+
     // Top
     commands.spawn((
         Mesh2d(border_mesh.clone()),
         MeshMaterial2d(border_mat.clone()),
         Transform::from_translation(Vec3::Y * (BORDER_WIDTH / 2.0)),
     ));
+
     // Left
     commands.spawn((
         Mesh2d(border_mesh.clone()),
@@ -61,6 +64,7 @@ fn setup(
         Transform::from_translation(Vec3::X * (-BORDER_WIDTH / 2.0))
             .with_rotation(Quat::from_rotation_z(90.0f32.to_radians())),
     ));
+
     // Right
     commands.spawn((
         Mesh2d(border_mesh),
@@ -74,21 +78,21 @@ fn setup(
     let ball_mesh = meshes.add(Circle::new(BALL_RAD));
 
     // Player 1
-    let p1_mat = materials.add(Color::srgb(0.1, 0.1, 0.9));
+    let material1 = materials.add(Color::srgb(0.1, 0.1, 0.9));
     commands.spawn(player_bundle(
         Player::First,
         gamepad1,
         ball_mesh.clone(),
-        p1_mat,
+        material1,
         Transform::from_xyz(-80.0, 0.0, 0.0),
     ));
 
-    let p2_mat = materials.add(Color::srgb(0.9, 0.1, 0.1));
+    let material2 = materials.add(Color::srgb(0.9, 0.1, 0.1));
     commands.spawn(player_bundle(
         Player::Second,
         gamepad2,
         ball_mesh,
-        p2_mat,
+        material2,
         Transform::from_xyz(80.0, 0.0, 0.0),
     ));
 }
@@ -185,10 +189,10 @@ fn apply_roll(roll: On<Fire<Roll>>, mut physics: Query<&mut PlayerPhysics>) {
     let input_dir = roll.value;
     let mut delta_v = ACCELERATION * input_dir;
 
-    // Cap speed, but allow pulling against speed when moving too fast
+    // Cap speed, but allow pulling against speed when moving too fast.
     if (cur_vel + delta_v).length_squared() >= MAX_ROLL_SPEED * MAX_ROLL_SPEED {
         // Only apply perpendicular component of velocity to disallow user
-        // from speeding up past max
+        // from speeding up past max.
         let perp_v = Vec2::new(cur_vel.y, -cur_vel.x).normalize_or_zero();
         let dot = input_dir.dot(perp_v);
         delta_v = perp_v * dot * ACCELERATION;
@@ -208,16 +212,15 @@ fn apply_kick(kick: On<Fire<Kick>>, mut physics: Query<&mut PlayerPhysics>) {
 
 fn calculate_physics(time: Res<Time>, players: Query<(&mut Transform, &mut PlayerPhysics)>) {
     for (mut transform, mut physics) in players {
-        // Apply velocity to transform
         transform.translation += (physics.velocity * time.delta_secs()).extend(0.0);
 
-        // Apply friction to velocity
+        // Apply friction.
         if physics.velocity.length_squared() > KINETIC_FRICTION_COEFF {
             let friction_dir = physics.velocity.normalize() * -1.0;
             physics.velocity += friction_dir * FRICTION * time.delta_secs();
         }
 
-        // Check collision with walls and bounce
+        // Check collision with walls and bounce.
         const BORDER_DIST: f32 = BORDER_WIDTH / 2.0 - BALL_RAD;
         if transform.translation.x > BORDER_DIST {
             transform.translation.x = BORDER_DIST;
