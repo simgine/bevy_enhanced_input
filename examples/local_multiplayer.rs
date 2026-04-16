@@ -130,16 +130,11 @@ fn player_bundle(
     material: impl Into<MeshMaterial2d<ColorMaterial>>,
     transform: Transform,
 ) -> impl Bundle {
-    let move_bindings = match player {
-        Player::First => Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-        Player::Second => Bindings::spawn((Cardinal::arrows(), Axial::left_stick())),
+    // Assign different bindings based on the player index.
+    let dir_bindings = match player {
+        Player::First => (Cardinal::wasd_keys(), Axial::left_stick()),
+        Player::Second => (Cardinal::arrows(), Axial::left_stick()),
     };
-    // Duplicate manually because `SpawnRelatedBundle` doesn't implement clone
-    let kick_bindings = match player {
-        Player::First => Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-        Player::Second => Bindings::spawn((Cardinal::arrows(), Axial::left_stick())),
-    };
-
     let arm_kick_binding = match player {
         Player::First => bindings![KeyCode::Space],
         Player::Second => bindings![KeyCode::ShiftRight],
@@ -152,12 +147,12 @@ fn player_bundle(
         mesh.into(),
         material.into(),
         transform,
-        Actions::<Player>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
+        Actions::<Player>::spawn(SpawnWith(move |context: &mut ActionSpawner<_>| {
             context.spawn((
                 Action::<Roll>::new(),
                 DeadZone::default(),
                 DeltaScale::default(),
-                move_bindings,
+                Bindings::spawn(dir_bindings),
             ));
 
             // For controller: Kick by flicking the controller stick
@@ -178,7 +173,7 @@ fn player_bundle(
                 Action::<Kick>::new(),
                 Chord::single(arm),
                 Press::new(0.9),
-                kick_bindings,
+                Bindings::spawn(dir_bindings),
             ));
         })),
     )
