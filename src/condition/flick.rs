@@ -108,10 +108,11 @@ mod tests {
     use crate::context;
 
     #[test]
-    fn flick_twice() {
+    fn flick() {
         let (mut world, mut state) = context::init_world();
-        let mut condition = Flick::new(0.5).with_actuation(0.9);
+        let mut condition = Flick::new(0.5).with_rest_threshold(0.4).with_actuation(0.6);
 
+        // Run twice to check for reset.
         for _ in 1..2 {
             let (time, actions) = state.get(&world);
             assert_eq!(
@@ -125,8 +126,8 @@ mod tests {
             let (time, actions) = state.get(&world);
 
             assert_eq!(
-                condition.evaluate(&actions, &time, 0.4.into()),
-                TriggerState::Ongoing,
+                condition.evaluate(&actions, &time, 0.3.into()),
+                TriggerState::None,
             );
 
             world
@@ -145,7 +146,7 @@ mod tests {
             let (time, actions) = state.get(&world);
 
             assert_eq!(
-                condition.evaluate(&actions, &time, 1.0.into()),
+                condition.evaluate(&actions, &time, 0.6.into()),
                 TriggerState::Fired,
             );
 
@@ -155,13 +156,9 @@ mod tests {
             let (time, actions) = state.get(&world);
 
             assert_eq!(
-                condition.evaluate(&actions, &time, 1.0.into()),
+                condition.evaluate(&actions, &time, 0.6.into()),
                 TriggerState::None,
             );
-
-            world
-                .resource_mut::<Time<Real>>()
-                .advance_by(Duration::from_secs_f32(0.1));
         }
     }
 
