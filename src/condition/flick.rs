@@ -4,8 +4,9 @@ use super::DEFAULT_ACTUATION;
 use crate::prelude::*;
 
 /// Returns [`TriggerState::Fired`] when the input transitions from a rest threshold
-/// to an actuation threshold in a specified amount of time, then
-/// [`TriggerState::Ongoing`] until the actuation threshold is exited.
+/// to an actuation threshold in a specified amount of time, and
+/// [`TriggerState::Ongoing`] when between the rest and actuation threshold
+/// and the flick timer hasn't finished
 #[derive(Component, Debug, Clone)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Flick {
@@ -15,7 +16,7 @@ pub struct Flick {
     /// The threshold the input must exit to start the timer and the threshold
     /// the stick must enter to begin a flick.
     ///
-    /// By default it's set to [`Self::DEFAULT_EXIT_ACTUATION`].
+    /// By default it's set to 0.2.
     pub rest_threshold: f32,
 
     /// The type of time used to advance the timer.
@@ -27,15 +28,13 @@ pub struct Flick {
 }
 
 impl Flick {
-    pub const DEFAULT_EXIT_ACTUATION: f32 = 0.3;
-
     /// Creates a new instance where the input must be in between the enter actuation
     /// and exit actuation for less than `flick_time` in seconds in order to fire.
     #[must_use]
     pub fn new(flick_time: f32) -> Self {
         Self {
             actuation: DEFAULT_ACTUATION,
-            rest_threshold: Self::DEFAULT_EXIT_ACTUATION,
+            rest_threshold: 0.2,
             time_kind: Default::default(),
             timer: Timer::from_seconds(flick_time, TimerMode::Once),
             fired: false,
@@ -81,24 +80,23 @@ impl InputCondition for Flick {
         if !enter_actuated {
             // In "middle zone". Count up
             self.timer.tick(time.delta_kind(self.time_kind));
-            return TriggerState::None;
+            return if self.timer.is_finished() {
+                TriggerState::None
+            } else {
+                TriggerState::Ongoing
+            };
         }
 
         let finished = self.timer.is_finished();
 
-        if finished {
+        if finished || self.fired {
             // Flick took too long
             return TriggerState::None;
         }
 
-        if !self.fired {
-            // Only fire one time
-            self.fired = true;
-            TriggerState::Fired
-        } else {
-            // Ongoing until we exit the actuation threshold
-            TriggerState::Ongoing
-        }
+        // Only fire one time
+        self.fired = true;
+        TriggerState::Fired
     }
 }
 
@@ -110,97 +108,61 @@ mod tests {
     use crate::context;
 
     #[test]
-    fn flick() {
+    fn flick_twice() {
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
-
         let mut condition = Flick::new(0.5).with_actuation(0.9);
 
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
-            TriggerState::None,
-        );
+        for _ in 1..2 {
+            let (time, actions) = state.get(&world);
+            assert_eq!(
+                condition.evaluate(&actions, &time, 0.0.into()),
+                TriggerState::None,
+            );
 
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.1));
-        let (time, actions) = state.get(&world);
+            world
+                .resource_mut::<Time<Real>>()
+                .advance_by(Duration::from_secs_f32(0.1));
+            let (time, actions) = state.get(&world);
 
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.4.into()),
-            TriggerState::None,
-        );
+            assert_eq!(
+                condition.evaluate(&actions, &time, 0.4.into()),
+                TriggerState::Ongoing,
+            );
 
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.1));
-        let (time, actions) = state.get(&world);
+            world
+                .resource_mut::<Time<Real>>()
+                .advance_by(Duration::from_secs_f32(0.1));
+            let (time, actions) = state.get(&world);
 
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.4.into()),
-            TriggerState::None,
-        );
+            assert_eq!(
+                condition.evaluate(&actions, &time, 0.4.into()),
+                TriggerState::Ongoing,
+            );
 
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.1));
-        let (time, actions) = state.get(&world);
+            world
+                .resource_mut::<Time<Real>>()
+                .advance_by(Duration::from_secs_f32(0.1));
+            let (time, actions) = state.get(&world);
 
-        assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
-            TriggerState::Fired,
-        );
+            assert_eq!(
+                condition.evaluate(&actions, &time, 1.0.into()),
+                TriggerState::Fired,
+            );
 
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+            world
+                .resource_mut::<Time<Real>>()
+                .advance_by(Duration::from_secs(1));
+            let (time, actions) = state.get(&world);
 
-        assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
-            TriggerState::Ongoing,
-        );
+            assert_eq!(
+                condition.evaluate(&actions, &time, 1.0.into()),
+                TriggerState::None,
+            );
 
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.1));
-        let (time, actions) = state.get(&world);
-
-        // Check successful flick again to ensure that state resets
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.0.into()),
-            TriggerState::None,
-        );
-
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.1));
-        let (time, actions) = state.get(&world);
-
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.4.into()),
-            TriggerState::None,
-        );
-
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.25));
-        let (time, actions) = state.get(&world);
-
-        assert_eq!(
-            condition.evaluate(&actions, &time, 0.4.into()),
-            TriggerState::None,
-        );
-
-        world
-            .resource_mut::<Time<Real>>()
-            .advance_by(Duration::from_secs_f32(0.1));
-        let (time, actions) = state.get(&world);
-
-        assert_eq!(
-            condition.evaluate(&actions, &time, 1.0.into()),
-            TriggerState::Fired,
-        );
+            world
+                .resource_mut::<Time<Real>>()
+                .advance_by(Duration::from_secs_f32(0.1));
+        }
     }
 
     #[test]
@@ -213,6 +175,15 @@ mod tests {
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
             TriggerState::None,
+        );
+
+        world
+            .resource_mut::<Time<Real>>()
+            .advance_by(Duration::from_secs_f32(0.1));
+        let (time, actions) = state.get(&world);
+        assert_eq!(
+            condition.evaluate(&actions, &time, 0.4.into()),
+            TriggerState::Ongoing,
         );
 
         world
