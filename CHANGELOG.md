@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Public `ActiveInStates::matches` in favor of a private helper used by state synchronization.
+
+## [0.24.4] - 2026-04-18
+
 ### Added
 
 - `Flick` input condition.
@@ -604,7 +610,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.3...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.4...HEAD
+[0.24.4]: https://github.com/simgine/bevy_replicon/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/simgine/bevy_replicon/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/simgine/bevy_replicon/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...v0.24.1
