@@ -23,9 +23,15 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
+        .init_resource::<DidFixedUpdateRunThisFrame>()
+        .add_systems(PreUpdate, reset_fixed_update_flag)
+        .add_systems(FixedPreUpdate, set_fixed_update_flag)
         .add_systems(Startup, setup)
         .add_systems(FixedUpdate, (calculate_physics, update_gamepads))
-        .add_systems(RunFixedMainLoop, clear_input)
+        .add_systems(
+            RunFixedMainLoop,
+            clear_input.run_if(did_fixed_update_run_this_frame),
+        )
         .add_systems(FixedPostUpdate, apply_input)
         .add_observer(apply_roll)
         .add_observer(apply_kick)
@@ -273,4 +279,20 @@ struct ArmKick;
 struct AccumulatedInput {
     roll: Vec2,
     kick: Option<Vec2>,
+}
+
+// Fixed timestep boilerplate
+#[derive(Resource, Deref, DerefMut, Default)]
+struct DidFixedUpdateRunThisFrame(bool);
+
+fn reset_fixed_update_flag(mut flag: ResMut<DidFixedUpdateRunThisFrame>) {
+    flag.0 = false;
+}
+
+fn set_fixed_update_flag(mut flag: ResMut<DidFixedUpdateRunThisFrame>) {
+    flag.0 = true;
+}
+
+fn did_fixed_update_run_this_frame(flag: Res<DidFixedUpdateRunThisFrame>) -> bool {
+    flag.0
 }
