@@ -1,7 +1,7 @@
 //! Demonstrates how to create a simple platforming 2D character controller
 //! using actions with both keyboard and gamepad controls.
 //!
-//! Input is accumulated in and applied to physics in a fixed timestep, as
+//! Input is accumulated and applied to physics in a fixed timestep, as
 //! recommended in [this Bevy example](https://bevy.org/examples/movement/physics-in-fixed-timestep/)
 //! and as used in [bevy_ahoy](https://github.com/janhohenheim/bevy_ahoy).
 
