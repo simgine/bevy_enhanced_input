@@ -24,7 +24,9 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
         .add_systems(Startup, setup)
-        .add_systems(Update, (calculate_physics, update_gamepads))
+        .add_systems(FixedUpdate, (calculate_physics, update_gamepads))
+        .add_systems(RunFixedMainLoop, clear_input)
+        .add_systems(FixedPostUpdate, apply_input)
         .add_observer(apply_roll)
         .add_observer(apply_kick)
         .run();
@@ -147,6 +149,7 @@ fn player_bundle(
         player,
         GamepadDevice::from(gamepad),
         PlayerPhysics::default(),
+        AccumulatedInput::default(),
         mesh.into(),
         material.into(),
         transform,
@@ -183,18 +186,33 @@ fn player_bundle(
     )
 }
 
-fn apply_roll(roll: On<Fire<Roll>>, mut physics: Query<&mut PlayerPhysics>) {
-    let mut physics = physics.get_mut(roll.context).unwrap();
-    physics.velocity += roll.value;
+fn apply_roll(roll: On<Fire<Roll>>, mut input: Query<&mut AccumulatedInput>) {
+    let mut input = input.get_mut(roll.context).unwrap();
+    input.roll = roll.value;
 }
 
-fn apply_kick(kick: On<Fire<Kick>>, mut physics: Query<&mut PlayerPhysics>) {
-    let mut physics = physics.get_mut(kick.context).unwrap();
-    // Normalize the input to treat vectors that are barely inside the threshold
-    // the same way as a vector along the edge.
-    let dir = kick.value.normalize();
+fn apply_kick(kick: On<Fire<Kick>>, mut input: Query<&mut AccumulatedInput>) {
+    let mut input = input.get_mut(kick.context).unwrap();
+    input.kick = Some(kick.value);
+}
 
-    physics.velocity = dir * KICK_IMPULSE;
+fn clear_input(mut inputs: Query<&mut AccumulatedInput>) {
+    for mut inputs in &mut inputs {
+        *inputs = Default::default();
+    }
+}
+
+fn apply_input(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
+    for (mut physics, input) in players {
+        physics.velocity += input.roll;
+
+        if let Some(kick) = input.kick {
+            // Normalize the input to treat vectors that are barely inside the threshold
+            // the same way as a vector along the edge.
+            let dir = kick.normalize();
+            physics.velocity = dir * KICK_IMPULSE;
+        }
+    }
 }
 
 fn calculate_physics(time: Res<Time>, players: Query<(&mut Transform, &mut PlayerPhysics)>) {
@@ -250,3 +268,9 @@ struct Kick;
 #[derive(InputAction)]
 #[action_output(bool)]
 struct ArmKick;
+
+#[derive(Component, Default)]
+struct AccumulatedInput {
+    roll: Vec2,
+    kick: Option<Vec2>,
+}
