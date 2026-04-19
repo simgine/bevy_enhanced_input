@@ -1,5 +1,9 @@
 //! Demonstrates how to create a simple platforming 2D character controller
 //! using actions with both keyboard and gamepad controls.
+//!
+//! Input is accumulated in and applied to physics in a fixed timestep, as
+//! recommended in [this Bevy example](https://bevy.org/examples/movement/physics-in-fixed-timestep/)
+//! and as used in [bevy_ahoy](https://github.com/janhohenheim/bevy_ahoy).
 
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -15,7 +19,9 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
         .add_systems(Startup, setup)
-        .add_systems(Update, calculate_physics)
+        .add_systems(FixedUpdate, calculate_physics)
+        .add_systems(RunFixedMainLoop, clear_input)
+        .add_systems(FixedPostUpdate, run_character_controller)
         .add_observer(apply_movement)
         .add_observer(apply_jump)
         .run();
@@ -41,6 +47,7 @@ fn setup(
         MeshMaterial2d(materials.add(Color::srgb(1.0, 0.0, 0.5))),
         Transform::from_translation(Vec3::Y * (GROUND_LEVEL + 500.0)),
         PlayerPhysics::default(),
+        AccumulatedInput::default(),
         actions!(Player[
             (
                 Action::<Movement>::new(),
@@ -63,17 +70,34 @@ fn setup(
     ));
 }
 
-fn apply_movement(movement: On<Fire<Movement>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(movement.context).unwrap();
-    physics.velocity.x = movement.value;
+fn apply_movement(
+    movement: On<Fire<Movement>>,
+    mut accumulated_inputs: Query<&mut AccumulatedInput>,
+) {
+    if let Ok(mut accumulated_inputs) = accumulated_inputs.get_mut(movement.context) {
+        accumulated_inputs.movement = movement.value;
+    }
 }
 
-fn apply_jump(jump: On<Fire<Jump>>, mut query: Query<&mut PlayerPhysics>) {
-    let mut physics = query.get_mut(jump.context).unwrap();
-    if physics.is_grounded {
-        // Jump only if on the ground.
-        physics.velocity.y = JUMP_VELOCITY;
-        physics.is_grounded = false;
+fn apply_jump(jump: On<Fire<Jump>>, mut accumulated_inputs: Query<&mut AccumulatedInput>) {
+    if let Ok(mut accumulated_inputs) = accumulated_inputs.get_mut(jump.context) {
+        accumulated_inputs.jump = true;
+    }
+}
+
+fn clear_input(mut accumulated_inputs: Query<&mut AccumulatedInput>) {
+    for mut accumulated_input in &mut accumulated_inputs {
+        *accumulated_input = Default::default();
+    }
+}
+
+fn run_character_controller(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
+    for (mut physics, input) in players {
+        physics.velocity.x = input.movement;
+        if input.jump && physics.is_grounded {
+            physics.velocity.y = JUMP_VELOCITY;
+            physics.is_grounded = false;
+        }
     }
 }
 
@@ -113,3 +137,10 @@ struct Movement;
 #[derive(Debug, InputAction)]
 #[action_output(bool)]
 struct Jump;
+
+/// Accumulated input since the last fixed update.
+#[derive(Component, Default)]
+struct AccumulatedInput {
+    movement: f32,
+    jump: bool,
+}
