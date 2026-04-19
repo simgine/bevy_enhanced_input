@@ -101,11 +101,14 @@ fn run_character_controller(players: Query<(&mut PlayerPhysics, &AccumulatedInpu
     }
 }
 
-fn calculate_physics(time: Res<Time>, mut query: Query<(&mut Transform, &mut PlayerPhysics)>) {
+fn calculate_physics(
+    fixed_time: Res<Time<Fixed>>,
+    mut query: Query<(&mut Transform, &mut PlayerPhysics)>,
+) {
     for (mut transform, mut physics) in query.iter_mut() {
-        physics.velocity.y -= GRAVITY * time.delta_secs();
-        transform.translation.y += physics.velocity.y * time.delta_secs();
-        transform.translation.x += physics.velocity.x * time.delta_secs();
+        physics.velocity.y -= GRAVITY * fixed_time.delta_secs();
+        transform.translation.y += physics.velocity.y * fixed_time.delta_secs();
+        transform.translation.x += physics.velocity.x * fixed_time.delta_secs();
 
         // Prevent moving off screen.
         const MAX_X: f32 = GROUND_WIDTH / 2.0 - PLAYER.x / 2.0;
