@@ -21,7 +21,7 @@ fn main() {
         .add_systems(Startup, setup)
         .add_systems(FixedUpdate, calculate_physics)
         .add_systems(RunFixedMainLoop, clear_input)
-        .add_systems(FixedPostUpdate, run_character_controller)
+        .add_systems(FixedPostUpdate, apply_input)
         .add_observer(apply_movement)
         .add_observer(apply_jump)
         .run();
@@ -70,28 +70,23 @@ fn setup(
     ));
 }
 
-fn apply_movement(
-    movement: On<Fire<Movement>>,
-    mut accumulated_inputs: Query<&mut AccumulatedInput>,
-) {
-    if let Ok(mut accumulated_inputs) = accumulated_inputs.get_mut(movement.context) {
-        accumulated_inputs.movement = movement.value;
+fn apply_movement(movement: On<Fire<Movement>>, mut inputs: Query<&mut AccumulatedInput>) {
+    let mut accumulated_inputs = inputs.get_mut(movement.context).unwrap();
+    accumulated_inputs.movement = movement.value;
+}
+
+fn apply_jump(jump: On<Fire<Jump>>, mut inputs: Query<&mut AccumulatedInput>) {
+    let mut accumulated_inputs = inputs.get_mut(jump.context).unwrap();
+    accumulated_inputs.jump = true;
+}
+
+fn clear_input(mut inputs: Query<&mut AccumulatedInput>) {
+    for mut inputs in &mut inputs {
+        *inputs = Default::default();
     }
 }
 
-fn apply_jump(jump: On<Fire<Jump>>, mut accumulated_inputs: Query<&mut AccumulatedInput>) {
-    if let Ok(mut accumulated_inputs) = accumulated_inputs.get_mut(jump.context) {
-        accumulated_inputs.jump = true;
-    }
-}
-
-fn clear_input(mut accumulated_inputs: Query<&mut AccumulatedInput>) {
-    for mut accumulated_input in &mut accumulated_inputs {
-        *accumulated_input = Default::default();
-    }
-}
-
-fn run_character_controller(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
+fn apply_input(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
     for (mut physics, input) in players {
         physics.velocity.x = input.movement;
         if input.jump && physics.is_grounded {
@@ -103,9 +98,9 @@ fn run_character_controller(players: Query<(&mut PlayerPhysics, &AccumulatedInpu
 
 fn calculate_physics(
     fixed_time: Res<Time<Fixed>>,
-    mut query: Query<(&mut Transform, &mut PlayerPhysics)>,
+    mut players: Query<(&mut Transform, &mut PlayerPhysics)>,
 ) {
-    for (mut transform, mut physics) in query.iter_mut() {
+    for (mut transform, mut physics) in players.iter_mut() {
         physics.velocity.y -= GRAVITY * fixed_time.delta_secs();
         transform.translation.y += physics.velocity.y * fixed_time.delta_secs();
         transform.translation.x += physics.velocity.x * fixed_time.delta_secs();
