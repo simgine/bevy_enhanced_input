@@ -19,14 +19,11 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
         .add_systems(Startup, setup)
-        .init_resource::<DidFixedUpdateRunThisFrame>()
-        .add_systems(PreUpdate, reset_fixed_update_flag)
-        .add_systems(FixedPreUpdate, set_fixed_update_flag)
+        .init_resource::<FixedUpdateRan>()
+        .add_systems(PreUpdate, reset_fixed_update_ran)
+        .add_systems(FixedPreUpdate, set_fixed_update_ran)
         .add_systems(FixedUpdate, calculate_physics)
-        .add_systems(
-            RunFixedMainLoop,
-            clear_input.run_if(did_fixed_update_run_this_frame),
-        )
+        .add_systems(RunFixedMainLoop, clear_input.run_if(fixed_update_ran))
         .add_systems(FixedPostUpdate, apply_input)
         .add_observer(apply_movement)
         .add_observer(apply_jump)
@@ -151,16 +148,16 @@ struct AccumulatedInput {
 
 // Fixed timestep boilerplate
 #[derive(Resource, Deref, DerefMut, Default)]
-struct DidFixedUpdateRunThisFrame(bool);
+struct FixedUpdateRan(bool);
 
-fn reset_fixed_update_flag(mut flag: ResMut<DidFixedUpdateRunThisFrame>) {
-    flag.0 = false;
+fn reset_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
+    **ran = false;
 }
 
-fn set_fixed_update_flag(mut flag: ResMut<DidFixedUpdateRunThisFrame>) {
-    flag.0 = true;
+fn set_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
+    **ran = true;
 }
 
-fn did_fixed_update_run_this_frame(flag: Res<DidFixedUpdateRunThisFrame>) -> bool {
-    flag.0
+fn fixed_update_ran(ran: Res<FixedUpdateRan>) -> bool {
+    **ran
 }
