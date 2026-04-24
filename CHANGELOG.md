@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Public `ActiveInStates::matches` in favor of a private helper used by state synchronization.
 
+### Changed
+
+- Improve action evaluation logging.
+
 ## [0.24.4] - 2026-04-18
 
 ### Added
