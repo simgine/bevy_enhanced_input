@@ -532,7 +532,7 @@ fn update<S: ScheduleLabel>(
 
                 (new_state, new_value)
             } else {
-                trace!("updating `{action_name}` from input");
+                trace!("updating `{action_name}` from bindings");
 
                 let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
                 let actions_data = actions_data.as_readonly();
@@ -562,7 +562,7 @@ fn update<S: ScheduleLabel>(
                     let mut binding_entity = conds_and_mods.get_mut(binding_entity).unwrap();
 
                     let mut current_tracker = TriggerTracker::new(new_value);
-                    trace!("reading value `{new_value:?}`");
+                    trace!("reading `{new_value:?}` from `{binding:?}`");
                     if let Some(modifiers) = modifiers {
                         current_tracker.apply_modifiers(
                             &mut binding_entity,
@@ -581,6 +581,10 @@ fn update<S: ScheduleLabel>(
                     }
 
                     let current_state = current_tracker.state();
+                    trace!(
+                        "evaluated `{binding:?}` to `{current_state:?}` with `{:?}`",
+                        current_tracker.value()
+                    );
                     if current_state == TriggerState::None {
                         // Ignore non-active trackers to allow the action to fire even if all
                         // input-level conditions return `TriggerState::None`. This ensures that an
@@ -606,6 +610,7 @@ fn update<S: ScheduleLabel>(
                     }
                 }
 
+                trace!("applying `{action_name}` modifiers and conditions");
                 let mut action = conds_and_mods.get_mut(action).unwrap();
                 if let Some(modifiers) = modifiers {
                     tracker.apply_modifiers(&mut action, &actions_data, &time, modifiers);
@@ -629,7 +634,7 @@ fn update<S: ScheduleLabel>(
                 (new_state, new_value)
             };
 
-            trace!("evaluated to `{new_state:?}` with `{new_value:?}`");
+            trace!("evaluated `{action_name}` to `{new_state:?}` with `{new_value:?}`");
 
             let (mut value, mut state, mut events, mut action_time) =
                 actions_data.get_mut(action).unwrap();
