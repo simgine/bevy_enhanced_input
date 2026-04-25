@@ -5,9 +5,11 @@ use smallvec::{SmallVec, smallvec};
 use crate::prelude::*;
 
 /**
-Returns [`TriggerState::Fired`] if all valid chorded actions fire,
-[`TriggerState::Ongoing`] if any are active (not [`TriggerState::None`]),
-and [`TriggerState::None`] otherwise.
+Set of actions that need to be triggered at the same time.
+
+- [`TriggerState::Fired`] if all chorded actions fire.
+- [`TriggerState::Ongoing`] if any are active and [`Self::ongoing`] is `true`.
+- [`TriggerState::None`] otherwise.
 
 Useful for defining a composite action that fires only when all listed actions fire.
 
@@ -61,6 +63,14 @@ struct Heal;
 pub struct Chord {
     /// Actions whose state will be inherited when they are firing.
     pub actions: SmallVec<[Entity; 2]>,
+
+    /// Enables returning [`TriggerState::Ongoing`] when any action is active
+    /// but not all have fired.
+    ///
+    /// When disabled, partial activation results in [`TriggerState::None`].
+    ///
+    /// Defaults to `true`.
+    pub ongoing: bool,
 }
 
 impl Chord {
@@ -75,7 +85,15 @@ impl Chord {
     pub fn new(actions: impl Into<SmallVec<[Entity; 2]>>) -> Self {
         Self {
             actions: actions.into(),
+            ongoing: true,
         }
+    }
+
+    /// Sets [`Self::ongoing`].
+    #[must_use]
+    pub fn with_ongoing(mut self, enable: bool) -> Self {
+        self.ongoing = enable;
+        self
     }
 }
 
@@ -106,7 +124,7 @@ impl InputCondition for Chord {
 
         if has_active && all_fired {
             TriggerState::Fired
-        } else if has_active {
+        } else if has_active && self.ongoing {
             TriggerState::Ongoing
         } else {
             TriggerState::None
@@ -141,7 +159,7 @@ mod tests {
     }
 
     #[test]
-    fn ongoing() {
+    fn with_ongoing() {
         let (mut world, mut state) = context::init_world();
         let action1 = world
             .spawn((Action::<Test>::new(), TriggerState::Fired))
@@ -151,10 +169,28 @@ mod tests {
             .id();
         let (time, actions) = state.get(&world);
 
-        let mut condition = Chord::new([action1, action2]);
+        let mut condition = Chord::new([action1, action2]).with_ongoing(true);
         assert_eq!(
             condition.evaluate(&actions, &time, true.into()),
             TriggerState::Ongoing,
+        );
+    }
+
+    #[test]
+    fn without_ongoing() {
+        let (mut world, mut state) = context::init_world();
+        let action1 = world
+            .spawn((Action::<Test>::new(), TriggerState::Fired))
+            .id();
+        let action2 = world
+            .spawn((Action::<Test>::new(), TriggerState::None))
+            .id();
+        let (time, actions) = state.get(&world);
+
+        let mut condition = Chord::new([action1, action2]).with_ongoing(false);
+        assert_eq!(
+            condition.evaluate(&actions, &time, true.into()),
+            TriggerState::None,
         );
     }
 
