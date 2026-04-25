@@ -5,10 +5,11 @@ use smallvec::{SmallVec, smallvec};
 use crate::prelude::*;
 
 /**
-Returns [`TriggerState::Fired`] if all given actions fire, otherwise returns their maximum
-[`TriggerState`], capped at [`TriggerState::Ongoing`].
+Returns [`TriggerState::Fired`] if all valid chorded actions fire,
+[`TriggerState::Ongoing`] if any are active (not [`TriggerState::None`]),
+and [`TriggerState::None`] otherwise.
 
-Useful for defining a composite action that fires only when all listed actions are active.
+Useful for defining a composite action that fires only when all listed actions fire.
 
 Requires using [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
 because you need to pass [`Entity`] for step and cancel actions.
@@ -85,8 +86,7 @@ impl InputCondition for Chord {
         _time: &ContextTime,
         _value: ActionValue,
     ) -> TriggerState {
-        // Inherit state from the most significant chorded action.
-        let mut max_state = Default::default();
+        let mut has_active = false;
         let mut all_fired = true;
         for &action in &self.actions {
             let Ok((_, &state, ..)) = actions.get(action) else {
@@ -95,20 +95,22 @@ impl InputCondition for Chord {
                 continue;
             };
 
+            if state != TriggerState::None {
+                has_active = true;
+            }
+
             if state != TriggerState::Fired {
                 all_fired = false;
             }
-
-            if state > max_state {
-                max_state = state;
-            }
         }
 
-        if !all_fired {
-            max_state = max_state.min(TriggerState::Ongoing);
+        if has_active && all_fired {
+            TriggerState::Fired
+        } else if has_active {
+            TriggerState::Ongoing
+        } else {
+            TriggerState::None
         }
-
-        max_state
     }
 
     fn kind(&self) -> ConditionKind {
