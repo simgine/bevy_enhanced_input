@@ -23,7 +23,6 @@ fn main() {
             FixedUpdate,
             ((calculate_physics), (apply_input, clear_input).chain()),
         )
-        .add_systems(FixedPostUpdate, apply_input)
         .add_observer(apply_movement)
         .add_observer(apply_jump)
         .run();
