@@ -19,11 +19,10 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
         .add_systems(Startup, setup)
-        .init_resource::<FixedUpdateRan>()
-        .add_systems(PreUpdate, reset_fixed_update_ran)
-        .add_systems(FixedPreUpdate, set_fixed_update_ran)
-        .add_systems(FixedUpdate, calculate_physics)
-        .add_systems(RunFixedMainLoop, clear_input.run_if(fixed_update_ran))
+        .add_systems(
+            FixedUpdate,
+            ((calculate_physics), (apply_input, clear_input).chain()),
+        )
         .add_systems(FixedPostUpdate, apply_input)
         .add_observer(apply_movement)
         .add_observer(apply_jump)
@@ -144,20 +143,4 @@ struct Jump;
 struct AccumulatedInput {
     movement: f32,
     jump: bool,
-}
-
-// Fixed timestep boilerplate
-#[derive(Resource, Deref, DerefMut, Default)]
-struct FixedUpdateRan(bool);
-
-fn reset_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
-    **ran = false;
-}
-
-fn set_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
-    **ran = true;
-}
-
-fn fixed_update_ran(ran: Res<FixedUpdateRan>) -> bool {
-    **ran
 }

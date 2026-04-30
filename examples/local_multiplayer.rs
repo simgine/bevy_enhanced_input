@@ -23,13 +23,15 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
-        .init_resource::<FixedUpdateRan>()
-        .add_systems(PreUpdate, reset_fixed_update_ran)
-        .add_systems(FixedPreUpdate, set_fixed_update_ran)
         .add_systems(Startup, setup)
-        .add_systems(FixedUpdate, (calculate_physics, update_gamepads))
-        .add_systems(RunFixedMainLoop, clear_input.run_if(fixed_update_ran))
-        .add_systems(FixedPostUpdate, apply_input)
+        .add_systems(
+            FixedUpdate,
+            (
+                (apply_input, clear_input).chain(),
+                update_gamepads,
+                calculate_physics,
+            ),
+        )
         .add_observer(apply_roll)
         .add_observer(apply_kick)
         .run();
@@ -276,20 +278,4 @@ struct ArmKick;
 struct AccumulatedInput {
     roll: Vec2,
     kick: Option<Vec2>,
-}
-
-// Fixed timestep boilerplate
-#[derive(Resource, Deref, DerefMut, Default)]
-struct FixedUpdateRan(bool);
-
-fn reset_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
-    **ran = false;
-}
-
-fn set_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
-    **ran = true;
-}
-
-fn fixed_update_ran(ran: Res<FixedUpdateRan>) -> bool {
-    **ran
 }
