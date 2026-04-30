@@ -27,9 +27,8 @@ fn main() {
         .add_systems(
             FixedUpdate,
             (
-                (apply_input, clear_input).chain(),
+                (apply_input, calculate_physics, clear_input).chain(),
                 update_gamepads,
-                calculate_physics,
             ),
         )
         .add_observer(apply_roll)

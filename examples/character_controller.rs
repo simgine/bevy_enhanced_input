@@ -21,7 +21,7 @@ fn main() {
         .add_systems(Startup, setup)
         .add_systems(
             FixedUpdate,
-            ((calculate_physics), (apply_input, clear_input).chain()),
+            (apply_input, calculate_physics, clear_input).chain(),
         )
         .add_observer(apply_movement)
         .add_observer(apply_jump)
