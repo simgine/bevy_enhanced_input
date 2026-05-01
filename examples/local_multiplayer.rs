@@ -4,7 +4,7 @@
 //! This allows us to enable or disable players independently and reuse the same entity for gameplay,
 //! and assign unique input bindings to each player.
 //!
-//! Repeats the best practices used in character_controller example.
+//! Repeats the best practices used in `character_controller` example.
 
 use bevy::{
     input::gamepad::{GamepadConnection, GamepadConnectionEvent},
