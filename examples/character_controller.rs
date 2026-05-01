@@ -21,15 +21,10 @@ fn main() {
         .init_resource::<FixedUpdateRan>()
         .add_systems(Startup, setup)
         .add_systems(PreUpdate, reset_fixed_update_ran)
-        .add_systems(
-            FixedPreUpdate,
-            (
-                set_fixed_update_ran,
-                // Apply input before advancing physics
-                apply_input,
-            ),
-        )
-        .add_systems(FixedUpdate, advance_physics)
+        .add_systems(FixedPreUpdate, set_fixed_update_ran)
+        // Apply input before advancing physics
+        .add_systems(FixedUpdate, apply_input)
+        .add_systems(FixedPostUpdate, advance_physics)
         .add_systems(
             // Run outside the schedule loop that repeats FixedMain zero-to-many times
             RunFixedMainLoop,
