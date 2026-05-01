@@ -3,6 +3,8 @@
 //! The same context ([`Player`]) is used for both players, but each player has their own unique entity.
 //! This allows us to enable or disable players independently and reuse the same entity for gameplay,
 //! and assign unique input bindings to each player.
+//!
+//! Repeats the best practices used in `character_controller` example.
 
 use bevy::{
     input::gamepad::{GamepadConnection, GamepadConnectionEvent},
@@ -24,14 +26,19 @@ fn main() {
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
         .init_resource::<FixedUpdateRan>()
-        .add_systems(PreUpdate, reset_fixed_update_ran)
-        .add_systems(FixedPreUpdate, set_fixed_update_ran)
         .add_systems(Startup, setup)
-        .add_systems(FixedUpdate, (calculate_physics, update_gamepads))
-        .add_systems(RunFixedMainLoop, clear_input.run_if(fixed_update_ran))
-        .add_systems(FixedPostUpdate, apply_input)
-        .add_observer(apply_roll)
-        .add_observer(apply_kick)
+        .add_systems(PreUpdate, (reset_fixed_update_ran, update_gamepads))
+        .add_systems(FixedPreUpdate, set_fixed_update_ran)
+        .add_systems(FixedUpdate, apply_input)
+        .add_systems(FixedPostUpdate, advance_physics)
+        .add_systems(
+            RunFixedMainLoop,
+            clear_input
+                .run_if(fixed_update_ran)
+                .in_set(RunFixedMainLoopSystems::AfterFixedMainLoop),
+        )
+        .add_observer(accumulate_roll)
+        .add_observer(accumulate_kick)
         .run();
 }
 
@@ -189,12 +196,12 @@ fn player_bundle(
     )
 }
 
-fn apply_roll(roll: On<Fire<Roll>>, mut input: Query<&mut AccumulatedInput>) {
+fn accumulate_roll(roll: On<Fire<Roll>>, mut input: Query<&mut AccumulatedInput>) {
     let mut input = input.get_mut(roll.context).unwrap();
     input.roll = roll.value;
 }
 
-fn apply_kick(kick: On<Fire<Kick>>, mut input: Query<&mut AccumulatedInput>) {
+fn accumulate_kick(kick: On<Fire<Kick>>, mut input: Query<&mut AccumulatedInput>) {
     let mut input = input.get_mut(kick.context).unwrap();
     input.kick = Some(kick.value);
 }
@@ -218,7 +225,7 @@ fn apply_input(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
     }
 }
 
-fn calculate_physics(time: Res<Time>, players: Query<(&mut Transform, &mut PlayerPhysics)>) {
+fn advance_physics(time: Res<Time>, players: Query<(&mut Transform, &mut PlayerPhysics)>) {
     for (mut transform, mut physics) in players {
         transform.translation += (physics.velocity * time.delta_secs()).extend(0.0);
 
@@ -278,7 +285,7 @@ struct AccumulatedInput {
     kick: Option<Vec2>,
 }
 
-// Fixed timestep boilerplate
+/// True if FixedPreUpdate was run this frame.
 #[derive(Resource, Deref, DerefMut, Default)]
 struct FixedUpdateRan(bool);
 
