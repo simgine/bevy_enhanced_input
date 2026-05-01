@@ -18,15 +18,30 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
-        .add_systems(Startup, setup)
         .init_resource::<FixedUpdateRan>()
+        .add_systems(Startup, setup)
         .add_systems(PreUpdate, reset_fixed_update_ran)
-        .add_systems(FixedPreUpdate, set_fixed_update_ran)
-        .add_systems(FixedUpdate, calculate_physics)
-        .add_systems(RunFixedMainLoop, clear_input.run_if(fixed_update_ran))
-        .add_systems(FixedPostUpdate, apply_input)
-        .add_observer(apply_movement)
-        .add_observer(apply_jump)
+        .add_systems(
+            FixedPreUpdate,
+            (
+                set_fixed_update_ran,
+                // Apply input before advancing physics
+                apply_input,
+            ),
+        )
+        .add_systems(FixedUpdate, advance_physics)
+        .add_systems(
+            // Run outside the schedule loop that repeats FixedMain zero-to-many times
+            RunFixedMainLoop,
+            clear_input
+                // To prevent prematurely clearing input, only clear if
+                // FixedUpdate ran one-to-many times during this loop
+                .run_if(fixed_update_ran)
+                // Run *after* loop
+                .in_set(RunFixedMainLoopSystems::AfterFixedMainLoop),
+        )
+        .add_observer(accumulate_movement)
+        .add_observer(accumulate_jump)
         .run();
 }
 
@@ -73,12 +88,12 @@ fn setup(
     ));
 }
 
-fn apply_movement(movement: On<Fire<Movement>>, mut inputs: Query<&mut AccumulatedInput>) {
+fn accumulate_movement(movement: On<Fire<Movement>>, mut inputs: Query<&mut AccumulatedInput>) {
     let mut accumulated_inputs = inputs.get_mut(movement.context).unwrap();
     accumulated_inputs.movement = movement.value;
 }
 
-fn apply_jump(jump: On<Fire<Jump>>, mut inputs: Query<&mut AccumulatedInput>) {
+fn accumulate_jump(jump: On<Fire<Jump>>, mut inputs: Query<&mut AccumulatedInput>) {
     let mut accumulated_inputs = inputs.get_mut(jump.context).unwrap();
     accumulated_inputs.jump = true;
 }
@@ -99,7 +114,7 @@ fn apply_input(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
     }
 }
 
-fn calculate_physics(
+fn advance_physics(
     fixed_time: Res<Time<Fixed>>,
     mut players: Query<(&mut Transform, &mut PlayerPhysics)>,
 ) {
@@ -146,7 +161,7 @@ struct AccumulatedInput {
     jump: bool,
 }
 
-// Fixed timestep boilerplate
+/// True if FixedPreUpdate was run this frame.
 #[derive(Resource, Deref, DerefMut, Default)]
 struct FixedUpdateRan(bool);
 
