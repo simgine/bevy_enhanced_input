@@ -34,7 +34,7 @@ bevy = { version = "0.18.0", default-features = false, features = [
 ] }
 log = "0.4" # Directly depend on `log` like other `no_std` Bevy crates, since `bevy_log` currently requires `std`.
 smallvec = "1.15"
-variadics_please = "1.0"
+variadics_please = "2.0"
 serde = { version = "1.0", default-features = false, features = [
   "derive",
 ], optional = true }
