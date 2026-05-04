@@ -10,7 +10,7 @@ use bevy::{ecs::system::SystemParam, prelude::*};
 #[derive(SystemParam, Deref)]
 pub struct ContextTime<'w> {
     #[deref]
-    pub virt: Res<'w, Time<Virtual>>,
+    pub virt: Res<'w, Time>,
     pub real: Res<'w, Time<Real>>,
 }
 

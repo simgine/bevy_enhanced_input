@@ -65,8 +65,10 @@ fn setup(
             (
                 Action::<Movement>::new(),
                 DeadZone::default(),
-                // A smoothed input is directly applied to velocity.
+                // Velocity is set to a smoothed input to simulate acceleration.
                 SmoothNudge::default(),
+                // We don't apply `DeltaScale` here because the movement vector is
+                // multiplied by delta time during the physics calculation.
                 Scale::splat(450.0),
                 Bindings::spawn((
                     Bidirectional::new(KeyCode::KeyD, KeyCode::KeyA),

@@ -13,27 +13,24 @@ use crate::prelude::*;
 )]
 pub struct DeltaScale {
     /// The type of time used to scale the input by.
+    ///
+    /// `TimeKind::Virtual` by default for `DeltaScale` only.
     pub time_kind: TimeKind,
 }
 
 impl DeltaScale {
-    pub fn real_time() -> Self {
-        Self {
-            time_kind: TimeKind::Real,
-        }
-    }
+    pub const REAL: Self = Self {
+        time_kind: TimeKind::Real,
+    };
 
-    pub fn virtual_time() -> Self {
-        Self {
-            time_kind: TimeKind::Virtual,
-        }
-    }
+    pub const VIRTUAL: Self = Self {
+        time_kind: TimeKind::Virtual,
+    };
 }
 
 impl Default for DeltaScale {
-    /// Uses `TimeKind::Virtual` by default.
     fn default() -> Self {
-        Self::virtual_time()
+        Self::VIRTUAL
     }
 }
 
@@ -72,61 +69,31 @@ mod tests {
     use crate::context;
 
     #[test]
-    fn real_scaling() {
+    fn scaling() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time<Real>>()
+            .resource_mut::<Time>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world);
 
         assert_eq!(
-            DeltaScale::real_time().transform(&actions, &time, true.into()),
+            DeltaScale::default().transform(&actions, &time, true.into()),
             0.5.into()
         );
         assert_eq!(
-            DeltaScale::real_time().transform(&actions, &time, false.into()),
+            DeltaScale::default().transform(&actions, &time, false.into()),
             0.0.into()
         );
         assert_eq!(
-            DeltaScale::real_time().transform(&actions, &time, 0.5.into()),
+            DeltaScale::default().transform(&actions, &time, 0.5.into()),
             0.25.into()
         );
         assert_eq!(
-            DeltaScale::real_time().transform(&actions, &time, Vec2::ONE.into()),
+            DeltaScale::default().transform(&actions, &time, Vec2::ONE.into()),
             (0.5, 0.5).into()
         );
         assert_eq!(
-            DeltaScale::real_time().transform(&actions, &time, Vec3::ONE.into()),
-            (0.5, 0.5, 0.5).into()
-        );
-    }
-
-    #[test]
-    fn virtual_scaling() {
-        let (mut world, mut state) = context::init_world();
-        world
-            .resource_mut::<Time<Virtual>>()
-            .advance_by(Duration::from_millis(500));
-        let (time, actions) = state.get(&world);
-
-        assert_eq!(
-            DeltaScale::virtual_time().transform(&actions, &time, true.into()),
-            0.5.into()
-        );
-        assert_eq!(
-            DeltaScale::virtual_time().transform(&actions, &time, false.into()),
-            0.0.into()
-        );
-        assert_eq!(
-            DeltaScale::virtual_time().transform(&actions, &time, 0.5.into()),
-            0.25.into()
-        );
-        assert_eq!(
-            DeltaScale::virtual_time().transform(&actions, &time, Vec2::ONE.into()),
-            (0.5, 0.5).into()
-        );
-        assert_eq!(
-            DeltaScale::virtual_time().transform(&actions, &time, Vec3::ONE.into()),
+            DeltaScale::default().transform(&actions, &time, Vec3::ONE.into()),
             (0.5, 0.5, 0.5).into()
         );
     }

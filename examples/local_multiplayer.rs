@@ -25,7 +25,7 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
-        .add_input_context::<Shared>()
+        .add_input_context::<SharedControls>()
         .init_resource::<FixedUpdateRan>()
         .add_systems(Startup, setup)
         .add_systems(PreUpdate, (reset_fixed_update_ran, update_gamepads))
@@ -110,11 +110,10 @@ fn setup(
         Transform::from_xyz(80.0, 0.0, 0.0),
     ));
 
-    // Shared player controls
     commands.spawn((
-        Shared,
+        SharedControls,
         actions!(
-            Shared[(
+            SharedControls[(
                 Action::<Pause>::new(),
                 Press::new(1.0),
                 bindings![KeyCode::Escape, GamepadButton::Start]
@@ -123,14 +122,14 @@ fn setup(
     ));
 
     commands.spawn((
-        PauseIndicator,
+        PauseText,
         Node {
             width: percent(100),
             height: percent(100),
             align_items: AlignItems::Center,
             justify_content: JustifyContent::Center,
             display: Display::None,
-            ..default()
+            ..Default::default()
         },
         children![Text::new("Paused")],
     ));
@@ -195,7 +194,7 @@ fn player_bundle(
             context.spawn((
                 Action::<Roll>::new(),
                 DeadZone::default(),
-                DeltaScale::virtual_time(),
+                DeltaScale::default(),
                 Scale::splat(ACCELERATION),
                 Bindings::spawn(dir_bindings),
             ));
@@ -285,12 +284,11 @@ fn advance_physics(time: Res<Time>, players: Query<(&mut Transform, &mut PlayerP
 }
 
 fn toggle_pause(
-    _: On<Fire<Pause>>,
+    _on: On<Fire<Pause>>,
     mut time: ResMut<Time<Virtual>>,
-    mut indicator: Single<&mut Node, With<PauseIndicator>>,
+    mut indicator: Single<&mut Node, With<PauseText>>,
 ) {
-    let paused = time.is_paused();
-    if paused {
+    if time.is_paused() {
         time.unpause();
         indicator.display = Display::None;
     } else {
@@ -329,14 +327,14 @@ struct AccumulatedInput {
 }
 
 #[derive(Component)]
-struct Shared;
+struct SharedControls;
 
 #[derive(InputAction)]
 #[action_output(bool)]
 struct Pause;
 
 #[derive(Component)]
-struct PauseIndicator;
+struct PauseText;
 
 /// True if FixedPreUpdate was run this frame.
 #[derive(Resource, Deref, DerefMut, Default)]
