@@ -122,7 +122,6 @@ fn setup(
         ),
     ));
 
-    // Pause indicator
     commands.spawn((
         PauseIndicator,
         Node {
