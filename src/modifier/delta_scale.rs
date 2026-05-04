@@ -19,10 +19,12 @@ pub struct DeltaScale {
 }
 
 impl DeltaScale {
+    /// Instance with [`TimeKind::Real`].
     pub const REAL: Self = Self {
         time_kind: TimeKind::Real,
     };
 
+    /// Instance with [`TimeKind::Virtual`].
     pub const VIRTUAL: Self = Self {
         time_kind: TimeKind::Virtual,
     };
