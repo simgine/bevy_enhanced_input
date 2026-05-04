@@ -14,7 +14,7 @@ use crate::prelude::*;
 pub struct DeltaScale {
     /// The type of time used to scale the input by.
     ///
-    /// `TimeKind::Virtual` by default for `DeltaScale` only.
+    /// By default set to [`TimeKind::Virtual`], unlike other modifiers.
     pub time_kind: TimeKind,
 }
 
