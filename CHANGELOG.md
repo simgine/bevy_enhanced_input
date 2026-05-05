@@ -20,8 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improve action evaluation logging.
 - `DeltaScale::default()` now uses virtual time instead of real time. This is most likely what you want, since it's equivalent to getting the delta from [the default `Time` resource](https://docs.rs/bevy/latest/bevy/prelude/struct.Time.html). If you want the original behavior, use `DeltaScale::real_time()`.
-- Deprecated `TimeKind::Virtual` in favor of the name `TimeKind::Auto`, which is more accurate to the functionality.
-- Deprecated `virt` field of `ContextTime` and replaced with `auto` field.
+- Rename `TimeKind::Virtual` to `TimeKind::Auto` and `ContextTime::virt` to `ContextTime::auto`. The old names remain available as deprecated aliases.
 
 ## [0.24.4] - 2026-04-18
 
