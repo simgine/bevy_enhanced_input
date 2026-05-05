@@ -353,8 +353,6 @@ pub mod preset;
 pub mod state;
 
 pub mod prelude {
-    #[allow(deprecated)]
-    pub use super::action::ActionState;
     #[cfg(feature = "state")]
     pub use super::state::{ActiveInStates, StateContextAppExt};
     pub use super::{
@@ -384,7 +382,6 @@ pub mod prelude {
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
             input_reader::ActionSources,
-            time::{ContextTime, TimeKind},
         },
         modifier::{
             InputModifier, accumulate_by::*, clamp::*, dead_zone::*, delta_scale::*,
@@ -392,6 +389,11 @@ pub mod prelude {
             smooth_nudge::*, swizzle_axis::*,
         },
         preset::{WithBundle, axial::*, bidirectional::*, cardinal::*, ordinal::*, spatial::*},
+    };
+    #[allow(deprecated)]
+    pub use super::{
+        action::ActionState,
+        context::time::{ContextTime, TimeKind},
     };
     pub use bevy_enhanced_input_macros::InputAction;
 }

@@ -57,6 +57,7 @@ triggering the corresponding events. Depending on your use case, using [`Context
 
 pub mod input_reader;
 pub mod instance;
+#[allow(deprecated)]
 pub mod time;
 mod trigger_tracker;
 
