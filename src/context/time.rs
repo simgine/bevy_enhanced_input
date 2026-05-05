@@ -12,7 +12,10 @@ pub struct ContextTime<'w> {
     #[deref]
     pub auto: Res<'w, Time>,
     #[allow(deprecated)]
-    #[deprecated = "Naming wasn't accurate to functionality, use auto instead."]
+    #[deprecated(
+        since = "0.25.0",
+        note = "Naming wasn't accurate to functionality, use auto instead."
+    )]
     pub virt: Res<'w, Time>,
     pub real: Res<'w, Time<Real>>,
 }
@@ -56,6 +59,9 @@ pub enum TimeKind {
     ///
     /// Useful for time-based actions that needs to be paused or speedup together with the game.
     #[allow(deprecated)]
-    #[deprecated = "Naming wasn't accurate to functionality, use Auto instead."]
+    #[deprecated(
+        since = "0.25.0",
+        note = "Naming wasn't accurate to functionality, use Auto instead."
+    )]
     Virtual,
 }
