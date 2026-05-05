@@ -47,7 +47,7 @@ pub enum TimeKind {
     ///
     /// Useful for time-based actions that needs to be paused or speedup together with the game.
     Auto,
-    /// A deprecated alias for [`Self::Auto``].
+    /// A deprecated alias for [`Self::Auto`].
     #[deprecated(since = "0.25.0", note = "Renamed into `Auto`")]
     Virtual,
 }
