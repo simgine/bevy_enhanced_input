@@ -24,15 +24,15 @@ impl DeltaScale {
         time_kind: TimeKind::Real,
     };
 
-    /// Instance with [`TimeKind::Virtual`].
-    pub const VIRTUAL: Self = Self {
-        time_kind: TimeKind::Virtual,
+    /// Instance with [`TimeKind::Auto`].
+    pub const AUTO: Self = Self {
+        time_kind: TimeKind::Auto,
     };
 }
 
 impl Default for DeltaScale {
     fn default() -> Self {
-        Self::VIRTUAL
+        Self::AUTO
     }
 }
 

@@ -10,6 +10,9 @@ use bevy::{ecs::system::SystemParam, prelude::*};
 #[derive(SystemParam, Deref)]
 pub struct ContextTime<'w> {
     #[deref]
+    pub auto: Res<'w, Time>,
+    #[allow(deprecated)]
+    #[deprecated = "Naming wasn't accurate to functionality, use auto instead."]
     pub virt: Res<'w, Time>,
     pub real: Res<'w, Time<Real>>,
 }
@@ -19,7 +22,8 @@ impl ContextTime<'_> {
     #[must_use]
     pub fn delta_kind(&self, kind: TimeKind) -> Duration {
         match kind {
-            TimeKind::Virtual => self.virt.delta(),
+            #[allow(deprecated)]
+            TimeKind::Auto | TimeKind::Virtual => self.auto.delta(),
             TimeKind::Real => self.real.delta(),
         }
     }
@@ -44,5 +48,14 @@ pub enum TimeKind {
     /// Virtual game time, affected by [`Time::pause`] and [`Time::relative_speed`].
     ///
     /// Useful for time-based actions that needs to be paused or speedup together with the game.
+    Auto,
+    /// Corresponds to [`Time`], which contains [`Time<Virtual>`], except in the fixed schedule,
+    /// where it's [`Time<Fixed>`].
+    ///
+    /// Virtual game time, affected by [`Time::pause`] and [`Time::relative_speed`].
+    ///
+    /// Useful for time-based actions that needs to be paused or speedup together with the game.
+    #[allow(deprecated)]
+    #[deprecated = "Naming wasn't accurate to functionality, use Auto instead."]
     Virtual,
 }
