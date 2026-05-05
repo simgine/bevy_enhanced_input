@@ -58,7 +58,7 @@ pub enum TimeKind {
     /// Useful for time-based actions that needs to be paused or speedup together with the game.
     #[deprecated(
         since = "0.25.0",
-        note = "Naming wasn't accurate to functionality, use Auto instead."
+        note = "Renamed into `Auto`"
     )]
     Virtual,
 }
