@@ -13,7 +13,7 @@ pub struct ContextTime<'w> {
     pub auto: Res<'w, Time>,
     #[deprecated(
         since = "0.25.0",
-        note = "Naming wasn't accurate to functionality, use auto instead."
+        note = "Renamed into `auto`"
     )]
     pub virt: Res<'w, Time>,
     pub real: Res<'w, Time<Real>>,
