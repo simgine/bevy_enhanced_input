@@ -50,12 +50,7 @@ pub enum TimeKind {
     ///
     /// Useful for time-based actions that needs to be paused or speedup together with the game.
     Auto,
-    /// Corresponds to [`Time`], which contains [`Time<Virtual>`], except in the fixed schedule,
-    /// where it's [`Time<Fixed>`].
-    ///
-    /// Virtual game time, affected by [`Time::pause`] and [`Time::relative_speed`].
-    ///
-    /// Useful for time-based actions that needs to be paused or speedup together with the game.
+    /// A deprecated alias for [`Self::Auto``].
     #[deprecated(
         since = "0.25.0",
         note = "Renamed into `Auto`"
