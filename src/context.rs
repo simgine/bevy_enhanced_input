@@ -89,7 +89,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     action::fns::ActionFns,
-    binding::FirstActivation,
+    binding::{
+        FirstActivation,
+        source::{BindingSourceFns, BindingSourceRegistry},
+    },
     condition::fns::{ConditionFns, ConditionRegistry},
     context::{input_reader::PendingBindings, trigger_tracker::TriggerTracker},
     modifier::fns::{ModifierFns, ModifierRegistry},
@@ -206,7 +209,7 @@ pub(crate) struct ScheduleContexts {
     activity_ids: Vec<ComponentId>,
 
     /// Configures the app for this schedule.
-    setup: fn(&Self, &mut App, &ConditionRegistry, &ModifierRegistry),
+    setup: fn(&Self, &mut App, &ConditionRegistry, &ModifierRegistry, &BindingSourceRegistry),
 }
 
 impl ScheduleContexts {
@@ -231,8 +234,9 @@ impl ScheduleContexts {
         app: &mut App,
         conditions: &ConditionRegistry,
         modifiers: &ModifierRegistry,
+        sources: &BindingSourceRegistry,
     ) {
-        (self.setup)(self, app, conditions, modifiers);
+        (self.setup)(self, app, conditions, modifiers, sources);
     }
 
     /// Configures the app for all contexts registered for schedule `C`.
@@ -241,6 +245,7 @@ impl ScheduleContexts {
         app: &mut App,
         conditions: &ConditionRegistry,
         modifiers: &ModifierRegistry,
+        sources: &BindingSourceRegistry,
     ) {
         debug!("setting up systems for `{}`", ShortName::of::<S>());
 
@@ -270,6 +275,9 @@ impl ScheduleContexts {
                         builder.mut_id(id);
                     }
                     for &id in &**modifiers {
+                        builder.mut_id(id);
+                    }
+                    for &id in &**sources {
                         builder.mut_id(id);
                     }
                 });
@@ -450,6 +458,7 @@ fn update<S: ScheduleLabel>(
             &mut FirstActivation,
             Option<&ModifierFns>,
             Option<&ConditionFns>,
+            Option<&BindingSourceFns>,
         ),
         Without<ActionSettings>,
     >,
@@ -546,9 +555,24 @@ fn update<S: ScheduleLabel>(
                     mut first_activation,
                     modifiers,
                     conditions,
+                    source_fns,
                 )) = bindings_iter.fetch_next()
                 {
-                    let new_value = reader.value(binding);
+                    let mut binding_entity = conds_and_mods.get_mut(binding_entity).unwrap();
+
+                    let new_value = if let Binding::Custom = binding {
+                        let mut value = ActionValue::zero(dim);
+                        if let Some(source_fns) = source_fns {
+                            for get_source in &**source_fns {
+                                let source = get_source(&mut binding_entity);
+                                value = source.read(&actions_data, &time);
+                            }
+                        }
+                        value
+                    } else {
+                        reader.value(binding)
+                    };
+
                     if action_settings.require_reset && **first_activation {
                         // Ignore until we read zero for this mapping.
                         if new_value.as_bool() {
@@ -559,8 +583,6 @@ fn update<S: ScheduleLabel>(
                             **first_activation = false;
                         }
                     }
-
-                    let mut binding_entity = conds_and_mods.get_mut(binding_entity).unwrap();
 
                     let mut current_tracker = TriggerTracker::new(new_value);
                     trace!("reading `{new_value:?}` from `{binding:?}`");

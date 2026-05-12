@@ -13,6 +13,7 @@
 
 pub mod mod_keys;
 pub mod relationship;
+pub mod source;
 
 use core::fmt::{self, Display, Formatter};
 
@@ -105,6 +106,8 @@ pub enum Binding {
     /// inputs, not just the one that activated it. To have an action with this binding
     /// evaluated first, place it in a higher-priority context.
     AnyKey,
+    /// Captured by a [`BindingSource`](source::BindingSource) component on the same binding entity.
+    Custom,
     /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
     ///
     /// Useful for expressing empty bindings in [presets](crate::preset).
@@ -145,6 +148,7 @@ impl Binding {
             Binding::GamepadButton(_)
             | Binding::GamepadAxis(_)
             | Binding::AnyKey
+            | Binding::Custom
             | Binding::None => ModKeys::empty(),
         }
     }
@@ -175,6 +179,7 @@ impl Display for Binding {
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
             Binding::AnyKey => write!(f, "Any Key"),
+            Binding::Custom => write!(f, "Custom"),
             Binding::None => write!(f, "None"),
         }
     }
@@ -232,7 +237,8 @@ impl<I: Into<Binding>> InputModKeys for I {
             Binding::GamepadButton { .. }
             | Binding::GamepadAxis { .. }
             | Binding::None
-            | Binding::AnyKey => {
+            | Binding::AnyKey
+            | Binding::Custom => {
                 error!("can't add `{mod_keys:?}` to `{binding:?}`");
                 binding
             }

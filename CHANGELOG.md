@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `Binding::Custom` and the `BindingSource` trait, registered via `App::add_binding_source`, for downstream crates to add raw binding sources.
 - `Chord::ongoing` to control whether partial activation returns `TriggerState::Ongoing` or `TriggerState::None`.
 - `DeltaScale::real_time()` and `DeltaScale::virtual_time()` constructors.`
 

@@ -210,6 +210,7 @@ impl InputReader<'_, '_> {
 
                 false.into()
             }
+            Binding::Custom => false.into(),
             Binding::None => false.into(),
         }
     }
@@ -266,6 +267,7 @@ impl InputReader<'_, '_> {
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
             Binding::AnyKey => keys_ignored,
+            Binding::Custom => false,
             Binding::None => false,
         }
     }
@@ -412,6 +414,7 @@ impl IgnoredInputs {
                 self.gamepad_axes.insert(input);
             }
             Binding::AnyKey => self.any_key = true,
+            Binding::Custom => (),
             Binding::None => (),
         }
     }
