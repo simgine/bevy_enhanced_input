@@ -27,6 +27,7 @@ pub(crate) struct InputReader<'w, 's> {
     mouse_scroll: Option<Res<'w, AccumulatedMouseScroll>>,
     gamepads: Query<'w, 's, &'static Gamepad>,
     action_sources: Res<'w, ActionSources>,
+    custom_inputs: Res<'w, CustomInputs>,
     consumed: ResMut<'w, ConsumedInputs>,
     pending: ResMut<'w, PendingBindings>,
     gamepad_device: Local<'s, GamepadDevice>,
@@ -210,7 +211,14 @@ impl InputReader<'_, '_> {
 
                 false.into()
             }
-            Binding::Custom => false.into(),
+            Binding::Custom(name) => {
+                if self.ignored(binding) {
+                    return ActionValue::Bool(false);
+                }
+                self.custom_inputs
+                    .get(name)
+                    .unwrap_or(ActionValue::Bool(false))
+            }
             Binding::None => false.into(),
         }
     }
@@ -267,7 +275,7 @@ impl InputReader<'_, '_> {
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
             Binding::AnyKey => keys_ignored,
-            Binding::Custom => false,
+            Binding::Custom(name) => iter.any(|i| i.customs.contains(name)),
             Binding::None => false,
         }
     }
@@ -376,6 +384,7 @@ pub(crate) struct IgnoredInputs {
     gamepad_buttons: HashSet<GamepadInput<GamepadButton>>,
     gamepad_axes: HashSet<GamepadInput<GamepadAxis>>,
     any_key: bool,
+    customs: HashSet<&'static str>,
 }
 
 impl IgnoredInputs {
@@ -414,7 +423,9 @@ impl IgnoredInputs {
                 self.gamepad_axes.insert(input);
             }
             Binding::AnyKey => self.any_key = true,
-            Binding::Custom => (),
+            Binding::Custom(name) => {
+                self.customs.insert(name);
+            }
             Binding::None => (),
         }
     }
@@ -428,6 +439,7 @@ impl IgnoredInputs {
         self.gamepad_buttons.clear();
         self.gamepad_axes.clear();
         self.any_key = false;
+        self.customs.clear();
     }
 }
 
@@ -884,6 +896,7 @@ mod tests {
         world.init_resource::<ConsumedInputs>();
         world.init_resource::<PendingBindings>();
         world.init_resource::<ActionSources>();
+        world.init_resource::<CustomInputs>();
 
         let state = SystemState::<InputReader>::new(&mut world);
 

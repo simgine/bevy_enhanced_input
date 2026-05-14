@@ -1,16 +1,16 @@
-//! Binds Bevy's trackpad [`PinchGesture`] into a [`Zoom`] action through a
-//! custom [`BindingSource`], without an upstream variant on [`Binding`].
+//! Maps trackpad [`PinchGesture`] to a [`Zoom`] action via [`Binding::Custom`]
+//! and the [`CustomInputs`] resource.
 //!
-//! Pinch on a macOS/iOS trackpad to dolly the camera. On platforms that
-//! don't emit `PinchGesture`, the camera stays put.
+//! Pinch on a macOS/iOS trackpad to dolly the camera.
 
 use bevy::{input::gestures::PinchGesture, prelude::*};
 use bevy_enhanced_input::prelude::*;
 
+const PINCH: &str = "pinch";
+
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
-        .add_binding_source::<PinchSource>()
         .add_input_context::<TrackpadCam>()
         .add_systems(PreUpdate, stage_pinch.before(EnhancedInputSystems::Update))
         .add_observer(on_zoom)
@@ -27,11 +27,13 @@ fn setup(
         Camera3d::default(),
         Transform::from_xyz(0.0, 2.0, 6.0).looking_at(Vec3::ZERO, Vec3::Y),
         TrackpadCam,
-        actions!(TrackpadCam[(
-            Action::<Zoom>::new(),
-            Scale::splat(20.0),
-            bindings![(Binding::Custom, PinchSource::default())],
-        )]),
+        actions!(
+            TrackpadCam[(
+                Action::<Zoom>::new(),
+                Scale::splat(20.0),
+                bindings![Binding::Custom(PINCH)],
+            )]
+        ),
     ));
 
     commands.spawn((
@@ -55,30 +57,9 @@ fn setup(
     ));
 }
 
-/// Drains pinch events into every `PinchSource` before `EnhancedInputSystems::Update`.
-fn stage_pinch(
-    mut events: MessageReader<PinchGesture>,
-    mut sources: Query<&mut PinchSource>,
-) {
+fn stage_pinch(mut events: MessageReader<PinchGesture>, mut customs: ResMut<CustomInputs>) {
     let delta: f32 = events.read().map(|e| e.0).sum();
-    if delta == 0.0 {
-        return;
-    }
-    for mut source in &mut sources {
-        source.staged += delta;
-    }
-}
-
-#[derive(Component, Debug, Default)]
-struct PinchSource {
-    staged: f32,
-}
-
-impl BindingSource for PinchSource {
-    fn read(&mut self, _: &ActionsQuery, _: &ContextTime) -> ActionValue {
-        // Consume so each read returns a delta, not a running total.
-        ActionValue::Axis1D(core::mem::take(&mut self.staged))
-    }
+    customs.insert(PINCH, ActionValue::Axis1D(delta));
 }
 
 fn on_zoom(zoom: On<Fire<Zoom>>, mut cam: Single<&mut Transform, With<TrackpadCam>>) {

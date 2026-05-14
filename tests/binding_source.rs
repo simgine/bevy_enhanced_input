@@ -2,20 +2,22 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
+const TEST: &str = "test";
+
 #[test]
-fn custom_source_value_reaches_action() {
+fn custom_input_value_reaches_action() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
-        .add_binding_source::<StagedSource>()
         .add_input_context::<TestContext>()
         .finish();
 
+    app.world_mut()
+        .resource_mut::<CustomInputs>()
+        .insert(TEST, ActionValue::Axis1D(0.75));
+
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(
-            Action::<TestValue>::new(),
-            bindings![(Binding::Custom, StagedSource(0.75))],
-        )]),
+        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)],)]),
     ));
 
     app.update();
@@ -29,19 +31,24 @@ fn custom_source_value_reaches_action() {
 }
 
 #[test]
-fn binding_entity_modifier_applies_to_custom_source() {
+fn binding_entity_modifier_applies_to_custom_input() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
-        .add_binding_source::<StagedSource>()
         .add_input_context::<TestContext>()
         .finish();
 
+    app.world_mut()
+        .resource_mut::<CustomInputs>()
+        .insert(TEST, ActionValue::Axis1D(0.5));
+
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(
-            Action::<TestValue>::new(),
-            bindings![(Binding::Custom, StagedSource(0.5), Negate::all())],
-        )]),
+        actions!(
+            TestContext[(
+                Action::<TestValue>::new(),
+                bindings![(Binding::Custom(TEST), Negate::all())],
+            )]
+        ),
     ));
 
     app.update();
@@ -52,7 +59,7 @@ fn binding_entity_modifier_applies_to_custom_source() {
 }
 
 #[test]
-fn unstaged_custom_source_reads_zero() {
+fn unset_custom_input_reads_zero() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
@@ -60,10 +67,7 @@ fn unstaged_custom_source_reads_zero() {
 
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(
-            Action::<TestValue>::new(),
-            bindings![Binding::Custom],
-        )]),
+        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)],)]),
     ));
 
     app.update();
@@ -71,15 +75,6 @@ fn unstaged_custom_source_reads_zero() {
     let mut q = app.world_mut().query::<&Action<TestValue>>();
     let &value = q.single(app.world()).unwrap();
     assert_eq!(*value, 0.0);
-}
-
-#[derive(Component, Debug)]
-struct StagedSource(f32);
-
-impl BindingSource for StagedSource {
-    fn read(&mut self, _: &ActionsQuery, _: &ContextTime) -> ActionValue {
-        ActionValue::Axis1D(self.0)
-    }
 }
 
 #[derive(Component)]

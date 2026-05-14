@@ -372,7 +372,7 @@ pub mod prelude {
             relationship::{
                 BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings, IntoBindingBundle,
             },
-            source::{BindingSource, BindingSourceAppExt},
+            source::CustomInputs,
         },
         bindings,
         condition::{
@@ -401,7 +401,6 @@ pub mod prelude {
 
 use bevy::{input::InputSystems, prelude::*};
 
-use binding::source::BindingSourceRegistry;
 use condition::fns::ConditionRegistry;
 use context::{
     ContextRegistry,
@@ -421,9 +420,9 @@ impl Plugin for EnhancedInputPlugin {
             .init_resource::<ConsumedInputs>()
             .init_resource::<PendingBindings>()
             .init_resource::<ActionSources>()
+            .init_resource::<CustomInputs>()
             .init_resource::<ConditionRegistry>()
             .init_resource::<ModifierRegistry>()
-            .init_resource::<BindingSourceRegistry>()
             .add_input_condition::<BlockBy>()
             .add_input_condition::<Chord>()
             .add_input_condition::<Combo>()
@@ -475,13 +474,8 @@ impl Plugin for EnhancedInputPlugin {
             .remove_resource::<ModifierRegistry>()
             .expect("conditions registry should be inserted in `build`");
 
-        let sources = app
-            .world_mut()
-            .remove_resource::<BindingSourceRegistry>()
-            .expect("binding source registry should be inserted in `build`");
-
         for contexts in &*context {
-            contexts.setup(app, &conditions, &modifiers, &sources);
+            contexts.setup(app, &conditions, &modifiers);
         }
     }
 }

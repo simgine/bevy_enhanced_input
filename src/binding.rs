@@ -106,8 +106,8 @@ pub enum Binding {
     /// inputs, not just the one that activated it. To have an action with this binding
     /// evaluated first, place it in a higher-priority context.
     AnyKey,
-    /// Captured by a [`BindingSource`](source::BindingSource) component on the same binding entity.
-    Custom,
+    /// Value read from the [`CustomInputs`](source::CustomInputs) resource by name.
+    Custom(&'static str),
     /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
     ///
     /// Useful for expressing empty bindings in [presets](crate::preset).
@@ -148,7 +148,7 @@ impl Binding {
             Binding::GamepadButton(_)
             | Binding::GamepadAxis(_)
             | Binding::AnyKey
-            | Binding::Custom
+            | Binding::Custom(_)
             | Binding::None => ModKeys::empty(),
         }
     }
@@ -179,7 +179,7 @@ impl Display for Binding {
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
             Binding::AnyKey => write!(f, "Any Key"),
-            Binding::Custom => write!(f, "Custom"),
+            Binding::Custom(name) => write!(f, "Custom({name})"),
             Binding::None => write!(f, "None"),
         }
     }
@@ -238,7 +238,7 @@ impl<I: Into<Binding>> InputModKeys for I {
             | Binding::GamepadAxis { .. }
             | Binding::None
             | Binding::AnyKey
-            | Binding::Custom => {
+            | Binding::Custom(_) => {
                 error!("can't add `{mod_keys:?}` to `{binding:?}`");
                 binding
             }
