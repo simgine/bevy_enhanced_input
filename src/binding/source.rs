@@ -4,7 +4,7 @@ use bevy::{platform::collections::HashMap, prelude::*};
 
 use crate::prelude::*;
 
-/// Stores values for [`Binding::Custom`] entries, keyed by name.
+/// Stores values for [`Binding::Custom`] entries.
 ///
 /// Write to this resource from any system. A missing entry reads as
 /// [`ActionValue::Bool`] `false`.
