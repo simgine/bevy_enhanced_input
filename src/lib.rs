@@ -372,7 +372,6 @@ pub mod prelude {
             relationship::{
                 BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings, IntoBindingBundle,
             },
-            source::CustomInputs,
         },
         bindings,
         condition::{
@@ -382,7 +381,7 @@ pub mod prelude {
         },
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
-            input_reader::ActionSources,
+            input_reader::{ActionSources, CustomInputs},
         },
         modifier::{
             InputModifier, accumulate_by::*, clamp::*, dead_zone::*, delta_scale::*,

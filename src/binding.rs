@@ -13,7 +13,6 @@
 
 pub mod mod_keys;
 pub mod relationship;
-pub mod source;
 
 use core::fmt::{self, Display, Formatter};
 
@@ -106,7 +105,7 @@ pub enum Binding {
     /// inputs, not just the one that activated it. To have an action with this binding
     /// evaluated first, place it in a higher-priority context.
     AnyKey,
-    /// Name of the input entry in [`CustomInputs`](source::CustomInputs) to read.
+    /// Name of the input entry in [`CustomInputs`](crate::context::input_reader::CustomInputs) to read.
     ///
     /// Use this for inputs that can't be represented or feed into Bevy input resources.
     Custom(&'static str),
