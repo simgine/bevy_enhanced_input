@@ -212,12 +212,13 @@ impl InputReader<'_, '_> {
                 false.into()
             }
             Binding::Custom(name) => {
-                if self.ignored(binding) {
+                let Some(&value) = self.custom_inputs.get(name) else {
                     return ActionValue::Bool(false);
+                };
+                if self.ignored(binding) {
+                    return ActionValue::zero(value.dim());
                 }
-                self.custom_inputs
-                    .get(name)
-                    .unwrap_or(ActionValue::Bool(false))
+                value
             }
             Binding::None => false.into(),
         }
@@ -275,7 +276,7 @@ impl InputReader<'_, '_> {
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
             Binding::AnyKey => keys_ignored,
-            Binding::Custom(name) => iter.any(|i| i.customs.contains(name)),
+            Binding::Custom(name) => iter.any(|i| i.custom_inputs.contains(name)),
             Binding::None => false,
         }
     }
@@ -384,7 +385,7 @@ pub(crate) struct IgnoredInputs {
     gamepad_buttons: HashSet<GamepadInput<GamepadButton>>,
     gamepad_axes: HashSet<GamepadInput<GamepadAxis>>,
     any_key: bool,
-    customs: HashSet<&'static str>,
+    custom_inputs: HashSet<&'static str>,
 }
 
 impl IgnoredInputs {
@@ -424,7 +425,7 @@ impl IgnoredInputs {
             }
             Binding::AnyKey => self.any_key = true,
             Binding::Custom(name) => {
-                self.customs.insert(name);
+                self.custom_inputs.insert(name);
             }
             Binding::None => (),
         }
@@ -439,7 +440,7 @@ impl IgnoredInputs {
         self.gamepad_buttons.clear();
         self.gamepad_axes.clear();
         self.any_key = false;
-        self.customs.clear();
+        self.custom_inputs.clear();
     }
 }
 

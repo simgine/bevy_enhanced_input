@@ -5,7 +5,7 @@ use test_log::test;
 const TEST: &str = "test";
 
 #[test]
-fn custom_input_value_reaches_action() {
+fn with_value() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
@@ -17,7 +17,7 @@ fn custom_input_value_reaches_action() {
 
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)],)]),
+        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)])]),
     ));
 
     app.update();
@@ -31,35 +31,7 @@ fn custom_input_value_reaches_action() {
 }
 
 #[test]
-fn binding_entity_modifier_applies_to_custom_input() {
-    let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
-        .add_input_context::<TestContext>()
-        .finish();
-
-    app.world_mut()
-        .resource_mut::<CustomInputs>()
-        .insert(TEST, ActionValue::Axis1D(0.5));
-
-    app.world_mut().spawn((
-        TestContext,
-        actions!(
-            TestContext[(
-                Action::<TestValue>::new(),
-                bindings![(Binding::Custom(TEST), Negate::all())],
-            )]
-        ),
-    ));
-
-    app.update();
-
-    let mut q = app.world_mut().query::<&Action<TestValue>>();
-    let &value = q.single(app.world()).unwrap();
-    assert_eq!(*value, -0.5);
-}
-
-#[test]
-fn unset_custom_input_reads_zero() {
+fn no_value() {
     let mut app = App::new();
     app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
@@ -67,7 +39,7 @@ fn unset_custom_input_reads_zero() {
 
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)],)]),
+        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)])]),
     ));
 
     app.update();

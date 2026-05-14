@@ -548,10 +548,7 @@ fn update<S: ScheduleLabel>(
                     conditions,
                 )) = bindings_iter.fetch_next()
                 {
-                    let mut binding_entity = conds_and_mods.get_mut(binding_entity).unwrap();
-
                     let new_value = reader.value(binding);
-
                     if action_settings.require_reset && **first_activation {
                         // Ignore until we read zero for this mapping.
                         if new_value.as_bool() {
@@ -562,6 +559,8 @@ fn update<S: ScheduleLabel>(
                             **first_activation = false;
                         }
                     }
+
+                    let mut binding_entity = conds_and_mods.get_mut(binding_entity).unwrap();
 
                     let mut current_tracker = TriggerTracker::new(new_value);
                     trace!("reading `{new_value:?}` from `{binding:?}`");

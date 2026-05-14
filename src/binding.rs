@@ -106,7 +106,9 @@ pub enum Binding {
     /// inputs, not just the one that activated it. To have an action with this binding
     /// evaluated first, place it in a higher-priority context.
     AnyKey,
-    /// Value read from the [`CustomInputs`](source::CustomInputs) resource by name.
+    /// Name of the input entry in [`CustomInputs`](source::CustomInputs) to read.
+    ///
+    /// Use this for inputs that can't be represented or feed into Bevy input resources.
     Custom(&'static str),
     /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
     ///
@@ -179,7 +181,7 @@ impl Display for Binding {
             Binding::GamepadButton(gamepad_button) => write!(f, "{gamepad_button:?}"),
             Binding::GamepadAxis(gamepad_axis) => write!(f, "{gamepad_axis:?}"),
             Binding::AnyKey => write!(f, "Any Key"),
-            Binding::Custom(name) => write!(f, "Custom({name})"),
+            Binding::Custom(name) => write!(f, "{name}"),
             Binding::None => write!(f, "None"),
         }
     }
