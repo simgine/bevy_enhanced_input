@@ -4,12 +4,14 @@ use bevy::{ecs::system::SystemParam, prelude::*};
 
 /// Time resources used for input conditions and modifier evaluation.
 ///
-/// Dereferences to [`Self::virt`], which is the default time resource
+/// Dereferences to [`Self::auto`], which is the default time resource
 /// based on the current schedule. But you can optionally use [`Self::real`]
 /// if you want the time to be unaffected by time dilation.
 #[derive(SystemParam, Deref)]
 pub struct ContextTime<'w> {
     #[deref]
+    pub auto: Res<'w, Time>,
+    #[deprecated(since = "0.25.0", note = "Renamed into `auto`")]
     pub virt: Res<'w, Time>,
     pub real: Res<'w, Time<Real>>,
 }
@@ -19,7 +21,7 @@ impl ContextTime<'_> {
     #[must_use]
     pub fn delta_kind(&self, kind: TimeKind) -> Duration {
         match kind {
-            TimeKind::Virtual => self.virt.delta(),
+            TimeKind::Auto | TimeKind::Virtual => self.auto.delta(),
             TimeKind::Real => self.real.delta(),
         }
     }
@@ -44,5 +46,8 @@ pub enum TimeKind {
     /// Virtual game time, affected by [`Time::pause`] and [`Time::relative_speed`].
     ///
     /// Useful for time-based actions that needs to be paused or speedup together with the game.
+    Auto,
+    /// A deprecated alias for [`Self::Auto`].
+    #[deprecated(since = "0.25.0", note = "Renamed into `Auto`")]
     Virtual,
 }

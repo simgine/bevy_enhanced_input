@@ -58,7 +58,8 @@ triggering the corresponding events. Depending on your use case, using [`Context
 */
 
 pub mod input_reader;
-mod instance;
+pub mod instance;
+#[allow(deprecated)]
 pub mod time;
 mod trigger_tracker;
 
@@ -459,10 +460,11 @@ fn update<S: ScheduleLabel>(
     reader.clear_consumed::<S>();
 
     for instance in &**instances {
-        let Ok(mut context) = contexts.get_mut(instance.entity) else {
+        let Ok(mut context) = contexts.get_mut(instance.entity()) else {
             trace!(
                 "skipping updating `{}` on disabled `{}`",
-                instance.name, instance.entity
+                instance.name(),
+                instance.entity()
             );
             continue;
         };
@@ -490,7 +492,7 @@ fn update<S: ScheduleLabel>(
             context_actions.sort_by_cached_key(mods_count);
         }
 
-        trace!("updating `{}` on `{}`", instance.name, instance.entity);
+        trace!("updating `{}` on `{}`", instance.name(), instance.entity());
 
         reader.set_gamepad(gamepad);
 
@@ -533,7 +535,7 @@ fn update<S: ScheduleLabel>(
 
                 (new_state, new_value)
             } else {
-                trace!("updating `{action_name}` from input");
+                trace!("updating `{action_name}` from bindings");
 
                 let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
                 let actions_data = actions_data.as_readonly();
@@ -563,7 +565,7 @@ fn update<S: ScheduleLabel>(
                     let mut binding_entity = conds_and_mods.get_mut(binding_entity).unwrap();
 
                     let mut current_tracker = TriggerTracker::new(new_value);
-                    trace!("reading value `{new_value:?}`");
+                    trace!("reading `{new_value:?}` from `{binding:?}`");
                     if let Some(modifiers) = modifiers {
                         current_tracker.apply_modifiers(
                             &mut binding_entity,
@@ -582,6 +584,10 @@ fn update<S: ScheduleLabel>(
                     }
 
                     let current_state = current_tracker.state();
+                    trace!(
+                        "evaluated `{binding:?}` to `{current_state:?}` with `{:?}`",
+                        current_tracker.value()
+                    );
                     if current_state == TriggerState::None {
                         // Ignore non-active trackers to allow the action to fire even if all
                         // input-level conditions return `TriggerState::None`. This ensures that an
@@ -607,6 +613,7 @@ fn update<S: ScheduleLabel>(
                     }
                 }
 
+                trace!("applying `{action_name}` modifiers and conditions");
                 let mut action = conds_and_mods.get_mut(action).unwrap();
                 if let Some(modifiers) = modifiers {
                     tracker.apply_modifiers(&mut action, &actions_data, &time, modifiers);
@@ -630,7 +637,7 @@ fn update<S: ScheduleLabel>(
                 (new_state, new_value)
             };
 
-            trace!("evaluated to `{new_state:?}` with `{new_value:?}`");
+            trace!("evaluated `{action_name}` to `{new_state:?}` with `{new_value:?}`");
 
             let (mut value, mut state, mut events, mut action_time) =
                 actions_data.get_mut(action).unwrap();
@@ -661,10 +668,11 @@ fn apply<S: ScheduleLabel>(
     mut actions: Query<EntityMut, (With<ActionFns>, Without<ContextInstances<S>>)>,
 ) {
     for instance in &**instances {
-        let Ok(context) = contexts.get(instance.entity) else {
+        let Ok(context) = contexts.get(instance.entity()) else {
             trace!(
                 "skipping triggering for `{}` on disabled `{}`",
-                instance.name, instance.entity,
+                instance.name(),
+                instance.entity(),
             );
             continue;
         };
@@ -674,7 +682,8 @@ fn apply<S: ScheduleLabel>(
 
         trace!(
             "running triggers for `{}` on `{}`",
-            instance.name, instance.entity,
+            instance.name(),
+            instance.entity(),
         );
 
         let mut actions_iter = actions.iter_many_mut(context_actions);
@@ -948,6 +957,7 @@ pub(crate) fn init_world<'w, 's>() -> (World, SystemState<(ContextTime<'w>, Acti
     let mut world = World::new();
     world.init_resource::<Time>();
     world.init_resource::<Time<Real>>();
+    world.init_resource::<Time<Virtual>>();
 
     let state = SystemState::<(ContextTime, ActionsQuery)>::new(&mut world);
 

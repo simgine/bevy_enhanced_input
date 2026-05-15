@@ -55,6 +55,7 @@ pub mod chord;
 pub mod combo;
 pub mod cooldown;
 pub mod down;
+pub mod flick;
 pub mod fns;
 pub mod hold;
 pub mod hold_and_release;

@@ -376,13 +376,15 @@ pub mod prelude {
         bindings,
         condition::{
             ConditionKind, InputCondition, block_by::*, chord::*, combo::*, cooldown::*, down::*,
-            fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
+            flick::*, fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
             release::*, tap::*, toggle::*,
         },
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
-            input_reader::ActionSources,
-            time::{ContextTime, TimeKind},
+            input_reader::{
+                ActionSources,
+                custom::{CustomInput, CustomInputs},
+            },
         },
         modifier::{
             InputModifier, accumulate_by::*, clamp::*, dead_zone::*, delta_scale::*,
@@ -390,6 +392,11 @@ pub mod prelude {
             smooth_nudge::*, swizzle_axis::*,
         },
         preset::{WithBundle, axial::*, bidirectional::*, cardinal::*, ordinal::*, spatial::*},
+    };
+    #[allow(deprecated)]
+    pub use super::{
+        action::ActionState,
+        context::time::{ContextTime, TimeKind},
     };
     pub use bevy_enhanced_input_macros::InputAction;
 }
@@ -415,12 +422,14 @@ impl Plugin for EnhancedInputPlugin {
             .init_resource::<ConsumedInputs>()
             .init_resource::<PendingBindings>()
             .init_resource::<ActionSources>()
+            .init_resource::<CustomInputs>()
             .init_resource::<ConditionRegistry>()
             .init_resource::<ModifierRegistry>()
             .add_input_condition::<BlockBy>()
             .add_input_condition::<Chord>()
             .add_input_condition::<Combo>()
             .add_input_condition::<Down>()
+            .add_input_condition::<Flick>()
             .add_input_condition::<Hold>()
             .add_input_condition::<HoldAndRelease>()
             .add_input_condition::<Press>()

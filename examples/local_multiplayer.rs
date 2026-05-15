@@ -3,80 +3,136 @@
 //! The same context ([`Player`]) is used for both players, but each player has their own unique entity.
 //! This allows us to enable or disable players independently and reuse the same entity for gameplay,
 //! and assign unique input bindings to each player.
+//!
+//! Repeats the best practices used in `character_controller` example.
 
 use bevy::{
     input::gamepad::{GamepadConnection, GamepadConnectionEvent},
     prelude::*,
 };
-use bevy_enhanced_input::prelude::*;
+use bevy_enhanced_input::prelude::{Press, *};
+
+const BORDER_WIDTH: f32 = 650.0;
+const STROKE_WIDTH: f32 = 5.0;
+const BALL_RAD: f32 = 16.0;
+const ACCELERATION: f32 = 800.0;
+const KICK_IMPULSE: f32 = 1000.0;
+const FRICTION: f32 = 25.0;
+const KINETIC_FRICTION_COEFF: f32 = 3.0;
+const BOUNCINESS: f32 = 0.8;
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EnhancedInputPlugin))
         .add_input_context::<Player>()
-        .add_observer(apply_movement)
-        .add_systems(Startup, spawn)
-        .add_systems(Update, update_gamepads)
+        .add_input_context::<SharedControls>()
+        .init_resource::<FixedUpdateRan>()
+        .add_systems(Startup, setup)
+        .add_systems(PreUpdate, (reset_fixed_update_ran, update_gamepads))
+        .add_systems(FixedPreUpdate, set_fixed_update_ran)
+        .add_systems(FixedUpdate, apply_input)
+        .add_systems(FixedPostUpdate, advance_physics)
+        .add_systems(
+            RunFixedMainLoop,
+            clear_input
+                .run_if(fixed_update_ran)
+                .in_set(RunFixedMainLoopSystems::AfterFixedMainLoop),
+        )
+        .add_observer(accumulate_roll)
+        .add_observer(accumulate_kick)
+        .add_observer(toggle_pause)
         .run();
 }
 
-fn spawn(
+fn setup(
     mut commands: Commands,
     gamepads: Query<Entity, With<Gamepad>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
+    commands.spawn(Camera2d);
+
+    // Border
+    let border_mesh = meshes.add(Rectangle::new(BORDER_WIDTH, STROKE_WIDTH));
+    let border_mat = materials.add(Color::WHITE);
+
+    // Bottom
     commands.spawn((
-        Camera3d::default(),
-        Transform::from_xyz(0.0, 25.0, 0.0).looking_at(-Vec3::Y, Vec3::Y),
+        Mesh2d(border_mesh.clone()),
+        MeshMaterial2d(border_mat.clone()),
+        Transform::from_translation(Vec3::Y * (-BORDER_WIDTH / 2.0)),
     ));
 
+    // Top
     commands.spawn((
-        Mesh3d(meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(10.0)))),
-        MeshMaterial3d(materials.add(Color::WHITE)),
-    ));
-    commands.spawn((
-        PointLight {
-            shadow_maps_enabled: true,
-            ..Default::default()
-        },
-        Transform::from_xyz(4.0, 8.0, 4.0),
+        Mesh2d(border_mesh.clone()),
+        MeshMaterial2d(border_mat.clone()),
+        Transform::from_translation(Vec3::Y * (BORDER_WIDTH / 2.0)),
     ));
 
-    // By default actions read inputs from all gamepads,
-    // but for local multiplayer we need assign specific
-    // gamepad index.
+    // Left
+    commands.spawn((
+        Mesh2d(border_mesh.clone()),
+        MeshMaterial2d(border_mat.clone()),
+        Transform::from_translation(Vec3::X * (-BORDER_WIDTH / 2.0))
+            .with_rotation(Quat::from_rotation_z(90.0f32.to_radians())),
+    ));
+
+    // Right
+    commands.spawn((
+        Mesh2d(border_mesh),
+        MeshMaterial2d(border_mat),
+        Transform::from_translation(Vec3::X * (BORDER_WIDTH / 2.0))
+            .with_rotation(Quat::from_rotation_z(90.0f32.to_radians())),
+    ));
+
     let mut gamepads = gamepads.iter();
     let (gamepad1, gamepad2) = (gamepads.next(), gamepads.next());
-    let capsule = meshes.add(Capsule3d::new(0.5, 2.0));
+    let ball_mesh = meshes.add(Circle::new(BALL_RAD));
 
-    // Spawn two players with different controls.
+    // Player 1
+    let material1 = materials.add(Color::srgb(0.1, 0.1, 0.9));
     commands.spawn(player_bundle(
         Player::First,
         gamepad1,
-        capsule.clone(),
-        materials.add(Color::srgb_u8(124, 144, 255)),
-        Transform::from_xyz(0.0, 1.5, 8.0),
+        ball_mesh.clone(),
+        material1,
+        Transform::from_xyz(-80.0, 0.0, 0.0),
     ));
+
+    // Player 2
+    let material2 = materials.add(Color::srgb(0.9, 0.1, 0.1));
     commands.spawn(player_bundle(
         Player::Second,
         gamepad2,
-        capsule,
-        materials.add(Color::srgb_u8(220, 90, 90)),
-        Transform::from_xyz(0.0, 1.5, -8.0),
+        ball_mesh,
+        material2,
+        Transform::from_xyz(80.0, 0.0, 0.0),
     ));
-}
 
-fn apply_movement(movement: On<Fire<Movement>>, mut players: Query<&mut Transform>) {
-    let mut transform = players.get_mut(movement.context).unwrap();
+    commands.spawn((
+        SharedControls,
+        actions!(
+            SharedControls[(
+                Action::<Pause>::new(),
+                Press::new(1.0),
+                bindings![KeyCode::Escape, GamepadButton::Start]
+            )]
+        ),
+    ));
 
-    // Adjust axes for top-down movement.
-    transform.translation.z -= movement.value.x;
-    transform.translation.x -= movement.value.y;
-
-    // Prevent from moving out of plane.
-    transform.translation.z = transform.translation.z.clamp(-10.0, 10.0);
-    transform.translation.x = transform.translation.x.clamp(-10.0, 10.0);
+    commands.spawn((
+        PauseText,
+        Node {
+            width: percent(100),
+            height: percent(100),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            display: Display::None,
+            ..Default::default()
+        },
+        children![Text::new("Paused")],
+    ));
 }
 
 fn update_gamepads(
@@ -112,41 +168,186 @@ fn update_gamepads(
 fn player_bundle(
     player: Player,
     gamepad: Option<Entity>,
-    mesh: impl Into<Mesh3d>,
-    material: impl Into<MeshMaterial3d<StandardMaterial>>,
+    mesh: impl Into<Mesh2d>,
+    material: impl Into<MeshMaterial2d<ColorMaterial>>,
     transform: Transform,
 ) -> impl Bundle {
     // Assign different bindings based on the player index.
-    let move_bindings = match player {
-        Player::First => Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-        Player::Second => Bindings::spawn((Cardinal::arrows(), Axial::left_stick())),
+    let dir_bindings = match player {
+        Player::First => (Cardinal::wasd_keys(), Axial::left_stick()),
+        Player::Second => (Cardinal::arrows(), Axial::left_stick()),
+    };
+    let arm_kick_binding = match player {
+        Player::First => bindings![KeyCode::Space],
+        Player::Second => bindings![KeyCode::ShiftRight],
     };
 
     (
         player,
         GamepadDevice::from(gamepad),
+        PlayerPhysics::default(),
+        AccumulatedInput::default(),
         mesh.into(),
         material.into(),
         transform,
-        actions!(
-            Player[(
-                Action::<Movement>::new(),
+        Actions::<Player>::spawn(SpawnWith(move |context: &mut ActionSpawner<_>| {
+            context.spawn((
+                Action::<Roll>::new(),
                 DeadZone::default(),
-                SmoothNudge::default(),
                 DeltaScale::default(),
-                Scale::splat(10.0),
-                move_bindings,
-            )]
-        ),
+                Scale::splat(ACCELERATION),
+                Bindings::spawn(dir_bindings),
+            ));
+
+            // For controller: Kick by flicking the controller stick
+            context.spawn((
+                Action::<Kick>::new(),
+                // Replicate feel of Smash Bros., which requires the controller
+                // to flick in ~2 frames (1/30 second) for certain actions
+                Flick::new(0.0333).with_actuation(0.9),
+                Bindings::spawn(Axial::left_stick()),
+            ));
+
+            // As an alternative for keyboard players, kick by "arming" and then
+            // pressing a movement key.
+            let arm = context
+                .spawn((Action::<ArmKick>::new(), arm_kick_binding))
+                .id();
+            context.spawn((
+                Action::<Kick>::new(),
+                Chord::single(arm),
+                Press::new(0.9),
+                Bindings::spawn(dir_bindings),
+            ));
+        })),
     )
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash)]
+fn accumulate_roll(roll: On<Fire<Roll>>, mut input: Query<&mut AccumulatedInput>) {
+    let mut input = input.get_mut(roll.context).unwrap();
+    input.roll += roll.value;
+}
+
+fn accumulate_kick(kick: On<Fire<Kick>>, mut input: Query<&mut AccumulatedInput>) {
+    let mut input = input.get_mut(kick.context).unwrap();
+    input.kick = Some(kick.value);
+}
+
+fn clear_input(mut inputs: Query<&mut AccumulatedInput>) {
+    for mut inputs in &mut inputs {
+        *inputs = Default::default();
+    }
+}
+
+fn apply_input(players: Query<(&mut PlayerPhysics, &AccumulatedInput)>) {
+    for (mut physics, input) in players {
+        physics.velocity += input.roll;
+
+        if let Some(kick) = input.kick {
+            // Normalize the input to treat vectors that are barely inside the threshold
+            // the same way as a vector along the edge.
+            let dir = kick.normalize();
+            physics.velocity = dir * KICK_IMPULSE;
+        }
+    }
+}
+
+fn advance_physics(time: Res<Time>, players: Query<(&mut Transform, &mut PlayerPhysics)>) {
+    for (mut transform, mut physics) in players {
+        transform.translation += (physics.velocity * time.delta_secs()).extend(0.0);
+
+        // Apply friction.
+        if physics.velocity.length_squared() > KINETIC_FRICTION_COEFF {
+            let friction_dir = physics.velocity.normalize() * -1.0;
+            physics.velocity += friction_dir * FRICTION * time.delta_secs();
+        }
+
+        // Check collision with walls and bounce.
+        const BORDER_DIST: f32 = BORDER_WIDTH / 2.0 - BALL_RAD;
+        if transform.translation.x > BORDER_DIST {
+            transform.translation.x = BORDER_DIST;
+            physics.velocity.x *= -BOUNCINESS;
+        }
+        if transform.translation.x < -BORDER_DIST {
+            transform.translation.x = -BORDER_DIST;
+            physics.velocity.x *= -BOUNCINESS;
+        }
+        if transform.translation.y > BORDER_DIST {
+            transform.translation.y = BORDER_DIST;
+            physics.velocity.y *= -BOUNCINESS;
+        }
+        if transform.translation.y < -BORDER_DIST {
+            transform.translation.y = -BORDER_DIST;
+            physics.velocity.y *= -BOUNCINESS;
+        }
+    }
+}
+
+fn toggle_pause(
+    _on: On<Fire<Pause>>,
+    mut time: ResMut<Time<Virtual>>,
+    mut indicator: Single<&mut Node, With<PauseText>>,
+) {
+    if time.is_paused() {
+        time.unpause();
+        indicator.display = Display::None;
+    } else {
+        time.pause();
+        indicator.display = Display::Flex;
+    }
+}
+
+#[derive(Component)]
 enum Player {
     First,
     Second,
 }
 
-#[derive(Debug, InputAction)]
+#[derive(Component, Default)]
+struct PlayerPhysics {
+    velocity: Vec2,
+}
+
+#[derive(InputAction)]
 #[action_output(Vec2)]
-struct Movement;
+struct Roll;
+
+#[derive(InputAction)]
+#[action_output(Vec2)]
+struct Kick;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct ArmKick;
+
+#[derive(Component, Default)]
+struct AccumulatedInput {
+    roll: Vec2,
+    kick: Option<Vec2>,
+}
+
+#[derive(Component)]
+struct SharedControls;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Pause;
+
+#[derive(Component)]
+struct PauseText;
+
+/// True if FixedPreUpdate was run this frame.
+#[derive(Resource, Deref, DerefMut, Default)]
+struct FixedUpdateRan(bool);
+
+fn reset_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
+    **ran = false;
+}
+
+fn set_fixed_update_ran(mut ran: ResMut<FixedUpdateRan>) {
+    **ran = true;
+}
+
+fn fixed_update_ran(ran: Res<FixedUpdateRan>) -> bool {
+    **ran
+}

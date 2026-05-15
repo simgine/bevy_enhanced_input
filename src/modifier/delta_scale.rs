@@ -5,15 +5,35 @@ use crate::prelude::*;
 /// Multiplies the input value by delta time for this frame.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
-#[derive(Component, Default, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
     reflect(Clone, Component, Debug, Default)
 )]
 pub struct DeltaScale {
-    /// The type of time used to advance the timer.
+    /// The type of time used to scale the input by.
+    ///
+    /// By default set to [`TimeKind::Auto`], unlike other modifiers.
     pub time_kind: TimeKind,
+}
+
+impl DeltaScale {
+    /// Instance with [`TimeKind::Real`].
+    pub const REAL: Self = Self {
+        time_kind: TimeKind::Real,
+    };
+
+    /// Instance with [`TimeKind::Auto`].
+    pub const AUTO: Self = Self {
+        time_kind: TimeKind::Auto,
+    };
+}
+
+impl Default for DeltaScale {
+    fn default() -> Self {
+        Self::AUTO
+    }
 }
 
 impl InputModifier for DeltaScale {
@@ -54,7 +74,7 @@ mod tests {
     fn scaling() {
         let (mut world, mut state) = context::init_world();
         world
-            .resource_mut::<Time<Real>>()
+            .resource_mut::<Time>()
             .advance_by(Duration::from_millis(500));
         let (time, actions) = state.get(&world).unwrap();
 

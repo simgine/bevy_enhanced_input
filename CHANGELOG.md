@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-05-16
+
+### Added
+
+- `Binding::Custom(&'static str)` and the `CustomInputs` resource for feeding external input values into bindings by name.
+- `Chord::ongoing` to control whether partial activation returns `TriggerState::Ongoing` or `TriggerState::None`.
+- `DeltaScale::real_time()` and `DeltaScale::virtual_time()` constructors.`
+
+### Changed
+
+- Improve action evaluation logging.
+- `DeltaScale::default()` now uses virtual time instead of real time. This is most likely what you want, since it's equivalent to getting the delta from [the default `Time` resource](https://docs.rs/bevy/latest/bevy/prelude/struct.Time.html). If you want the original behavior, use `DeltaScale::real_time()`.
+- Rename `TimeKind::Virtual` to `TimeKind::Auto` and `ContextTime::virt` to `ContextTime::auto`. The old names remain available as deprecated aliases.
+
+### Removed
+
+- Public `ActiveInStates::matches` in favor of a private helper used by state synchronization.
+
+## [0.24.4] - 2026-04-18
+
+### Added
+
+- `Flick` input condition.
+
+## [0.24.3] - 2026-03-27
+
+### Changed
+
+- Make `ContextInstances` pub.
+
+## [0.24.2] - 2026-03-27
+
+### Fixed
+
+- Panic when `ActiveInStates` was used with a substate or computed state.
+
+## [0.24.1] - 2026-02-28
+
+### Fixed
+
+- Re-add `ActionState` to prelude to aid in migrating from prior versions
+
 ## [0.24.0] - 2026-02-20
 
 ### Added
@@ -582,9 +624,13 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...HEAD
-[0.23.2]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...v0.24.0
-[0.23.2]: https://github.com/simgine/bevy_replicon/compare/v0.23.1...v0.23.2
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/simgine/bevy_replicon/compare/v0.24.4...v0.25.0
+[0.24.4]: https://github.com/simgine/bevy_replicon/compare/v0.24.3...v0.24.4
+[0.24.3]: https://github.com/simgine/bevy_replicon/compare/v0.24.2...v0.24.3
+[0.24.2]: https://github.com/simgine/bevy_replicon/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/simgine/bevy_replicon/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/simgine/bevy_replicon/compare/v0.23.2...v0.24.0
 [0.23.1]: https://github.com/simgine/bevy_replicon/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/simgine/bevy_replicon/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/simgine/bevy_replicon/compare/v0.22.1...v0.22.2
