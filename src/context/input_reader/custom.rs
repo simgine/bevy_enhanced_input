@@ -1,8 +1,12 @@
 //! Identifiers and storage for [`Binding::Custom`] entries.
 
-use core::sync::atomic::{AtomicUsize, Ordering};
-
-use bevy::{platform::collections::HashMap, prelude::*};
+use bevy::{
+    platform::{
+        collections::HashMap,
+        sync::atomic::{AtomicUsize, Ordering},
+    },
+    prelude::*,
+};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
