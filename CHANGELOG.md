@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `Binding::Custom(&'static str)` and the `CustomInputs` resource for feeding external input values into bindings by name.
+- `Binding::Custom` and the `CustomInputs` resource for feeding external input values into bindings by name.
 - `Chord::ongoing` to control whether partial activation returns `TriggerState::Ongoing` or `TriggerState::None`.
 - `DeltaScale::real_time()` and `DeltaScale::virtual_time()` constructors.`
 
