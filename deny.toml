@@ -17,4 +17,3 @@ skip-tree = ["bevy"]
 
 [advisories]
 version = 2
-ignore = ["RUSTSEC-2024-0436"]
