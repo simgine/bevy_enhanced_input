@@ -114,7 +114,7 @@ mod tests {
 
         // Run twice to check for reset.
         for _ in 1..2 {
-            let (time, actions) = state.get(&world);
+            let (time, actions) = state.get(&world).unwrap();
             assert_eq!(
                 condition.evaluate(&actions, &time, 0.0.into()),
                 TriggerState::None,
@@ -123,7 +123,7 @@ mod tests {
             world
                 .resource_mut::<Time<Real>>()
                 .advance_by(Duration::from_secs_f32(0.1));
-            let (time, actions) = state.get(&world);
+            let (time, actions) = state.get(&world).unwrap();
 
             assert_eq!(
                 condition.evaluate(&actions, &time, 0.3.into()),
@@ -133,7 +133,7 @@ mod tests {
             world
                 .resource_mut::<Time<Real>>()
                 .advance_by(Duration::from_secs_f32(0.1));
-            let (time, actions) = state.get(&world);
+            let (time, actions) = state.get(&world).unwrap();
 
             assert_eq!(
                 condition.evaluate(&actions, &time, 0.4.into()),
@@ -143,7 +143,7 @@ mod tests {
             world
                 .resource_mut::<Time<Real>>()
                 .advance_by(Duration::from_secs_f32(0.1));
-            let (time, actions) = state.get(&world);
+            let (time, actions) = state.get(&world).unwrap();
 
             assert_eq!(
                 condition.evaluate(&actions, &time, 0.6.into()),
@@ -153,7 +153,7 @@ mod tests {
             world
                 .resource_mut::<Time<Real>>()
                 .advance_by(Duration::from_secs(1));
-            let (time, actions) = state.get(&world);
+            let (time, actions) = state.get(&world).unwrap();
 
             assert_eq!(
                 condition.evaluate(&actions, &time, 0.6.into()),
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn timeout() {
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Flick::new(0.5).with_rest_threshold(0.4).with_actuation(0.6);
 
@@ -177,7 +177,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.4.into()),

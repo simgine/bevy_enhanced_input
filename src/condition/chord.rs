@@ -185,7 +185,7 @@ mod tests {
         let action2 = world
             .spawn((Action::<Test>::new(), TriggerState::None))
             .id();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Chord::new([action1, action2]).with_ongoing(false);
         assert_eq!(
