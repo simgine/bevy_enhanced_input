@@ -26,20 +26,17 @@ pub struct CustomInput(usize);
 ///
 /// Write to this resource from any system to make custom input values available to actions.
 ///
-/// Missing entries are read as [`ActionValue::Bool`] `false`.
-///
 /// To register a custom input, use [`Self::register_input`].
+///
+/// Missing entries are read as [`ActionValue::Bool`] `false`.
 ///
 /// # Examples
 ///
-/// Feeding trackpad pinch events into a `Binding::Custom` entry:
+/// Feeding trackpad pinch events:
 ///
 /// ```
 /// use bevy::{input::gestures::PinchGesture, prelude::*};
 /// use bevy_enhanced_input::prelude::*;
-///
-/// #[derive(Resource)]
-/// struct PinchId(CustomInput);
 ///
 /// let mut app = App::new();
 /// app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
@@ -62,6 +59,9 @@ pub struct CustomInput(usize);
 ///     let delta: f32 = events.read().map(|e| e.0).sum();
 ///     custom_inputs.insert(id.0, ActionValue::Axis1D(delta));
 /// }
+///
+/// #[derive(Resource)]
+/// struct PinchId(CustomInput);
 /// ```
 #[derive(Resource, Default, Debug, Deref, DerefMut)]
 pub struct CustomInputs {
@@ -71,7 +71,7 @@ pub struct CustomInputs {
 }
 
 impl CustomInputs {
-    /// Returns a fresh identifier.
+    /// Creates a new custom input identifier.
     ///
     /// IDs are assigned in registration order, so two runs that register in
     /// the same order produce the same IDs.
