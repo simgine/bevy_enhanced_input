@@ -381,7 +381,10 @@ pub mod prelude {
         },
         context::{
             ActionsQuery, ContextActivity, ContextPriority, GamepadDevice, InputContextAppExt,
-            input_reader::{ActionSources, CustomInputs},
+            input_reader::{
+                ActionSources,
+                custom::{CustomInput, CustomInputs},
+            },
         },
         modifier::{
             InputModifier, accumulate_by::*, clamp::*, dead_zone::*, delta_scale::*,

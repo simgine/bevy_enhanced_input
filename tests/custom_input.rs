@@ -2,8 +2,6 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
-const TEST: &str = "test";
-
 #[test]
 fn with_value() {
     let mut app = App::new();
@@ -11,13 +9,15 @@ fn with_value() {
         .add_input_context::<TestContext>()
         .finish();
 
+    let test = CustomInput::register_input();
+
     app.world_mut()
         .resource_mut::<CustomInputs>()
-        .insert(TEST, ActionValue::Axis1D(0.75));
+        .insert(test, ActionValue::Axis1D(0.75));
 
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)])]),
+        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(test)])]),
     ));
 
     app.update();
@@ -37,9 +37,11 @@ fn no_value() {
         .add_input_context::<TestContext>()
         .finish();
 
+    let test = CustomInput::register_input();
+
     app.world_mut().spawn((
         TestContext,
-        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(TEST)])]),
+        actions!(TestContext[(Action::<TestValue>::new(), bindings![Binding::Custom(test)])]),
     ));
 
     app.update();

@@ -1,10 +1,12 @@
+pub mod custom;
+
 use alloc::vec::Vec;
 use core::{any::TypeId, hash::Hash, iter, mem};
 
 use bevy::{
     ecs::{schedule::ScheduleLabel, system::SystemParam},
     input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll},
-    platform::collections::{HashMap, HashSet},
+    platform::collections::HashSet,
     prelude::*,
     utils::TypeIdMap,
 };
@@ -211,8 +213,8 @@ impl InputReader<'_, '_> {
 
                 false.into()
             }
-            Binding::Custom(name) => {
-                let Some(&value) = self.custom_inputs.get(name) else {
+            Binding::Custom(input) => {
+                let Some(&value) = self.custom_inputs.get(&input) else {
                     return ActionValue::Bool(false);
                 };
                 if self.ignored(binding) {
@@ -276,7 +278,7 @@ impl InputReader<'_, '_> {
                 iter.any(|inputs| inputs.gamepad_axes.contains(&input))
             }
             Binding::AnyKey => keys_ignored,
-            Binding::Custom(name) => iter.any(|i| i.custom_inputs.contains(name)),
+            Binding::Custom(input) => iter.any(|i| i.custom_inputs.contains(&input)),
             Binding::None => false,
         }
     }
@@ -345,34 +347,6 @@ impl Default for ActionSources {
     }
 }
 
-/// Write to this resource from any system to make custom input values available to actions.
-///
-/// Missing entries are read as [`ActionValue::Bool`] `false`.
-///
-/// # Examples
-///
-/// Feeding trackpad pinch events into a `Custom("pinch")` binding:
-///
-/// ```
-/// use bevy::{input::gestures::PinchGesture, prelude::*};
-/// use bevy_enhanced_input::prelude::*;
-///
-/// let mut app = App::new();
-/// app.add_systems(
-///     PreUpdate,
-///     stage_pinch
-///         .after(bevy::input::InputSystems)
-///         .before(EnhancedInputSystems::Update),
-/// );
-///
-/// fn stage_pinch(mut events: MessageReader<PinchGesture>, mut customs: ResMut<CustomInputs>) {
-///     let delta: f32 = events.read().map(|e| e.0).sum();
-///     customs.insert("pinch", ActionValue::Axis1D(delta));
-/// }
-/// ```
-#[derive(Resource, Default, Debug, Deref, DerefMut)]
-pub struct CustomInputs(HashMap<&'static str, ActionValue>);
-
 /// Inputs consumed by actions in each schedule.
 ///
 /// These inputs will be ignored by [`InputReader::value`] in all schedules.
@@ -413,7 +387,7 @@ pub(crate) struct IgnoredInputs {
     gamepad_buttons: HashSet<GamepadInput<GamepadButton>>,
     gamepad_axes: HashSet<GamepadInput<GamepadAxis>>,
     any_key: bool,
-    custom_inputs: HashSet<&'static str>,
+    custom_inputs: HashSet<CustomInput>,
 }
 
 impl IgnoredInputs {
@@ -452,8 +426,8 @@ impl IgnoredInputs {
                 self.gamepad_axes.insert(input);
             }
             Binding::AnyKey => self.any_key = true,
-            Binding::Custom(name) => {
-                self.custom_inputs.insert(name);
+            Binding::Custom(input) => {
+                self.custom_inputs.insert(input);
             }
             Binding::None => (),
         }
