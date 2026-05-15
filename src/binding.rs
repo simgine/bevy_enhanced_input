@@ -108,7 +108,7 @@ pub enum Binding {
     /// Identifier of the input entry in [`CustomInputs`] to read.
     ///
     /// Use this for inputs that can't be represented or feed into Bevy input resources.
-    /// Obtain an identifier with [`CustomInput::register_input`].
+    /// Obtain an identifier with [`CustomInputs::register_input`].
     Custom(CustomInput),
     /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
     ///

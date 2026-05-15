@@ -1,21 +1,14 @@
-//! Identifiers and storage for [`Binding::Custom`] entries.
+//! Identifiers and storage for [`Binding::Custom`] values.
 
-use bevy::{
-    platform::{
-        collections::HashMap,
-        sync::atomic::{AtomicUsize, Ordering},
-    },
-    prelude::*,
-};
+use bevy::{platform::collections::HashMap, prelude::*};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
-/// Identifier for a custom input, used as the payload of [`Binding::Custom`].
+/// Identifier for a custom input, used in [`Binding::Custom`].
 ///
-/// Obtain one with [`CustomInput::register_input`] at startup and reuse it
-/// when binding and when writing values into [`CustomInputs`].
+/// Obtainable from [`CustomInputs::register_input`].
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",
@@ -27,25 +20,15 @@ use crate::prelude::*;
     all(feature = "reflect", feature = "serialize"),
     reflect(Serialize, Deserialize)
 )]
-#[cfg_attr(feature = "serialize", serde(transparent))]
 pub struct CustomInput(usize);
 
-impl CustomInput {
-    /// Returns a fresh identifier.
-    ///
-    /// Each call increments a process-wide counter. IDs are assigned in
-    /// registration order, so two runs that register in the same order
-    /// produce the same IDs.
-    #[must_use]
-    pub fn register_input() -> Self {
-        static COUNTER: AtomicUsize = AtomicUsize::new(0);
-        Self(COUNTER.fetch_add(1, Ordering::Relaxed))
-    }
-}
-
+/// Stores values for [`Binding::Custom`] entries.
+///
 /// Write to this resource from any system to make custom input values available to actions.
 ///
 /// Missing entries are read as [`ActionValue::Bool`] `false`.
+///
+/// To register a custom input, use [`Self::register_input`].
 ///
 /// # Examples
 ///
@@ -59,7 +42,11 @@ impl CustomInput {
 /// struct PinchId(CustomInput);
 ///
 /// let mut app = App::new();
-/// let pinch = CustomInput::register_input();
+/// app.add_plugins((MinimalPlugins, EnhancedInputPlugin));
+/// let pinch = app
+///     .world_mut()
+///     .resource_mut::<CustomInputs>()
+///     .register_input();
 /// app.insert_resource(PinchId(pinch)).add_systems(
 ///     PreUpdate,
 ///     stage_pinch
@@ -69,12 +56,29 @@ impl CustomInput {
 ///
 /// fn stage_pinch(
 ///     mut events: MessageReader<PinchGesture>,
-///     mut customs: ResMut<CustomInputs>,
+///     mut custom_inputs: ResMut<CustomInputs>,
 ///     id: Res<PinchId>,
 /// ) {
 ///     let delta: f32 = events.read().map(|e| e.0).sum();
-///     customs.insert(id.0, ActionValue::Axis1D(delta));
+///     custom_inputs.insert(id.0, ActionValue::Axis1D(delta));
 /// }
 /// ```
 #[derive(Resource, Default, Debug, Deref, DerefMut)]
-pub struct CustomInputs(HashMap<CustomInput, ActionValue>);
+pub struct CustomInputs {
+    #[deref]
+    map: HashMap<CustomInput, ActionValue>,
+    counter: usize,
+}
+
+impl CustomInputs {
+    /// Returns a fresh identifier.
+    ///
+    /// IDs are assigned in registration order, so two runs that register in
+    /// the same order produce the same IDs.
+    #[must_use]
+    pub fn register_input(&mut self) -> CustomInput {
+        let id = CustomInput(self.counter);
+        self.counter += 1;
+        id
+    }
+}

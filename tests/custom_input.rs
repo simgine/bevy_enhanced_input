@@ -9,11 +9,9 @@ fn with_value() {
         .add_input_context::<TestContext>()
         .finish();
 
-    let test = CustomInput::register_input();
-
-    app.world_mut()
-        .resource_mut::<CustomInputs>()
-        .insert(test, ActionValue::Axis1D(0.75));
+    let mut custom_inputs = app.world_mut().resource_mut::<CustomInputs>();
+    let test = custom_inputs.register_input();
+    custom_inputs.insert(test, ActionValue::Axis1D(0.75));
 
     app.world_mut().spawn((
         TestContext,
@@ -37,7 +35,10 @@ fn no_value() {
         .add_input_context::<TestContext>()
         .finish();
 
-    let test = CustomInput::register_input();
+    let test = app
+        .world_mut()
+        .resource_mut::<CustomInputs>()
+        .register_input();
 
     app.world_mut().spawn((
         TestContext,
