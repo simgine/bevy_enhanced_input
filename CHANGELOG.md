@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve action evaluation logging.
 - `DeltaScale::default()` now uses virtual time instead of real time. This is most likely what you want, since it's equivalent to getting the delta from [the default `Time` resource](https://docs.rs/bevy/latest/bevy/prelude/struct.Time.html). If you want the original behavior, use `DeltaScale::REAL`.
 - Rename `TimeKind::Virtual` to `TimeKind::Auto` and `ContextTime::virt` to `ContextTime::auto`. The old names remain available as deprecated aliases.
+- Adjusted the scaling of input values for `Binding::mouse_wheel()` when input comes from trackpads, so they are scaled the same as mouse wheels. (In other words, `MouseWheel` events measured in `MouseWheelUnit::Pixels` now result in a similar feel as those from `MouseWheelUnit::Lines`, by dividing by `MouseScrollUnit::SCROLL_UNIT_CONVERSION_FACTOR`.)
 
 ### Removed
 

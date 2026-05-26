@@ -5,7 +5,7 @@ use core::{any::TypeId, hash::Hash, iter, mem};
 
 use bevy::{
     ecs::{schedule::ScheduleLabel, system::SystemParam},
-    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll},
+    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll, MouseScrollUnit},
     platform::collections::HashSet,
     prelude::*,
     utils::TypeIdMap,
@@ -119,7 +119,13 @@ impl InputReader<'_, '_> {
 
                 self.mouse_scroll
                     .as_ref()
-                    .map(|s| s.delta)
+                    .map(|s|
+                        // Get a scroll amount proportional to the kind of input that generated it.
+                        match s.unit {
+                            MouseScrollUnit::Line => s.delta,
+                            MouseScrollUnit::Pixel => s.delta / MouseScrollUnit::SCROLL_UNIT_CONVERSION_FACTOR,
+                        }
+                    )
                     .unwrap_or_default()
                     .into()
             }
