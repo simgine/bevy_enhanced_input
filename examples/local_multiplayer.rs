@@ -225,7 +225,7 @@ fn player_bundle(
 
 fn accumulate_roll(roll: On<Fire<Roll>>, mut input: Query<&mut AccumulatedInput>) {
     let mut input = input.get_mut(roll.context).unwrap();
-    input.roll += roll.value;
+    input.roll = roll.value;
 }
 
 fn accumulate_kick(kick: On<Fire<Kick>>, mut input: Query<&mut AccumulatedInput>) {
