@@ -164,7 +164,7 @@ mod tests {
     #[test]
     fn pulse() {
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Pulse::new(1.0);
 
@@ -176,7 +176,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -190,7 +190,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::ZERO);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -205,7 +205,7 @@ mod tests {
     #[test]
     fn fires_again_after_release() {
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Pulse::new(1.0);
 
@@ -217,7 +217,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -231,7 +231,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::ZERO);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -246,7 +246,7 @@ mod tests {
     #[test]
     fn not_trigger_on_start() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Pulse::new(1.0).trigger_on_start(false);
         assert_eq!(
@@ -259,7 +259,7 @@ mod tests {
     fn initial_delay() {
         let (mut world, mut state) = context::init_world();
         let mut condition = Pulse::new(0.35).with_initial_delay(1.0);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
@@ -268,7 +268,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Ongoing,
@@ -277,7 +277,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(500));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
@@ -287,7 +287,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(300));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Ongoing,
@@ -296,14 +296,14 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(50));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
             TriggerState::Fired,
             "should fire after regular interval",
         );
 
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
             TriggerState::None,
@@ -314,7 +314,7 @@ mod tests {
     #[test]
     fn trigger_limit() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Pulse::new(1.0).with_trigger_limit(1);
         assert_eq!(

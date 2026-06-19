@@ -115,7 +115,7 @@ mod tests {
     #[test]
     fn yxz() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::YXZ;
         assert_eq!(
@@ -143,7 +143,7 @@ mod tests {
     #[test]
     fn zyx() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::ZYX;
         assert_eq!(
@@ -171,7 +171,7 @@ mod tests {
     #[test]
     fn xzy() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::XZY;
         assert_eq!(modifier.transform(&actions, &time, true.into()), 1.0.into());
@@ -193,7 +193,7 @@ mod tests {
     #[test]
     fn yzx() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::YZX;
         assert_eq!(
@@ -221,7 +221,7 @@ mod tests {
     #[test]
     fn zxy() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::ZXY;
         assert_eq!(
@@ -249,7 +249,7 @@ mod tests {
     #[test]
     fn xxy() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::XXY;
         assert_eq!(
@@ -277,7 +277,7 @@ mod tests {
     #[test]
     fn yyx() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::YYX;
         assert_eq!(
@@ -305,7 +305,7 @@ mod tests {
     #[test]
     fn xxz() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::XXZ;
         assert_eq!(
@@ -333,7 +333,7 @@ mod tests {
     #[test]
     fn yyz() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::YYZ;
         assert_eq!(modifier.transform(&actions, &time, true.into()), 0.0.into());
@@ -355,7 +355,7 @@ mod tests {
     #[test]
     fn zzx() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::ZZX;
         assert_eq!(
@@ -383,7 +383,7 @@ mod tests {
     #[test]
     fn zzy() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::ZZY;
         assert_eq!(modifier.transform(&actions, &time, true.into()), 0.0.into());
@@ -405,7 +405,7 @@ mod tests {
     #[test]
     fn xxx() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::XXX;
         assert_eq!(
@@ -433,7 +433,7 @@ mod tests {
     #[test]
     fn yyy() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::YYY;
         assert_eq!(modifier.transform(&actions, &time, true.into()), 0.0.into());
@@ -455,7 +455,7 @@ mod tests {
     #[test]
     fn zzz() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SwizzleAxis::ZZZ;
         assert_eq!(modifier.transform(&actions, &time, true.into()), 0.0.into());

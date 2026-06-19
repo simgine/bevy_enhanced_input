@@ -90,7 +90,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SmoothNudge::default();
         assert_eq!(
@@ -109,7 +109,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SmoothNudge::default();
         assert_eq!(
@@ -128,7 +128,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_millis(100));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = SmoothNudge {
             current_value: Vec3::X * 0.99,

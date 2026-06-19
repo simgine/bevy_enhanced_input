@@ -1,6 +1,6 @@
 [package]
 name = "bevy_enhanced_input"
-version = "0.25.0"
+version = "0.26.0"
 authors = [
   "Hennadii Chernyshchyk <genaloner@gmail.com>",
   "Alice Cecile <alice.i.cecile@gmail.com>",
@@ -25,8 +25,8 @@ serialize = ["bevy/serialize", "dep:serde"]
 state = ["bevy/bevy_state"]
 
 [dependencies]
-bevy_enhanced_input_macros = { path = "macros", version = "0.25.0" }
-bevy = { version = "0.18.0", default-features = false, features = [
+bevy_enhanced_input_macros = { path = "macros", version = "0.26.0" }
+bevy = { version = "0.19.0", default-features = false, features = [
   "mouse",
   "keyboard",
   "gamepad",
@@ -41,7 +41,7 @@ serde = { version = "1.0", default-features = false, features = [
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.18.0", default-features = false, features = [
+bevy = { version = "0.19.0", default-features = false, features = [
   "bevy_gilrs",
   "bevy_log",
   "bevy_pbr",

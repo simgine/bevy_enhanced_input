@@ -51,7 +51,7 @@ mod tests {
     #[test]
     fn down() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Down::new(1.0);
         assert_eq!(

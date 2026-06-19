@@ -475,7 +475,7 @@ mod tests {
         let key = KeyCode::Space;
         world.resource_mut::<ButtonInput<KeyCode>>().press(key);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(key), true.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(reader.value(KeyCode::Escape), false.into());
@@ -495,7 +495,7 @@ mod tests {
             .resource_mut::<ButtonInput<MouseButton>>()
             .press(button);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(button), true.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
         assert_eq!(reader.value(MouseButton::Right), false.into());
@@ -517,7 +517,7 @@ mod tests {
         world.insert_resource(AccumulatedMouseMotion { delta: value });
 
         let binding = Binding::mouse_motion();
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.clear_consumed::<PreUpdate>();
         assert_eq!(reader.value(binding), value.into());
         assert_eq!(
@@ -540,7 +540,7 @@ mod tests {
         });
 
         let binding = Binding::mouse_wheel();
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.clear_consumed::<PreUpdate>();
         assert_eq!(reader.value(binding), value.into());
         assert_eq!(
@@ -569,7 +569,7 @@ mod tests {
         gamepad2.digital_mut().press(button2);
         world.spawn(gamepad2);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.set_gamepad(gamepad_entity);
         assert_eq!(reader.value(button1), value.into());
         assert_eq!(
@@ -602,7 +602,7 @@ mod tests {
         gamepad2.digital_mut().press(button2);
         world.spawn(gamepad2);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(button1), value.into());
         assert_eq!(reader.value(button2), value.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
@@ -632,7 +632,7 @@ mod tests {
         gamepad2.analog_mut().set(axis2, value);
         world.spawn(gamepad2);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.set_gamepad(gamepad_entity);
         assert_eq!(reader.value(axis1), value.into());
         assert_eq!(
@@ -661,7 +661,7 @@ mod tests {
         gamepad2.analog_mut().set(axis2, value);
         world.spawn(gamepad2);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(axis1), value.into());
         assert_eq!(reader.value(axis2), value.into());
         assert_eq!(reader.value(GamepadAxis::RightStickX), 0.0.into());
@@ -686,7 +686,7 @@ mod tests {
         gamepad.digital_mut().press(button);
         world.spawn(gamepad);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.set_gamepad(None);
         assert_eq!(reader.value(button), 0.0.into());
         assert_eq!(reader.value(axis), 0.0.into());
@@ -706,7 +706,7 @@ mod tests {
         gamepad2.analog_mut().set(axis, 0.002);
         world.spawn(gamepad2);
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(axis), 0.003.into());
         assert_eq!(reader.value(GamepadAxis::RightStickX), 0.0.into());
 
@@ -725,7 +725,7 @@ mod tests {
         keys.press(key);
 
         let binding = key.with_mod_keys(modifier.into());
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(binding), true.into());
         assert_eq!(reader.value(key), true.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
@@ -752,7 +752,7 @@ mod tests {
             .resource_mut::<ButtonInput<KeyCode>>()
             .press(other_key);
         let other_input = other_key.with_mod_keys(modifier.into());
-        let reader = state.get_mut(&mut world);
+        let reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(other_input), false.into());
         assert_eq!(reader.value(other_key), true.into());
     }
@@ -769,7 +769,7 @@ mod tests {
             .press(button);
 
         let binding = button.with_mod_keys(modifier.into());
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(binding), true.into());
         assert_eq!(reader.value(button), true.into());
         assert_eq!(reader.value(Binding::AnyKey), true.into());
@@ -801,7 +801,7 @@ mod tests {
         world.insert_resource(AccumulatedMouseMotion { delta: value });
 
         let binding = Binding::mouse_motion().with_mod_keys(modifier.into());
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.clear_consumed::<PreUpdate>();
         assert_eq!(reader.value(binding), value.into());
         assert_eq!(reader.value(binding.without_mod_keys()), value.into());
@@ -831,7 +831,7 @@ mod tests {
         });
 
         let binding = Binding::mouse_wheel().with_mod_keys(modifier.into());
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.clear_consumed::<PreUpdate>();
         assert_eq!(reader.value(binding), value.into());
         assert_eq!(reader.value(binding.without_mod_keys()), value.into());
@@ -881,7 +881,7 @@ mod tests {
         action_sources.gamepad_button = false;
         action_sources.gamepad_axis = false;
 
-        let mut reader = state.get_mut(&mut world);
+        let mut reader = state.get_mut(&mut world).unwrap();
         reader.clear_consumed::<PreUpdate>();
 
         assert_eq!(reader.value(key), false.into());

@@ -76,7 +76,7 @@ mod tests {
         world
             .resource_mut::<Time>()
             .advance_by(Duration::from_millis(500));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             DeltaScale::default().transform(&actions, &time, true.into()),

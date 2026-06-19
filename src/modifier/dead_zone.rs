@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn radial() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = DeadZone::new(DeadZoneKind::Radial);
 
@@ -168,7 +168,7 @@ mod tests {
     #[test]
     fn axial() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = DeadZone::new(DeadZoneKind::Axial);
 

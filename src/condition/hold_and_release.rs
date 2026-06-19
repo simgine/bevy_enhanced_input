@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn hold_and_release() {
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = HoldAndRelease::new(1.0);
 
@@ -96,7 +96,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 0.0.into()),
@@ -106,7 +106,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::ZERO);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -122,7 +122,7 @@ mod tests {
     fn exact_time() {
         let mut condition = HoldAndRelease::new(1.0);
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -132,7 +132,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -142,7 +142,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::ZERO);
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -162,7 +162,7 @@ mod tests {
     fn delayed() {
         let mut condition = HoldAndRelease::new(1.0);
         let (mut world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -172,7 +172,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_secs(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),
@@ -182,7 +182,7 @@ mod tests {
         world
             .resource_mut::<Time<Real>>()
             .advance_by(Duration::from_nanos(1));
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         assert_eq!(
             condition.evaluate(&actions, &time, 1.0.into()),

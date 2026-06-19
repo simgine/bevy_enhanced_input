@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn release() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Release::default();
         assert_eq!(

@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn toggle() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Toggle::default();
 
@@ -117,7 +117,7 @@ mod tests {
     #[test]
     fn manual() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut condition = Toggle {
             toggled: true,

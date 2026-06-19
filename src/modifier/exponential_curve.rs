@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn exp() {
         let (world, mut state) = context::init_world();
-        let (time, actions) = state.get(&world);
+        let (time, actions) = state.get(&world).unwrap();
 
         let mut modifier = ExponentialCurve::splat(2.0);
         assert_eq!(modifier.transform(&actions, &time, true.into()), 1.0.into());
