@@ -12,10 +12,11 @@ use crate::prelude::*;
 /// For example, [`ActionValue::Bool`] will remain unchanged for [`Self::XZY`] (X in the first place).
 /// But for variants like [`Self::YXZ`] (where X becomes the second component), it will be
 /// converted into [`ActionValue::Axis2D`] with Y set to the value.
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Default, Debug, Clone, Copy)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub enum SwizzleAxis {
     /// Swap X and Y axis. Useful for binding 1D inputs to the Y axis for 2D actions.
+    #[default]
     YXZ,
     /// Swap X and Z axis.
     ZYX,

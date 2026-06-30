@@ -108,6 +108,12 @@ impl Pulse {
     }
 }
 
+impl Default for Pulse {
+    fn default() -> Self {
+        Self::new(1.0)
+    }
+}
+
 impl InputCondition for Pulse {
     fn evaluate(
         &mut self,

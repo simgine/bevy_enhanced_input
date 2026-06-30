@@ -54,6 +54,12 @@ impl Cooldown {
     }
 }
 
+impl Default for Cooldown {
+    fn default() -> Self {
+        Self::new(1.0)
+    }
+}
+
 impl InputCondition for Cooldown {
     fn evaluate(
         &mut self,

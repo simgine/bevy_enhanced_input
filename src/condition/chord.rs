@@ -58,7 +58,7 @@ struct Modifier;
 struct Heal;
 ```
 */
-#[derive(Component, Debug, Clone)]
+#[derive(Component, FromTemplate, Debug, Clone)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Chord {
     /// Actions whose state will be inherited when they are firing.
