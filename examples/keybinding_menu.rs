@@ -7,7 +7,7 @@
 //! Bevy's settings system handles the file I/O, serialization, and
 //! deserialization for you.
 
-use core::{fmt::Write, time::Duration};
+use core::fmt::Write;
 
 use bevy::{
     ecs::{
@@ -17,7 +17,7 @@ use bevy::{
     input::{ButtonState, common_conditions::*, keyboard::KeyboardInput, mouse::MouseButtonInput},
     log::LogPlugin,
     prelude::*,
-    settings::{ReflectSettingsGroup, SaveSettingsDeferred, SettingsGroup, SettingsPlugin},
+    settings::{ReflectSettingsGroup, SaveSettingsSync, SettingsGroup, SettingsPlugin},
     ui::FocusPolicy,
 };
 use bevy_enhanced_input::prelude::*;
@@ -372,7 +372,7 @@ fn apply(
 
     commands.trigger(SettingsChanged);
 
-    commands.queue(SaveSettingsDeferred(Duration::from_secs_f32(0.1)));
+    commands.queue(SaveSettingsSync::IfChanged);
 }
 
 fn update_button_text(
