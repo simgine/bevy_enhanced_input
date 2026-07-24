@@ -41,10 +41,7 @@ serde = { version = "1.0", default-features = false, features = [
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.19.0", features = [
-  "2d", "3d", "ui",
-  "bevy_settings",
-] }
+bevy = { version = "0.19.0", features = ["2d", "3d", "ui", "bevy_settings"] }
 test-log = "0.2"
 
 [lints.clippy]
