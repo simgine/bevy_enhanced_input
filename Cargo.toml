@@ -41,7 +41,22 @@ serde = { version = "1.0", default-features = false, features = [
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.19.0", features = ["2d", "3d", "ui", "bevy_settings"] }
+bevy = { version = "0.19.0", default-features = false, features = [
+  "bevy_gilrs",
+  "bevy_log",
+  "bevy_pbr",
+  "bevy_settings",
+  "bevy_state",
+  "bevy_ui_render",
+  "bevy_window",
+  "default_font",
+  "debug",
+  "reflect_auto_register", # TODO: Remove this once `bevy_support` correctly depends on it
+  "tonemapping_luts",
+  "ui_picking",
+  "x11",
+  "zstd_rust",
+] }
 test-log = "0.2"
 
 [lints.clippy]
