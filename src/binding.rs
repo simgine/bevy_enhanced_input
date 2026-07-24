@@ -35,7 +35,7 @@ use crate::prelude::*;
 ///
 /// If the action's dimension differs from the captured input, it will be converted using
 /// [`ActionValue::convert`](crate::action::value::ActionValue::convert).
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
+#[derive(Component, Default, Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
@@ -49,6 +49,11 @@ use crate::prelude::*;
 #[component(on_insert = on_insert, immutable)]
 #[require(FirstActivation)]
 pub enum Binding {
+    /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
+    ///
+    /// Useful for expressing empty bindings in [presets](crate::preset).
+    #[default]
+    None,
     /// Keyboard button, captured as [`ActionValue::Bool`].
     Keyboard { key: KeyCode, mod_keys: ModKeys },
     /// Mouse button, captured as [`ActionValue::Bool`].
@@ -110,10 +115,6 @@ pub enum Binding {
     /// Use this for inputs that can't be represented or feed into Bevy input resources.
     /// Obtain an identifier with [`CustomInputs::register_input`].
     Custom(CustomInput),
-    /// Doesn't correspond to any input, captured as [`ActionValue::Bool`] with `false`.
-    ///
-    /// Useful for expressing empty bindings in [presets](crate::preset).
-    None,
 }
 
 impl Binding {
