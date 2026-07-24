@@ -45,18 +45,19 @@ bevy = { version = "0.19.0", default-features = false, features = [
   "bevy_gilrs",
   "bevy_log",
   "bevy_pbr",
+  "bevy_settings",
   "bevy_state",
   "bevy_ui_render",
   "bevy_window",
   "default_font",
   "debug",
+  "reflect_auto_register", # TODO: Remove this once `bevy_support` correctly depends on it
   "tonemapping_luts",
   "ui_picking",
   "x11",
   "zstd_rust",
 ] }
 test-log = "0.2"
-ron = "0.12"
 
 [lints.clippy]
 type_complexity = "allow"
