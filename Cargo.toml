@@ -41,22 +41,11 @@ serde = { version = "1.0", default-features = false, features = [
 bitflags = { version = "2.6", default-features = false, features = ["serde"] }
 
 [dev-dependencies]
-bevy = { version = "0.19.0", default-features = false, features = [
-  "bevy_gilrs",
-  "bevy_log",
-  "bevy_pbr",
-  "bevy_state",
-  "bevy_ui_render",
-  "bevy_window",
-  "default_font",
-  "debug",
-  "tonemapping_luts",
-  "ui_picking",
-  "x11",
-  "zstd_rust",
+bevy = { version = "0.19.0", features = [
+  "2d", "3d", "ui",
+  "bevy_settings",
 ] }
 test-log = "0.2"
-ron = "0.12"
 
 [lints.clippy]
 type_complexity = "allow"

@@ -1,11 +1,13 @@
-//! Demonstrates how to create a keybinding menu, allowing users to customize their controls.
+//! Demonstrates how to create a keybinding menu, allowing users to customize
+//! their controls.
 //!
-//! Critically, the [`InputSettings`] resource which stores the keybindings
-//! implements [`Serialize`] and [`Deserialize`] via [`serde`], allowing easy saving and loading
-//! of user preferences in the file format of your choice (commonly .ron or .json).
+//! Critically, the [`InputSettings`] resource (which stores the keybindings)
+//! derives [`SettingsGroup`], so it's automatically loaded at plugin build time
+//! and can be persisted via [`SaveSettingsDeferred`] / [`SaveSettingsSync`].
+//! Bevy's settings system handles the file I/O, serialization, and
+//! deserialization for you.
 
-use core::{error::Error, fmt::Write};
-use std::fs;
+use core::{fmt::Write, time::Duration};
 
 use bevy::{
     ecs::{
@@ -15,10 +17,10 @@ use bevy::{
     input::{ButtonState, common_conditions::*, keyboard::KeyboardInput, mouse::MouseButtonInput},
     log::LogPlugin,
     prelude::*,
+    settings::{ReflectSettingsGroup, SaveSettingsDeferred, SettingsGroup, SettingsPlugin},
     ui::FocusPolicy,
 };
 use bevy_enhanced_input::prelude::*;
-use serde::{Deserialize, Serialize};
 
 fn main() {
     // Setup logging to display triggered events.
@@ -28,6 +30,7 @@ fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins.set(log_plugin),
+            SettingsPlugin::new("com.github.simgine.bevy_enhanced_input.examples.keybinding_menu"),
             EnhancedInputPlugin,
             KeybindingMenuPlugin,
         ))
@@ -59,24 +62,12 @@ impl Plugin for KeybindingMenuPlugin {
 
 const BINDINGS_COUNT: usize = 3;
 /// Number of input columns.
-const SETTINGS_PATH: &str = "target/settings.ron";
 const GAP: Val = Val::Px(10.0);
 const PADDING: UiRect = UiRect::all(Val::Px(15.0));
 const PANEL_BACKGROUND: BackgroundColor = BackgroundColor(Color::srgb(0.8, 0.8, 0.8));
 const DARK_TEXT: TextColor = TextColor(Color::srgb(0.1, 0.1, 0.1));
 
-fn setup(mut commands: Commands) {
-    let settings = match InputSettings::read(SETTINGS_PATH) {
-        Ok(settings) => {
-            info!("loading settings from '{SETTINGS_PATH}'");
-            settings
-        }
-        Err(e) => {
-            info!("unable to load settings from '{SETTINGS_PATH}', switching to defaults: {e}");
-            Default::default()
-        }
-    };
-
+fn setup(mut commands: Commands, settings: Res<InputSettings>) {
     commands.spawn(player_bundle(settings.clone()));
     commands.spawn(Camera2d);
 
@@ -116,8 +107,6 @@ fn setup(mut commands: Commands) {
             ]
         )],
     ));
-
-    commands.insert_resource(settings);
 }
 
 /// Returns name of the field.
@@ -134,7 +123,8 @@ macro_rules! field_name {
     }};
 }
 
-/// Stores name of the [`KeyboardSettings`] field and its array index for which the binding is associated.
+/// Stores name of the [`InputSettings`] field and its array index for which the
+/// binding is associated.
 ///
 /// Used to utilize reflection when applying settings.
 #[derive(Component, Clone, Copy)]
@@ -152,8 +142,9 @@ fn actions_grid_bundle(settings: InputSettings) -> impl Bundle {
             grid_template_columns: vec![GridTrack::auto(); BINDINGS_COUNT + 1],
             ..Default::default()
         },
-        // We could utilzie reflection to iterate over fields,
-        // but in real application you most likely want to have a nice and translatable text on buttons.
+        // We could utilize reflection to iterate over fields, but in real
+        // application you most likely want to have a nice and translatable text
+        // on buttons.
         Children::spawn((
             action_row("Forward", field_name!(settings.forward), settings.forward),
             action_row("Left", field_name!(settings.left), settings.left),
@@ -381,10 +372,7 @@ fn apply(
 
     commands.trigger(SettingsChanged);
 
-    match settings.write(SETTINGS_PATH) {
-        Ok(()) => info!("writing settings to '{SETTINGS_PATH}'"),
-        Err(e) => error!("unable to write settings to '{SETTINGS_PATH}': {e}"),
-    }
+    commands.queue(SaveSettingsDeferred(Duration::from_secs_f32(0.1)));
 }
 
 fn update_button_text(
@@ -503,8 +491,8 @@ struct ConflictDialog {
 /// you need to create your own binding enum. However, this approach is mostly used in emulators rather than games.
 ///
 /// So in this example we assign only keyboard and mouse bindings.
-#[derive(Resource, Reflect, Clone, Deserialize, Serialize)]
-#[serde(default)]
+#[derive(Resource, SettingsGroup, Reflect, Clone)]
+#[reflect(Resource, SettingsGroup, Default)]
 pub struct InputSettings {
     pub forward: [Binding; BINDINGS_COUNT],
     pub left: [Binding; BINDINGS_COUNT],
@@ -516,18 +504,6 @@ pub struct InputSettings {
 }
 
 impl InputSettings {
-    fn read(path: &str) -> Result<Self, Box<dyn Error>> {
-        let string = fs::read_to_string(path)?;
-        let settings = ron::from_str(&string)?;
-        Ok(settings)
-    }
-
-    fn write(&self, path: &str) -> Result<(), Box<dyn Error>> {
-        let string = ron::ser::to_string_pretty(self, Default::default())?;
-        fs::write(path, string)?;
-        Ok(())
-    }
-
     fn clear(&mut self) {
         self.forward.fill(Binding::None);
         self.left.fill(Binding::None);
