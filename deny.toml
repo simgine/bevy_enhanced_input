@@ -18,5 +18,5 @@ skip-tree = ["bevy"]
 [advisories]
 version = 2
 ignore = [
-    { id = "RUSTSEC-2026-0192", reason = "ttf-parser is unmaintained; pulled in by sctk-adwaita via ab_glyph/owned_ttf_parser" },
+  { id = "RUSTSEC-2026-0192", reason = "ttf-parser is unmaintained; pulled in by sctk-adwaita via ab_glyph/owned_ttf_parser" },
 ]
