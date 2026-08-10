@@ -131,6 +131,8 @@ fn rotate(
 
     yaw += rotate.value.x.to_radians();
     pitch += rotate.value.y.to_radians();
+    // Clamp the updated pitch to prevent gimbal locking when looking straight up or down
+    pitch = pitch.clamp(-89.9f32.to_radians(), 89.9f32.to_radians());
 
     transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, 0.0);
 }
