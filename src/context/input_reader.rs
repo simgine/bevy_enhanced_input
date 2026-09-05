@@ -74,11 +74,17 @@ impl InputReader<'_, '_> {
     ///
     /// See also [`Self::consume`] and [`Self::set_gamepad`].
     pub(crate) fn value(&self, binding: impl Into<Binding>) -> ActionValue {
+        // A button that was pressed and released within one frame won't be reported
+        // as `pressed`, but Bevy keeps `just_pressed` set for that frame.
+        // Include it in button reads so actions don't miss these brief taps.
         let binding = binding.into();
         match binding {
             Binding::Keyboard { key, mod_keys } => {
                 let pressed = self.action_sources.keyboard
-                    && self.keys.as_ref().is_some_and(|k| k.pressed(key))
+                    && self
+                        .keys
+                        .as_ref()
+                        .is_some_and(|k| k.pressed(key) || k.just_pressed(key))
                     && self.mod_keys_pressed(mod_keys)
                     && !self.ignored(binding);
 
@@ -89,7 +95,7 @@ impl InputReader<'_, '_> {
                     && self
                         .mouse_buttons
                         .as_ref()
-                        .is_some_and(|b| b.pressed(button))
+                        .is_some_and(|b| b.pressed(button) || b.just_pressed(button))
                     && self.mod_keys_pressed(mod_keys)
                     && !self.ignored(binding);
 
@@ -134,17 +140,23 @@ impl InputReader<'_, '_> {
                     return 0.0.into();
                 }
 
+                let button_value = |gamepad: &Gamepad| {
+                    if gamepad.just_pressed(button) && !gamepad.pressed(button) {
+                        // The release overwrote the analog value, but the press must still be observed.
+                        1.0
+                    } else {
+                        gamepad.get(button).unwrap_or_default()
+                    }
+                };
                 let value = match *self.gamepad_device {
                     GamepadDevice::Any => self
                         .gamepads
                         .iter()
-                        .filter_map(|gamepad| gamepad.get(button))
+                        .map(button_value)
                         .find(|&value| value != 0.0),
-                    GamepadDevice::Single(entity) => self
-                        .gamepads
-                        .get(entity)
-                        .ok()
-                        .and_then(|gamepad| gamepad.get(button)),
+                    GamepadDevice::Single(entity) => {
+                        self.gamepads.get(entity).ok().map(button_value)
+                    }
                     GamepadDevice::None => return 0.0.into(),
                 };
 
@@ -181,7 +193,7 @@ impl InputReader<'_, '_> {
                     && self
                         .keys
                         .iter()
-                        .flat_map(|k| k.get_pressed())
+                        .flat_map(|k| k.get_pressed().chain(k.get_just_pressed()))
                         .any(|&k| !self.ignored(k))
                 {
                     return true.into();
@@ -191,7 +203,7 @@ impl InputReader<'_, '_> {
                     && self
                         .mouse_buttons
                         .iter()
-                        .flat_map(|b| b.get_pressed())
+                        .flat_map(|b| b.get_pressed().chain(b.get_just_pressed()))
                         .any(|&b| !self.ignored(b))
                 {
                     return true.into();
@@ -201,14 +213,21 @@ impl InputReader<'_, '_> {
                     match *self.gamepad_device {
                         GamepadDevice::Single(entity) => {
                             if let Ok(gamepad) = self.gamepads.get(entity)
-                                && gamepad.get_pressed().any(|&b| !self.ignored(b))
+                                && gamepad
+                                    .get_pressed()
+                                    .chain(gamepad.get_just_pressed())
+                                    .any(|&b| !self.ignored(b))
                             {
                                 return true.into();
                             }
                         }
                         GamepadDevice::Any => {
                             for gamepad in &self.gamepads {
-                                if gamepad.get_pressed().any(|&b| !self.ignored(b)) {
+                                if gamepad
+                                    .get_pressed()
+                                    .chain(gamepad.get_just_pressed())
+                                    .any(|&b| !self.ignored(b))
+                                {
                                     return true.into();
                                 }
                             }
@@ -238,7 +257,11 @@ impl InputReader<'_, '_> {
         }
 
         for keys in mod_keys.iter_keys() {
-            if self.keys.as_ref().is_none_or(|k| !k.any_pressed(keys)) {
+            if self
+                .keys
+                .as_ref()
+                .is_none_or(|k| !k.any_pressed(keys) && !k.any_just_pressed(keys))
+            {
                 return false;
             }
         }
@@ -487,6 +510,24 @@ mod tests {
     }
 
     #[test]
+    fn keyboard_short_tap() {
+        let (mut world, mut state) = init_world();
+
+        let key = KeyCode::Space;
+        let mut keys = world.resource_mut::<ButtonInput<KeyCode>>();
+        keys.press(key);
+        keys.release(key);
+
+        let mut reader = state.get_mut(&mut world).unwrap();
+        assert_eq!(reader.value(key), true.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
+
+        reader.consume::<PreUpdate>(key);
+        assert_eq!(reader.value(key), false.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
+    }
+
+    #[test]
     fn mouse_button() {
         let (mut world, mut state) = init_world();
 
@@ -503,6 +544,24 @@ mod tests {
             reader.value(button.with_mod_keys(ModKeys::CONTROL)),
             false.into()
         );
+
+        reader.consume::<PreUpdate>(button);
+        assert_eq!(reader.value(button), false.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
+    }
+
+    #[test]
+    fn mouse_button_short_tap() {
+        let (mut world, mut state) = init_world();
+
+        let button = MouseButton::Left;
+        let mut buttons = world.resource_mut::<ButtonInput<MouseButton>>();
+        buttons.press(button);
+        buttons.release(button);
+
+        let mut reader = state.get_mut(&mut world).unwrap();
+        assert_eq!(reader.value(button), true.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
 
         reader.consume::<PreUpdate>(button);
         assert_eq!(reader.value(button), false.into());
@@ -556,7 +615,7 @@ mod tests {
     fn gamepad_button() {
         let (mut world, mut state) = init_world();
 
-        let value = 1.0;
+        let value = 0.8;
         let button1 = GamepadButton::South;
         let mut gamepad1 = Gamepad::default();
         gamepad1.analog_mut().set(button1, value);
@@ -589,7 +648,7 @@ mod tests {
     fn any_gamepad_button() {
         let (mut world, mut state) = init_world();
 
-        let value = 1.0;
+        let value = 0.8;
         let button1 = GamepadButton::South;
         let mut gamepad1 = Gamepad::default();
         gamepad1.analog_mut().set(button1, value);
@@ -615,6 +674,59 @@ mod tests {
         reader.consume::<PreUpdate>(button2);
         assert_eq!(reader.value(button2), 0.0.into());
         assert_eq!(reader.value(Binding::AnyKey), false.into());
+    }
+
+    #[test]
+    fn gamepad_button_short_tap() {
+        let (mut world, mut state) = init_world();
+
+        let button = GamepadButton::South;
+        let mut gamepad = Gamepad::default();
+        gamepad.analog_mut().set(button, 0.0);
+        gamepad.digital_mut().press(button);
+        gamepad.digital_mut().release(button);
+        world.spawn(gamepad);
+
+        let mut reader = state.get_mut(&mut world).unwrap();
+        assert_eq!(reader.value(button), 1.0.into());
+        assert_eq!(reader.value(Binding::AnyKey), true.into());
+
+        reader.consume::<PreUpdate>(button);
+        assert_eq!(reader.value(button), 0.0.into());
+        assert_eq!(reader.value(Binding::AnyKey), false.into());
+    }
+
+    #[test]
+    fn gamepad_button_short_tap_value() {
+        for released_value in [0.0, 0.25] {
+            let (mut world, mut state) = init_world();
+
+            let button = GamepadButton::South;
+            let mut gamepad = Gamepad::default();
+            gamepad.digital_mut().press(button);
+            gamepad.digital_mut().release(button);
+            gamepad.analog_mut().set(button, released_value);
+            let entity = world.spawn(gamepad).id();
+
+            let mut reader = state.get_mut(&mut world).unwrap();
+            for device in [GamepadDevice::Any, GamepadDevice::Single(entity)] {
+                reader.set_gamepad(device);
+                assert_eq!(reader.value(button), 1.0.into());
+                assert_eq!(reader.value(Binding::AnyKey), true.into());
+            }
+
+            world
+                .get_mut::<Gamepad>(entity)
+                .unwrap()
+                .digital_mut()
+                .clear();
+            let mut reader = state.get_mut(&mut world).unwrap();
+            for device in [GamepadDevice::Any, GamepadDevice::Single(entity)] {
+                reader.set_gamepad(device);
+                assert_eq!(reader.value(button), released_value.into());
+                assert_eq!(reader.value(Binding::AnyKey), false.into());
+            }
+        }
     }
 
     #[test]
@@ -755,6 +867,26 @@ mod tests {
         let reader = state.get_mut(&mut world).unwrap();
         assert_eq!(reader.value(other_input), false.into());
         assert_eq!(reader.value(other_key), true.into());
+    }
+
+    #[test]
+    fn keyboard_with_modifier_short_tap() {
+        let (mut world, mut state) = init_world();
+
+        let key = KeyCode::Space;
+        let modifier = KeyCode::ControlLeft;
+        let mut keys = world.resource_mut::<ButtonInput<KeyCode>>();
+        keys.press(key);
+        keys.press(modifier);
+        keys.release(modifier);
+
+        let binding = key.with_mod_keys(modifier.into());
+        let reader = state.get_mut(&mut world).unwrap();
+        assert_eq!(reader.value(binding), true.into());
+
+        world.resource_mut::<ButtonInput<KeyCode>>().clear();
+        let reader = state.get_mut(&mut world).unwrap();
+        assert_eq!(reader.value(binding), false.into());
     }
 
     #[test]

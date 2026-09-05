@@ -31,6 +31,11 @@ use crate::prelude::*;
 /// Should be stored on a separate entity from the action,
 /// and related to it using the [`BindingOf`] relationship.
 ///
+/// Buttons pressed and released within a single frame are still captured as active
+/// when the context is evaluated during that frame. Their release is observed on
+/// the next evaluation after Bevy clears its per-frame input flags, provided they
+/// remain inactive.
+///
 /// [Input modifiers](crate::modifier) can change the captured dimension.
 ///
 /// If the action's dimension differs from the captured input, it will be converted using
