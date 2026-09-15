@@ -12,7 +12,7 @@ pub(super) struct TriggerTracker {
     any_explicit_fired: bool,
     found_active: bool,
     found_implicit: bool,
-    all_implicits_fired: bool,
+    all_implicit_fired: bool,
     blocked: bool,
 }
 
@@ -25,7 +25,7 @@ impl TriggerTracker {
             any_explicit_fired: false,
             found_active: false,
             found_implicit: false,
-            all_implicits_fired: true,
+            all_implicit_fired: true,
             blocked: false,
         }
     }
@@ -70,7 +70,7 @@ impl TriggerTracker {
                 }
                 ConditionKind::Implicit => {
                     self.found_implicit = true;
-                    self.all_implicits_fired &= state == TriggerState::Fired;
+                    self.all_implicit_fired &= state == TriggerState::Fired;
                     self.found_active |= state != TriggerState::None;
                 }
                 ConditionKind::Blocker => {
@@ -93,7 +93,7 @@ impl TriggerTracker {
             }
         }
 
-        if (!self.found_explicit || self.any_explicit_fired) && self.all_implicits_fired {
+        if (!self.found_explicit || self.any_explicit_fired) && self.all_implicit_fired {
             TriggerState::Fired
         } else if self.found_active {
             TriggerState::Ongoing
@@ -138,7 +138,7 @@ impl TriggerTracker {
         self.any_explicit_fired |= other.any_explicit_fired;
         self.found_active |= other.found_active;
         self.found_implicit |= other.found_implicit;
-        self.all_implicits_fired &= other.all_implicits_fired;
+        self.all_implicit_fired &= other.all_implicit_fired;
         self.blocked |= other.blocked;
     }
 }
