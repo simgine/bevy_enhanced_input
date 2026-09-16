@@ -409,7 +409,7 @@ use context::{
     input_reader::{self, ConsumedInputs, PendingBindings},
 };
 use modifier::fns::ModifierRegistry;
-use prelude::{Press, Release, *};
+use prelude::*;
 
 /// Initializes contexts and feeds inputs to them.
 ///

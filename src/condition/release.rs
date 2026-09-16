@@ -5,9 +5,7 @@ use crate::prelude::*;
 
 /// Returns [`TriggerState::Ongoing`] when the input exceeds the actuation threshold and
 /// [`TriggerState::Fired`] once when the input drops back below the actuation threshold.
-///
-/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
-/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Release}`.
+
 #[derive(Component, Debug, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",
