@@ -314,9 +314,6 @@ impl<A: InputAction> Copy for Fire<A> {}
 
 /// Triggers when action switches its state from [`TriggerState::Ongoing`] to [`TriggerState::None`].
 ///
-/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
-/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Cancel}`.
-///
 /// See [`ActionEvents`] for all transitions.
 ///
 /// # Examples
@@ -327,7 +324,7 @@ impl<A: InputAction> Copy for Fire<A> {}
 ///
 /// ```
 /// # use bevy::prelude::*;
-/// # use bevy_enhanced_input::prelude::{*, Cancel};
+/// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
 /// app.add_observer(weak_attack);
 ///

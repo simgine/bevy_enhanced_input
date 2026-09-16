@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use log::{debug, warn};
 
-use crate::prelude::{Cancel, *};
+use crate::prelude::*;
 
 /// Functions for type `A` associated with [`Action<A>`] component.
 ///

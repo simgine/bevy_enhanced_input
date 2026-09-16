@@ -1,5 +1,5 @@
 use bevy::{ecs::entity_disabling::Disabled, input::InputPlugin, prelude::*};
-use bevy_enhanced_input::prelude::{Release, *};
+use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
 #[test]
