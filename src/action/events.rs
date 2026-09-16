@@ -314,7 +314,6 @@ impl<A: InputAction> Copy for Fire<A> {}
 
 /// Triggers when action switches its state from [`TriggerState::Ongoing`] to [`TriggerState::None`].
 ///
-
 /// See [`ActionEvents`] for all transitions.
 ///
 /// # Examples
