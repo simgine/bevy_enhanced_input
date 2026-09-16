@@ -333,8 +333,8 @@ impl InputReader<'_, '_> {
 /// # Examples
 ///
 /// Disables mouse buttons for actions when the cursor hovers a node with
-/// a [`Hovered`](bevy::picking::hover::Hovered) component. Add it to UI
-/// nodes that should disable mouse actions on hover.
+/// a `Hovered` component. Add it to UI nodes that should disable mouse
+/// actions on hover.
 ///
 /// ```
 /// use bevy::{prelude::*, picking::hover::Hovered};
