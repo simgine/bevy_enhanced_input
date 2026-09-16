@@ -84,7 +84,7 @@ impl StateContextAppExt for App {
 }
 
 fn sync_on_insert<C: Component, S: States>(
-    insert: On<Insert, ActiveInStates<C, S>>,
+    insert: On<Insert<ActiveInStates<C, S>>>,
     mut commands: Commands,
     // The state resource may be absent for inactive substates or computed states.
     current_state: Option<Res<State<S>>>,

@@ -276,10 +276,10 @@ fn apply_input(
     mut players: Query<(&mut Transform, &Actions<Player>)>,
 ) {
     for (mut transform, actions) in &mut players {
-        let Some(jump_events) = jumps.iter_many(actions).next() else {
+        let Some(jump_events) = jumps.iter_many(actions).matched().next() else {
             continue;
         };
-        let Some(movement) = movements.iter_many(actions).next() else {
+        let Some(movement) = movements.iter_many(actions).matched().next() else {
             continue;
         };
 

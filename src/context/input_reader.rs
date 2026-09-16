@@ -5,10 +5,12 @@ use core::{any::TypeId, hash::Hash, iter, mem};
 
 use bevy::{
     ecs::{schedule::ScheduleLabel, system::SystemParam},
-    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll, MouseScrollUnit},
+    input::mouse::{
+        AccumulatedMouseMotion, AccumulatedMouseScroll, MouseScrollPixelsPerLine, MouseScrollUnit,
+    },
     platform::collections::HashSet,
     prelude::*,
-    utils::TypeIdMap,
+    utils::TypeIdHashMap,
 };
 use log::{debug, trace};
 
@@ -27,6 +29,7 @@ pub(crate) struct InputReader<'w, 's> {
     mouse_buttons: Option<Res<'w, ButtonInput<MouseButton>>>,
     mouse_motion: Option<Res<'w, AccumulatedMouseMotion>>,
     mouse_scroll: Option<Res<'w, AccumulatedMouseScroll>>,
+    mouse_scroll_conversion: Res<'w, MouseScrollPixelsPerLine>,
     gamepads: Query<'w, 's, &'static Gamepad>,
     action_sources: Res<'w, ActionSources>,
     custom_inputs: Res<'w, CustomInputs>,
@@ -125,13 +128,10 @@ impl InputReader<'_, '_> {
 
                 self.mouse_scroll
                     .as_ref()
-                    .map(|s|
-                        // Get a scroll amount proportional to the kind of input that generated it.
-                        match s.unit {
-                            MouseScrollUnit::Line => s.delta,
-                            MouseScrollUnit::Pixel => s.delta / MouseScrollUnit::SCROLL_UNIT_CONVERSION_FACTOR,
-                        }
-                    )
+                    .map(|s| match s.unit {
+                        MouseScrollUnit::Line => s.delta,
+                        MouseScrollUnit::Pixel => s.delta / *self.mouse_scroll_conversion,
+                    })
                     .unwrap_or_default()
                     .into()
             }
@@ -385,7 +385,7 @@ impl Default for ActionSources {
 /// to correctly handle inputs it consumes itself, while still treating inputs consumed in
 /// [`PreUpdate`] as already consumed for all runs within the same frame.
 #[derive(Resource, Default, Deref, DerefMut)]
-pub(crate) struct ConsumedInputs(TypeIdMap<IgnoredInputs>);
+pub(crate) struct ConsumedInputs(TypeIdHashMap<IgnoredInputs>);
 
 /// Bindings from actions with [`ActionSettings::require_reset`] enabled that were removed.
 ///
@@ -1034,6 +1034,7 @@ mod tests {
         world.init_resource::<Axis<GamepadAxis>>();
         world.init_resource::<AccumulatedMouseMotion>();
         world.init_resource::<AccumulatedMouseScroll>();
+        world.init_resource::<MouseScrollPixelsPerLine>();
         world.init_resource::<ConsumedInputs>();
         world.init_resource::<PendingBindings>();
         world.init_resource::<ActionSources>();

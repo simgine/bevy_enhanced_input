@@ -35,7 +35,7 @@ impl InputModifierAppExt for App {
 }
 
 fn register_modifier<M: InputModifier + Component<Mutability = Mutable>>(
-    add: On<Add, M>,
+    add: On<Add<M>>,
     mut modifiers: Query<&mut ModifierFns, Allow<Disabled>>,
 ) {
     let mut fns = modifiers.get_mut(add.entity).unwrap();
@@ -43,7 +43,7 @@ fn register_modifier<M: InputModifier + Component<Mutability = Mutable>>(
 }
 
 fn unregister_modifier<M: InputModifier + Component<Mutability = Mutable>>(
-    remove: On<Remove, M>,
+    remove: On<Remove<M>>,
     mut modifiers: Query<&mut ModifierFns, Allow<Disabled>>,
 ) {
     let mut fns = modifiers.get_mut(remove.entity).unwrap();
