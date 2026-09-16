@@ -76,6 +76,12 @@ impl Clamp {
     }
 }
 
+impl Default for Clamp {
+    fn default() -> Self {
+        Self::splat(f32::MIN, f32::MAX)
+    }
+}
+
 impl InputModifier for Clamp {
     fn transform(
         &mut self,

@@ -49,6 +49,12 @@ impl HoldAndRelease {
     }
 }
 
+impl Default for HoldAndRelease {
+    fn default() -> Self {
+        Self::new(0.5)
+    }
+}
+
 impl InputCondition for HoldAndRelease {
     fn evaluate(
         &mut self,

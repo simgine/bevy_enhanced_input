@@ -52,6 +52,7 @@ struct DoubleClick;
 struct Menu;
 ```
 */
+// TODO
 #[derive(Component, Default, Debug, Clone)]
 #[cfg_attr(
     feature = "reflect",
@@ -215,7 +216,7 @@ impl InputCondition for Combo {
 }
 
 /// An action with associated events that progress [`Combo`].
-#[derive(Debug, Clone, Copy)]
+#[derive(FromTemplate, Debug, Clone, Copy)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug))]
 pub struct ComboStep {
     /// Associated action.
@@ -265,7 +266,7 @@ impl From<Entity> for ComboStep {
 }
 
 /// An action with associated events that cancel a [`Combo`].
-#[derive(Debug, Clone, Copy)]
+#[derive(FromTemplate, Debug, Clone, Copy)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Debug))]
 pub struct CancelAction {
     /// Associated action.

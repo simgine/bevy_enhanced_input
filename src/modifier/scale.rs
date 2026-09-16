@@ -27,6 +27,12 @@ impl Scale {
     }
 }
 
+impl Default for Scale {
+    fn default() -> Self {
+        Self { factor: Vec3::ONE }
+    }
+}
+
 impl InputModifier for Scale {
     fn transform(
         &mut self,

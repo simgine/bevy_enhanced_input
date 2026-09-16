@@ -27,6 +27,12 @@ impl ExponentialCurve {
     }
 }
 
+impl Default for ExponentialCurve {
+    fn default() -> Self {
+        Self::splat(1.0)
+    }
+}
+
 impl InputModifier for ExponentialCurve {
     fn transform(
         &mut self,
