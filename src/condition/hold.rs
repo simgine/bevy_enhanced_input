@@ -60,6 +60,12 @@ impl Hold {
     }
 }
 
+impl Default for Hold {
+    fn default() -> Self {
+        Self::new(1.0)
+    }
+}
+
 impl InputCondition for Hold {
     fn evaluate(
         &mut self,

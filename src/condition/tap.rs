@@ -52,6 +52,12 @@ impl Tap {
     }
 }
 
+impl Default for Tap {
+    fn default() -> Self {
+        Self::new(0.2)
+    }
+}
+
 impl InputCondition for Tap {
     fn evaluate(
         &mut self,
