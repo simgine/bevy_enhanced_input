@@ -1,13 +1,13 @@
 use core::time::Duration;
 
-use bevy::{prelude::*, time::TimeUpdateStrategy};
+use bevy::{input::InputPlugin, prelude::*, time::TimeUpdateStrategy};
 use bevy_enhanced_input::{context::ExternallyMocked, prelude::*};
 use test_log::test;
 
 #[test]
 fn updates() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
@@ -43,7 +43,7 @@ fn updates() {
 #[test]
 fn duration() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .insert_resource(TimeUpdateStrategy::ManualDuration(Duration::from_millis(1)))
         .add_input_context::<TestContext>()
         .finish();
@@ -90,7 +90,7 @@ fn duration() {
 #[test]
 fn manual() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
@@ -135,7 +135,7 @@ fn manual() {
 #[test]
 fn external_mock() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
@@ -168,7 +168,7 @@ fn external_mock() {
 #[test]
 fn entity_command() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
@@ -211,7 +211,7 @@ fn entity_command() {
 #[test]
 fn world_entity() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 

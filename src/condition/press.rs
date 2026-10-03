@@ -6,9 +6,7 @@ use crate::prelude::*;
 /// Like [`super::press::Down`] but returns [`TriggerState::Fired`] only once until the next actuation.
 ///
 /// Holding the input will not cause further triggers.
-///
-/// Note that both `bevy::prelude::*` and `bevy_enhanced_input::prelude::*` export a type with this name.
-/// To disambiguate, import `bevy_enhanced_input::prelude::{*, Press}`.
+
 #[derive(Component, Debug, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",

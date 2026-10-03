@@ -10,7 +10,7 @@ use bevy::{
     input::gamepad::{GamepadConnection, GamepadConnectionEvent},
     prelude::*,
 };
-use bevy_enhanced_input::prelude::{Press, *};
+use bevy_enhanced_input::prelude::*;
 
 const BORDER_WIDTH: f32 = 650.0;
 const STROKE_WIDTH: f32 = 5.0;

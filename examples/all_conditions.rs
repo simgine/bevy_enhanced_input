@@ -6,7 +6,7 @@
 //! Press keys from the number row on the keyboard to trigger actions and observe the output in console.
 
 use bevy::{ecs::spawn::SpawnWith, log::LogPlugin, prelude::*};
-use bevy_enhanced_input::prelude::{Press, Release, *};
+use bevy_enhanced_input::prelude::*;
 
 fn main() {
     // Setup logging to display triggered events.

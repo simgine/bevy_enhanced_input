@@ -1,11 +1,11 @@
-use bevy::prelude::*;
+use bevy::{input::InputPlugin, prelude::*};
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
 #[test]
 fn with_value() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
@@ -31,7 +31,7 @@ fn with_value() {
 #[test]
 fn no_value() {
     let mut app = App::new();
-    app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+    app.add_plugins((MinimalPlugins, InputPlugin, EnhancedInputPlugin))
         .add_input_context::<TestContext>()
         .finish();
 
