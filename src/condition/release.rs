@@ -5,7 +5,6 @@ use crate::prelude::*;
 
 /// Returns [`TriggerState::Ongoing`] when the input exceeds the actuation threshold and
 /// [`TriggerState::Fired`] once when the input drops back below the actuation threshold.
-
 #[derive(Component, Debug, Clone, Copy)]
 #[cfg_attr(
     feature = "reflect",
