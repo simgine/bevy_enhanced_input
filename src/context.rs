@@ -514,8 +514,8 @@ fn update<S: ScheduleLabel>(
 
         reader.set_gamepad(gamepad);
 
-        let mut actions_iter = actions.iter_many_mut(&*context_actions);
-        while let Some(Ok((
+        let mut actions_iter = actions.iter_many_mut(&*context_actions).matched();
+        while let Some((
             action,
             action_name,
             action_settings,
@@ -523,7 +523,7 @@ fn update<S: ScheduleLabel>(
             modifiers,
             conditions,
             mut mock,
-        ))) = actions_iter.fetch_next()
+        )) = actions_iter.fetch_next()
         {
             let action_name = ShortName(action_name);
             let (new_state, new_value) = if !context_active {
@@ -558,15 +558,16 @@ fn update<S: ScheduleLabel>(
                 let dim = actions_data.get(action).map(|(v, ..)| v.dim()).unwrap();
                 let actions_data = actions_data.as_readonly();
                 let mut tracker = TriggerTracker::new(ActionValue::zero(dim));
-                let mut bindings_iter =
-                    bindings.iter_many_mut(action_bindings.into_iter().flatten());
-                while let Some(Ok((
+                let mut bindings_iter = bindings
+                    .iter_many_mut(action_bindings.into_iter().flatten())
+                    .matched();
+                while let Some((
                     binding_entity,
                     &binding,
                     mut first_activation,
                     modifiers,
                     conditions,
-                ))) = bindings_iter.fetch_next()
+                )) = bindings_iter.fetch_next()
                 {
                     let new_value = reader.value(binding);
                     if action_settings.require_reset && **first_activation {
@@ -703,8 +704,8 @@ fn apply<S: ScheduleLabel>(
             instance.entity(),
         );
 
-        let mut actions_iter = actions.iter_many_mut(context_actions);
-        while let Some(Ok(mut action)) = actions_iter.fetch_next() {
+        let mut actions_iter = actions.iter_many_mut(context_actions).matched();
+        while let Some(mut action) = actions_iter.fetch_next() {
             let fns = *action.get::<ActionFns>().unwrap();
             let value = *action.get::<ActionValue>().unwrap();
             fns.store_value(&mut action, value);
