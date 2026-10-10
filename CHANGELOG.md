@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Capture input that is pressed and released within a single frame.
+- Evaluate the actions of a context and the bindings of an action that come after an entity that is not an action or a binding. Since the update to Bevy 0.20, evaluation stopped at the first such entity.
 
 ## [0.26.0] - 2026-06-20
 
