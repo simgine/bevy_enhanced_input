@@ -10,10 +10,6 @@
 use core::fmt::Write;
 
 use bevy::{
-    ecs::{
-        relationship::RelatedSpawner,
-        spawn::{SpawnIter, SpawnWith, SpawnableList},
-    },
     input::{ButtonState, common_conditions::*, keyboard::KeyboardInput, mouse::MouseButtonInput},
     log::LogPlugin,
     picking::hover::Hovered,
@@ -70,44 +66,42 @@ const PANEL_BACKGROUND: BackgroundColor = BackgroundColor(Color::srgb(0.8, 0.8, 
 const DARK_TEXT: TextColor = TextColor(Color::srgb(0.1, 0.1, 0.1));
 
 fn setup(mut commands: Commands, settings: Res<InputSettings>) {
-    commands.spawn(player_bundle(settings.clone()));
+    commands.spawn_scene(player_scene(settings.clone()));
     commands.spawn(Camera2d);
 
     // We use separate root node to let dialogs cover the whole UI.
-    commands.spawn((
+    commands.spawn_scene(bsn! {
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
-            ..Default::default()
-        },
-        children![(
+        }
+        Children [
             Node {
                 flex_direction: FlexDirection::Column,
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 padding: PADDING,
                 row_gap: GAP,
-                ..Default::default()
-            },
-            children![
-                actions_grid_bundle(settings.clone()),
-                (
-                    Node {
-                        align_items: AlignItems::End,
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(100.0),
-                        justify_content: JustifyContent::End,
-                        ..Default::default()
-                    },
-                    Children::spawn(SpawnWith(|spawner: &mut ChildSpawner| {
-                        spawner
-                            .spawn((SettingsButton, children![Text::new("Apply")]))
-                            .observe(apply);
-                    })),
-                )
+            }
+            Children [
+                @actions_grid_scene(settings.clone())
+                --
+                Node {
+                    align_items: AlignItems::End,
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    justify_content: JustifyContent::End,
+                }
+                Children [
+                    SettingsButton
+                    Children [
+                        Text::new("Apply")
+                    ]
+                    on(apply)
+                ]
             ]
-        )],
-    ));
+        ]
+    });
 }
 
 /// Returns name of the field.
@@ -128,72 +122,84 @@ macro_rules! field_name {
 /// binding is associated.
 ///
 /// Used to utilize reflection when applying settings.
-#[derive(Component, Clone, Copy)]
+#[derive(Component, FromTemplate, Clone, Copy)]
 struct BindingInfo {
     field_name: &'static str,
     index: usize,
 }
 
-fn actions_grid_bundle(settings: InputSettings) -> impl Bundle {
-    (
+fn actions_grid_scene(settings: InputSettings) -> impl Scene {
+    bsn! {
         Node {
             display: Display::Grid,
             column_gap: GAP,
             row_gap: GAP,
-            grid_template_columns: vec![GridTrack::auto(); BINDINGS_COUNT + 1],
-            ..Default::default()
-        },
+            grid_template_columns: {vec![GridTrack::auto(); BINDINGS_COUNT + 1]},
+        }
         // We could utilize reflection to iterate over fields, but in real
         // application you most likely want to have a nice and translatable text
         // on buttons.
-        Children::spawn((
-            action_row("Forward", field_name!(settings.forward), settings.forward),
-            action_row("Left", field_name!(settings.left), settings.left),
-            action_row(
-                "Backward",
-                field_name!(settings.backward),
-                settings.backward,
-            ),
-            action_row("Right", field_name!(settings.right), settings.right),
-            action_row("Jump", field_name!(settings.jump), settings.jump),
-            action_row("Run", field_name!(settings.run), settings.run),
-        )),
-    )
+        Children [
+            {action_row("Forward", field_name!(settings.forward), settings.forward)}
+            --
+            {action_row("Left", field_name!(settings.left), settings.left)}
+            --
+            {action_row("Backward", field_name!(settings.backward), settings.backward)}
+            --
+            {action_row("Right", field_name!(settings.right), settings.right)}
+            --
+            {action_row("Jump", field_name!(settings.jump), settings.jump)}
+            --
+            {action_row("Run", field_name!(settings.run), settings.run)}
+            --
+            {action_row("Fire", field_name!(settings.fire), settings.fire)}
+        ]
+    }
 }
 
 fn action_row(
     action_name: &'static str,
     field_name: &'static str,
     bindings: [Binding; BINDINGS_COUNT],
-) -> impl SpawnableList<ChildOf> {
-    (
-        Spawn((Text::new(action_name), DARK_TEXT)),
-        SpawnWith(move |spawner: &mut ChildSpawner| {
-            for (index, binding) in bindings.into_iter().enumerate() {
-                spawner.spawn((
-                    Node {
-                        column_gap: GAP,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
-                    Children::spawn(SpawnWith(move |spawner: &mut ChildSpawner| {
-                        let binding_button = spawner
-                            .spawn((
-                                BindingInfo { field_name, index },
-                                Name::new(action_name),
-                                BindingButton { binding },
-                                children![Text::default()], // Will be updated automatically on `BindingButton` insertion
-                            ))
-                            .observe(show_binding_dialog)
-                            .id();
-                        spawner
-                            .spawn((DeleteButton { binding_button }, children![Text::new("X")]))
-                            .observe(delete_binding);
-                    })),
-                ));
+) -> impl SceneList {
+    let cells = bindings
+        .into_iter()
+        .enumerate()
+        .map(move |(index, binding)| {
+            bsn! {
+                Node {
+                    column_gap: GAP,
+                    align_items: AlignItems::Center,
+                }
+                Children [
+                    #binding_button
+                    BindingInfo { field_name, index }
+                    Name::new(action_name)
+                    BindingButton { binding }
+                    // Will be updated automatically on `BindingButton` insertion
+                    Children [
+                        Text
+                    ]
+                    on(show_binding_dialog)
+                    --
+                    DeleteButton {
+                        binding_button: #binding_button,
+                    }
+                    Children [
+                        Text::new("X")
+                    ]
+                    on(delete_binding)
+                ]
             }
-        }),
-    )
+        })
+        .collect::<Vec<_>>();
+
+    bsn_list! {
+        Text::new(action_name)
+        DARK_TEXT
+        --
+        {cells}
+    }
 }
 
 fn delete_binding(
@@ -218,30 +224,27 @@ fn show_binding_dialog(
     let name = names.get(activate.entity).unwrap();
     info!("starting binding for '{name}'");
 
-    commands.entity(*root_entity).with_child((
+    commands.spawn_scene(bsn! {
+        ChildOf({*root_entity})
         BindingDialog {
-            binding_button: activate.entity,
-        },
-        children![(
+            binding_button: {activate.entity},
+        }
+        Children [
             Node {
                 flex_direction: FlexDirection::Column,
                 padding: PADDING,
                 row_gap: GAP,
-                ..Default::default()
-            },
-            PANEL_BACKGROUND,
-            children![(
-                TextLayout {
-                    justify: Justify::Center,
-                    ..Default::default()
-                },
-                DARK_TEXT,
-                Text::new(format!(
-                    "Binding \"{name}\", \npress any key or Esc to cancel",
-                )),
-            )]
-        )],
-    ));
+            }
+            PANEL_BACKGROUND
+            Children [
+                TextLayout { justify: Justify::Center }
+                DARK_TEXT
+                Text(format!(
+                    "Binding \"{name}\", \npress any key or Esc to cancel"
+                ))
+            ]
+        ]
+    });
 }
 
 fn bind(
@@ -273,42 +276,41 @@ fn bind(
     {
         info!("found conflict with '{name}' for '{binding}'");
 
-        commands.entity(*root_entity).with_child((
+        commands.spawn_scene(bsn! {
+            ChildOf({*root_entity})
             ConflictDialog {
-                binding_button: dialog.binding_button,
+                binding_button: {dialog.binding_button},
                 conflict_button,
-            },
-            children![(
+            }
+            Children [
                 Node {
                     flex_direction: FlexDirection::Column,
                     align_items: AlignItems::Center,
                     padding: PADDING,
                     row_gap: GAP,
-                    ..Default::default()
-                },
-                PANEL_BACKGROUND,
-                children![
-                    (
-                        DARK_TEXT,
-                        Text::new(format!("\"{binding}\" is already used by \"{name}\"",)),
-                    ),
-                    (
-                        Node {
-                            column_gap: GAP,
-                            ..Default::default()
-                        },
-                        Children::spawn(SpawnWith(|spawner: &mut RelatedSpawner<_>| {
-                            spawner
-                                .spawn((SettingsButton, children![Text::new("Replace")]))
-                                .observe(replace_binding);
-                            spawner
-                                .spawn((SettingsButton, children![Text::new("Cancel")]))
-                                .observe(cancel_replace_binding);
-                        }))
-                    )
+                }
+                PANEL_BACKGROUND
+                Children [
+                    DARK_TEXT
+                    Text(format!("\"{binding}\" is already used by \"{name}\""))
+                    --
+                    Node { column_gap: GAP }
+                    Children [
+                        SettingsButton
+                        Children [
+                            Text::new("Replace")
+                        ]
+                        on(replace_binding)
+                        --
+                        SettingsButton
+                        Children [
+                            Text::new("Cancel")
+                        ]
+                        on(cancel_replace_binding)
+                    ]
                 ]
-            )],
-        ));
+            ]
+        });
     } else {
         let (_, name, mut button) = buttons
             .get_mut(dialog.binding_button)
@@ -410,10 +412,10 @@ fn reload_bindings(
     commands
         .entity(*player)
         .despawn_related::<Actions<Player>>()
-        .insert(player_bundle(settings.clone()));
+        .apply_scene(player_scene(settings.clone()));
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 #[require(
     Button,
     Hovered,
@@ -429,7 +431,7 @@ fn reload_bindings(
 struct SettingsButton;
 
 /// Button associated with a binding.
-#[derive(Component)]
+#[derive(Component, FromTemplate, Clone)]
 #[require(SettingsButton)]
 struct BindingButton {
     /// Assigned binding.
@@ -437,7 +439,7 @@ struct BindingButton {
 }
 
 /// Button that clears the associated [`BindingButton`].
-#[derive(Component)]
+#[derive(Component, FromTemplate)]
 #[require(
     Button,
     Hovered,
@@ -470,14 +472,14 @@ struct DeleteButton {
 )]
 struct Dialog;
 
-#[derive(Component)]
+#[derive(Component, FromTemplate, Clone)]
 #[require(Dialog)]
 struct BindingDialog {
     /// Entity with [`BindingButton`] for which the dialog was triggered.
     binding_button: Entity,
 }
 
-#[derive(Component)]
+#[derive(Component, FromTemplate, Clone)]
 #[require(Dialog)]
 struct ConflictDialog {
     /// Entity with [`BindingButton`].
@@ -555,55 +557,68 @@ impl Default for InputSettings {
 #[derive(Event)]
 struct SettingsChanged;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
-fn player_bundle(settings: InputSettings) -> impl Bundle {
-    (
-        Player,
-        actions!(
-            Player[
-                (
-                    Action::<Movement>::new(),
-                    DeadZone::default(),
-                    DeltaScale::default(),
-                    Scale::splat(10.0),
-                    Bindings::spawn((
-                        Cardinal {
-                            north: settings.forward[0],
-                            east: settings.right[0],
-                            south: settings.backward[0],
-                            west: settings.left[0],
-                        },
-                        Cardinal {
-                            north: settings.forward[1],
-                            east: settings.right[1],
-                            south: settings.backward[1],
-                            west: settings.left[1],
-                        },
-                        Cardinal {
-                            north: settings.forward[2],
-                            east: settings.right[2],
-                            south: settings.backward[2],
-                            west: settings.left[2],
-                        },
-                    )),
-                ),
-                (
-                    Action::<Jump>::new(),
-                    Bindings::spawn(SpawnIter(settings.jump.into_iter())),
-                ),
-                (
-                    Action::<Run>::new(),
-                    Bindings::spawn(SpawnIter(settings.run.into_iter())),
-                ),
-                (
-                    Action::<Fire>::new(),
-                    Bindings::spawn(SpawnIter(settings.fire.into_iter())),
-                ),
+fn player_scene(settings: InputSettings) -> impl Scene {
+    bsn! {
+        Player
+        Actions<Player> [
+            Action::<Movement>::new()
+            DeadZone
+            DeltaScale
+            ~Scale::splat(10.0)
+            Bindings [
+                {preset::cardinal::new(
+                    settings.forward[0],
+                    settings.left[0],
+                    settings.backward[0],
+                    settings.right[0],
+                )}
+                --
+                {preset::cardinal::new(
+                    settings.forward[1],
+                    settings.left[1],
+                    settings.backward[1],
+                    settings.right[1],
+                )}
+                --
+                {preset::cardinal::new(
+                    settings.forward[2],
+                    settings.left[2],
+                    settings.backward[2],
+                    settings.right[2],
+                )}
             ]
-        ),
-    )
+            --
+            Action::<Jump>::new()
+            Bindings [
+                Binding({settings.jump[0]})
+                --
+                Binding({settings.jump[1]})
+                --
+                Binding({settings.jump[2]})
+            ]
+            --
+            Action::<Run>::new()
+            Bindings [
+                Binding({settings.run[0]})
+                --
+                Binding({settings.run[1]})
+                --
+                Binding({settings.run[2]})
+            ]
+            --
+            Action::<Fire>::new()
+            Bindings [
+                Binding({settings.fire[0]})
+                --
+                Binding({settings.fire[1]})
+                --
+                Binding({settings.fire[2]})
+            ]
+        ]
+    }
 }
 
 #[derive(InputAction)]

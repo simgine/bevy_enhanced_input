@@ -13,10 +13,10 @@ meaning it will trigger on any non-zero input value.
 # Examples
 
 ```
-use bevy::prelude::*;
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
 #[derive(InputAction)]
@@ -27,26 +27,33 @@ struct Jump;
 #[action_output(bool)]
 struct Fire;
 
-let mut world = World::new();
-world.spawn((
-    Player,
-    actions!(Player[
-        (
-            // The action will trigger only if held for 1 second.
-            Action::<Jump>::new(),
-            Hold::new(1.0),
-            bindings![KeyCode::Space, GamepadButton::South],
-        ),
-        (
-            Action::<Fire>::new(),
-            Pulse::new(0.5), // The action will trigger every 0.5 seconds while held.
-            bindings![
-                (GamepadButton::RightTrigger2, Down::new(0.3)), // Additionally the right trigger only counts if its value is greater than 0.3.
-                MouseButton::Left,
-            ]
-        ),
-    ])
-));
+# let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+let world = app.world_mut();
+world.spawn_scene(bsn! {
+    Player
+    Actions<Player> [
+        Action::<Jump>::new()
+        // The action will trigger only if held for 1 second.
+        ~Hold::new(1.0)
+        Bindings [
+            Binding(KeyCode::Space)
+            --
+            Binding(GamepadButton::South)
+        ]
+        --
+        Action::<Fire>::new()
+        // The action will trigger every 0.5 seconds while held.
+        ~Pulse::new(0.5)
+        Bindings [
+            Binding(GamepadButton::RightTrigger2)
+            // Additionally the right trigger only counts if its value is greater than 0.3.
+            Down::new(0.3)
+            --
+            Binding(MouseButton::Left)
+        ]
+    ]
+}).unwrap();
 ```
 */
 

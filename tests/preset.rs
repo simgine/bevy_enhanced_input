@@ -1,4 +1,4 @@
-use bevy::{input::InputPlugin, prelude::*};
+use bevy::{input::InputPlugin, prelude::*, scene::ScenePlugin};
 use bevy_enhanced_input::prelude::*;
 use test_log::test;
 
@@ -35,6 +35,53 @@ fn keys() {
         ),
     ));
 
+    assert_keys(&mut app);
+}
+
+#[test]
+fn keys_bsn() {
+    let mut app = App::new();
+    app.add_plugins((
+        MinimalPlugins,
+        AssetPlugin::default(),
+        ScenePlugin,
+        InputPlugin,
+        EnhancedInputPlugin,
+    ))
+    .add_input_context::<TestContext>()
+    .finish();
+
+    app.world_mut()
+        .spawn_scene(bsn! {
+            TestContext
+            Actions<TestContext> [
+                Action::<Test>::new()
+                Bindings [
+                    {preset::cardinal::wasd_keys()}
+                    --
+                    {preset::cardinal::arrows()}
+                    --
+                    {preset::bidirectional::new(KeyCode::NumpadAdd, KeyCode::NumpadSubtract)}
+                    --
+                    {preset::spatial::new(
+                        KeyCode::Digit0,
+                        KeyCode::Digit1,
+                        KeyCode::Digit2,
+                        KeyCode::Digit3,
+                        KeyCode::Digit4,
+                        KeyCode::Digit5,
+                    )}
+                    --
+                    {preset::ordinal::numpad()}
+                ]
+            ]
+        })
+        .unwrap();
+
+    assert_keys(&mut app);
+}
+
+fn assert_keys(app: &mut App) {
     app.update();
 
     let mut actions = app.world_mut().query::<&Action<Test>>();
@@ -95,6 +142,40 @@ fn dpad() {
         actions!(TestContext[(Action::<Test>::new(), Bindings::spawn(Cardinal::dpad()))]),
     ));
 
+    assert_dpad(&mut app, gamepad_entity);
+}
+
+#[test]
+fn dpad_bsn() {
+    let mut app = App::new();
+    app.add_plugins((
+        MinimalPlugins,
+        AssetPlugin::default(),
+        ScenePlugin,
+        InputPlugin,
+        EnhancedInputPlugin,
+    ))
+    .add_input_context::<TestContext>()
+    .finish();
+
+    let gamepad_entity = app.world_mut().spawn(Gamepad::default()).id();
+    app.world_mut()
+        .spawn_scene(bsn! {
+            TestContext
+            ~GamepadDevice::Single(gamepad_entity)
+            Actions<TestContext> [
+                Action::<Test>::new()
+                Bindings [
+                    {preset::cardinal::dpad()}
+                ]
+            ]
+        })
+        .unwrap();
+
+    assert_dpad(&mut app, gamepad_entity);
+}
+
+fn assert_dpad(app: &mut App, gamepad_entity: Entity) {
     app.update();
 
     let mut actions = app.world_mut().query::<&Action<Test>>();
@@ -138,6 +219,42 @@ fn sticks() {
         ),
     ));
 
+    assert_sticks(&mut app, gamepad_entity);
+}
+
+#[test]
+fn sticks_bsn() {
+    let mut app = App::new();
+    app.add_plugins((
+        MinimalPlugins,
+        AssetPlugin::default(),
+        ScenePlugin,
+        InputPlugin,
+        EnhancedInputPlugin,
+    ))
+    .add_input_context::<TestContext>()
+    .finish();
+
+    let gamepad_entity = app.world_mut().spawn(Gamepad::default()).id();
+    app.world_mut()
+        .spawn_scene(bsn! {
+            TestContext
+            ~GamepadDevice::Single(gamepad_entity)
+            Actions<TestContext> [
+                Action::<Test>::new()
+                Bindings [
+                    {preset::axial::left_stick()}
+                    --
+                    {preset::axial::right_stick()}
+                ]
+            ]
+        })
+        .unwrap();
+
+    assert_sticks(&mut app, gamepad_entity);
+}
+
+fn assert_sticks(app: &mut App, gamepad_entity: Entity) {
     app.update();
 
     let mut actions = app.world_mut().query::<&Action<Test>>();
@@ -175,7 +292,7 @@ const RIGHT_DOWN: Vec3 = Vec3::new(1.0, -1.0, 0.0);
 const LEFT_DOWN: Vec3 = Vec3::new(-1.0, -1.0, 0.0);
 const LEFT_UP: Vec3 = Vec3::new(-1.0, 1.0, 0.0);
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct TestContext;
 
 #[derive(InputAction)]

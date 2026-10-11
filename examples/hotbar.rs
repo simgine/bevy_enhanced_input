@@ -18,7 +18,7 @@ fn main() {
 }
 
 fn spawn(mut commands: Commands) {
-    commands.spawn((
+    commands.spawn_scene(bsn! {
         Hotbar {
             inventory: vec![
                 Some(Item::Torch),
@@ -31,22 +31,64 @@ fn spawn(mut commands: Commands) {
                 Some(Item::Map),
                 None,
             ],
-            equipped: 0,
-        },
-        Player,
-        actions!(Player[
-            (Action::<EquipItem>::new(), EquipHotbarIndex(0), bindings![KeyCode::Digit1]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(1), bindings![KeyCode::Digit2]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(2), bindings![KeyCode::Digit3]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(3), bindings![KeyCode::Digit4]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(4), bindings![KeyCode::Digit5]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(5), bindings![KeyCode::Digit6]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(6), bindings![KeyCode::Digit7]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(7), bindings![KeyCode::Digit8]),
-            (Action::<EquipItem>::new(), EquipHotbarIndex(8), bindings![KeyCode::Digit9]),
+        }
+        Player
+        Actions<Player> [
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(0)
+            Bindings [
+                Binding(KeyCode::Digit1)
             ]
-        ),
-    ));
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(1)
+            Bindings [
+                Binding(KeyCode::Digit2)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(2)
+            Bindings [
+                Binding(KeyCode::Digit3)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(3)
+            Bindings [
+                Binding(KeyCode::Digit4)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(4)
+            Bindings [
+                Binding(KeyCode::Digit5)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(5)
+            Bindings [
+                Binding(KeyCode::Digit6)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(6)
+            Bindings [
+                Binding(KeyCode::Digit7)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(7)
+            Bindings [
+                Binding(KeyCode::Digit8)
+            ]
+            --
+            Action::<EquipItem>::new()
+            EquipHotbarIndex(8)
+            Bindings [
+                Binding(KeyCode::Digit9)
+            ]
+        ]
+    });
 }
 
 fn equip(
@@ -66,7 +108,7 @@ fn equip(
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
 #[derive(InputAction)]
@@ -74,16 +116,16 @@ struct Player;
 struct EquipItem;
 
 /// The index of the hotbar slot to equip when the [`EquipItem`] action is triggered for this entity.
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct EquipHotbarIndex(usize);
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Hotbar {
     inventory: Vec<Option<Item>>,
     equipped: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Item {
     Torch,
     Sword,

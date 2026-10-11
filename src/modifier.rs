@@ -30,34 +30,36 @@ This example uses the preset modifiers to quickly create and bind a zoom action 
 and tweaks it further using both action and input-level modifiers.
 
 ```
-use bevy::prelude::*;
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct FlyCam;
 
 #[derive(InputAction)]
 #[action_output(f32)]
 struct Zoom;
 
-let mut world = World::new();
-world.spawn((
-    Camera3d::default(),
-    FlyCam,
-    actions!(FlyCam[
-        (
-            Action::<Zoom>::new(),
-            // Apply scale at the action level for all bindings.
-            Scale::splat(0.1),
-            Bindings::spawn((
-                // In Bevy, vertical scrolling maps to the Y axis,
-                // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
-                Spawn((Binding::mouse_wheel(), SwizzleAxis::YXZ)),
-                Bidirectional::new(GamepadButton::DPadUp, GamepadButton::DPadDown),
-            )),
-        ),
-    ]),
-));
+# let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+let world = app.world_mut();
+world.spawn_scene(bsn! {
+    Camera3d
+    FlyCam
+    Actions<FlyCam> [
+        Action::<Zoom>::new()
+        // Apply scale at the action level for all bindings.
+        ~Scale::splat(0.1)
+        Bindings [
+            // In Bevy, vertical scrolling maps to the Y axis,
+            // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
+            Binding::mouse_wheel()
+            ~SwizzleAxis::YXZ
+            --
+            {preset::bidirectional::new(GamepadButton::DPadUp, GamepadButton::DPadDown)}
+        ]
+    ]
+}).unwrap();
 ```
 */
 

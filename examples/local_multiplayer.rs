@@ -7,6 +7,8 @@
 //! Repeats the best practices used in `character_controller` example.
 
 use bevy::{
+    asset::HandleTemplate,
+    ecs::template::Template,
     input::gamepad::{GamepadConnection, GamepadConnectionEvent},
     prelude::*,
 };
@@ -44,65 +46,60 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    gamepads: Query<Entity, With<Gamepad>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(mut commands: Commands, gamepads: Query<Entity, With<Gamepad>>) {
     commands.spawn(Camera2d);
 
     // Border
-    let border_mesh = meshes.add(Rectangle::new(BORDER_WIDTH, STROKE_WIDTH));
-    let border_mat = materials.add(Color::WHITE);
+    let border_mesh: HandleTemplate<Mesh> = asset_value(Rectangle::new(BORDER_WIDTH, STROKE_WIDTH));
+    let border_mat: HandleTemplate<ColorMaterial> = asset_value(Color::WHITE);
 
     // Bottom
-    commands.spawn((
-        Mesh2d(border_mesh.clone()),
-        MeshMaterial2d(border_mat.clone()),
-        Transform::from_translation(Vec3::Y * (-BORDER_WIDTH / 2.0)),
-    ));
+    commands.spawn_scene(bsn! {
+        Mesh2d({border_mesh.clone_template()})
+        MeshMaterial2d<ColorMaterial>({border_mat.clone_template()})
+        ~Transform::from_translation(Vec3::Y * (-BORDER_WIDTH / 2.0))
+    });
 
     // Top
-    commands.spawn((
-        Mesh2d(border_mesh.clone()),
-        MeshMaterial2d(border_mat.clone()),
-        Transform::from_translation(Vec3::Y * (BORDER_WIDTH / 2.0)),
-    ));
+    commands.spawn_scene(bsn! {
+        Mesh2d({border_mesh.clone_template()})
+        MeshMaterial2d<ColorMaterial>({border_mat.clone_template()})
+        ~Transform::from_translation(Vec3::Y * (BORDER_WIDTH / 2.0))
+    });
 
     // Left
-    commands.spawn((
-        Mesh2d(border_mesh.clone()),
-        MeshMaterial2d(border_mat.clone()),
-        Transform::from_translation(Vec3::X * (-BORDER_WIDTH / 2.0))
-            .with_rotation(Quat::from_rotation_z(90.0f32.to_radians())),
-    ));
+    commands.spawn_scene(bsn! {
+        Mesh2d({border_mesh.clone_template()})
+        MeshMaterial2d<ColorMaterial>({border_mat.clone_template()})
+        ~Transform::from_translation(Vec3::X * (-BORDER_WIDTH / 2.0))
+            .with_rotation(Quat::from_rotation_z(90.0f32.to_radians()))
+    });
 
     // Right
-    commands.spawn((
-        Mesh2d(border_mesh),
-        MeshMaterial2d(border_mat),
-        Transform::from_translation(Vec3::X * (BORDER_WIDTH / 2.0))
-            .with_rotation(Quat::from_rotation_z(90.0f32.to_radians())),
-    ));
+    commands.spawn_scene(bsn! {
+        Mesh2d(border_mesh)
+        MeshMaterial2d<ColorMaterial>(border_mat)
+        ~Transform::from_translation(Vec3::X * (BORDER_WIDTH / 2.0))
+            .with_rotation(Quat::from_rotation_z(90.0f32.to_radians()))
+    });
 
     let mut gamepads = gamepads.iter();
     let (gamepad1, gamepad2) = (gamepads.next(), gamepads.next());
-    let ball_mesh = meshes.add(Circle::new(BALL_RAD));
+    let ball_mesh: HandleTemplate<Mesh> = asset_value(Circle::new(BALL_RAD));
 
     // Player 1
-    let material1 = materials.add(Color::srgb(0.1, 0.1, 0.9));
-    commands.spawn(player_bundle(
+    let material1 = asset_value(Color::srgb(0.1, 0.1, 0.9));
+    commands.spawn_scene(player_scene(
         Player::First,
         gamepad1,
-        ball_mesh.clone(),
+        ball_mesh.clone_template(),
         material1,
         Transform::from_xyz(-80.0, 0.0, 0.0),
     ));
 
     // Player 2
-    let material2 = materials.add(Color::srgb(0.9, 0.1, 0.1));
-    commands.spawn(player_bundle(
+    let material2 = asset_value(Color::srgb(0.9, 0.1, 0.1));
+    commands.spawn_scene(player_scene(
         Player::Second,
         gamepad2,
         ball_mesh,
@@ -110,29 +107,32 @@ fn setup(
         Transform::from_xyz(80.0, 0.0, 0.0),
     ));
 
-    commands.spawn((
-        SharedControls,
-        actions!(
-            SharedControls[(
-                Action::<Pause>::new(),
-                Press::new(1.0),
-                bindings![KeyCode::Escape, GamepadButton::Start]
-            )]
-        ),
-    ));
+    commands.spawn_scene(bsn! {
+        SharedControls
+        Actions<SharedControls> [
+            Action::<Pause>::new()
+            ~Press::new(1.0)
+            Bindings [
+                Binding(KeyCode::Escape)
+                --
+                Binding(GamepadButton::Start)
+            ]
+        ]
+    });
 
-    commands.spawn((
-        PauseText,
+    commands.spawn_scene(bsn! {
+        PauseText
         Node {
             width: percent(100),
             height: percent(100),
             align_items: AlignItems::Center,
             justify_content: JustifyContent::Center,
             display: Display::None,
-            ..Default::default()
-        },
-        children![Text::new("Paused")],
-    ));
+        }
+        Children [
+            Text::new("Paused")
+        ]
+    });
 }
 
 fn update_gamepads(
@@ -165,62 +165,74 @@ fn update_gamepads(
     }
 }
 
-fn player_bundle(
+fn player_scene(
     player: Player,
     gamepad: Option<Entity>,
-    mesh: impl Into<Mesh2d>,
-    material: impl Into<MeshMaterial2d<ColorMaterial>>,
+    mesh: HandleTemplate<Mesh>,
+    material: HandleTemplate<ColorMaterial>,
     transform: Transform,
-) -> impl Bundle {
+) -> impl Scene {
     // Assign different bindings based on the player index.
-    let dir_bindings = match player {
-        Player::First => (Cardinal::wasd_keys(), Axial::left_stick()),
-        Player::Second => (Cardinal::arrows(), Axial::left_stick()),
+    let [north, west, south, east] = match player {
+        Player::First => [KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD],
+        Player::Second => [
+            KeyCode::ArrowUp,
+            KeyCode::ArrowLeft,
+            KeyCode::ArrowDown,
+            KeyCode::ArrowRight,
+        ],
     };
-    let arm_kick_binding = match player {
-        Player::First => bindings![KeyCode::Space],
-        Player::Second => bindings![KeyCode::ShiftRight],
-    };
+    let arm_kick_binding = Binding::from(match player {
+        Player::First => KeyCode::Space,
+        Player::Second => KeyCode::ShiftRight,
+    });
 
-    (
-        player,
-        GamepadDevice::from(gamepad),
-        PlayerPhysics::default(),
-        AccumulatedInput::default(),
-        mesh.into(),
-        material.into(),
-        transform,
-        Actions::<Player>::spawn(SpawnWith(move |context: &mut ActionSpawner<_>| {
-            context.spawn((
-                Action::<Roll>::new(),
-                DeadZone::default(),
-                DeltaScale::default(),
-                Scale::splat(ACCELERATION),
-                Bindings::spawn(dir_bindings),
-            ));
-
+    bsn! {
+        player
+        ~GamepadDevice::from(gamepad)
+        PlayerPhysics
+        AccumulatedInput
+        Mesh2d(mesh)
+        MeshMaterial2d<ColorMaterial>(material)
+        transform
+        Actions<Player> [
+            Action::<Roll>::new()
+            DeadZone
+            DeltaScale
+            ~Scale::splat(ACCELERATION)
+            Bindings [
+                {preset::cardinal::new(north, west, south, east)}
+                --
+                {preset::axial::left_stick()}
+            ]
+            --
             // For controller: Kick by flicking the controller stick
-            context.spawn((
-                Action::<Kick>::new(),
-                // Replicate feel of Smash Bros., which requires the controller
-                // to flick in ~2 frames (1/30 second) for certain actions
-                Flick::new(0.0333).with_actuation(0.9),
-                Bindings::spawn(Axial::left_stick()),
-            ));
-
+            Action::<Kick>::new()
+            // Replicate feel of Smash Bros., which requires the controller
+            // to flick in ~2 frames (1/30 second) for certain actions
+            ~Flick::new(0.0333).with_actuation(0.9)
+            Bindings [
+                {preset::axial::left_stick()}
+            ]
+            --
             // As an alternative for keyboard players, kick by "arming" and then
             // pressing a movement key.
-            let arm = context
-                .spawn((Action::<ArmKick>::new(), arm_kick_binding))
-                .id();
-            context.spawn((
-                Action::<Kick>::new(),
-                Chord::single(arm),
-                Press::new(0.9),
-                Bindings::spawn(dir_bindings),
-            ));
-        })),
-    )
+            #arm
+            Action::<ArmKick>::new()
+            Bindings [
+                Binding(arm_kick_binding)
+            ]
+            --
+            Action::<Kick>::new()
+            Chord::single(#arm)
+            ~Press::new(0.9)
+            Bindings [
+                {preset::cardinal::new(north, west, south, east)}
+                --
+                {preset::axial::left_stick()}
+            ]
+        ]
+    }
 }
 
 fn accumulate_roll(roll: On<Fire<Roll>>, mut input: Query<&mut AccumulatedInput>) {
@@ -297,13 +309,13 @@ fn toggle_pause(
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 enum Player {
     First,
     Second,
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 struct PlayerPhysics {
     velocity: Vec2,
 }
@@ -320,20 +332,20 @@ struct Kick;
 #[action_output(bool)]
 struct ArmKick;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 struct AccumulatedInput {
     roll: Vec2,
     kick: Option<Vec2>,
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct SharedControls;
 
 #[derive(InputAction)]
 #[action_output(bool)]
 struct Pause;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct PauseText;
 
 /// True if FixedPreUpdate was run this frame.

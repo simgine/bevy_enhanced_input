@@ -5,7 +5,33 @@ use bevy::{
     ptr::{MovingPtr, move_as_ptr},
 };
 
+/// Maps 6 bindings as 3-dimensional input.
+///
+/// See also [`Spatial::new`] for bundle-based spawning.
+#[must_use]
+pub fn new(
+    forward: impl IntoBindingSceneBundle,
+    backward: impl IntoBindingSceneBundle,
+    left: impl IntoBindingSceneBundle,
+    right: impl IntoBindingSceneBundle,
+    up: impl IntoBindingSceneBundle,
+    down: impl IntoBindingSceneBundle,
+) -> impl SceneList {
+    let xy = super::cardinal::new(up, left, down, right);
+    let forward = forward.into_binding_scene_bundle();
+    let backward = backward.into_binding_scene_bundle();
+    bsn_list! {
+        {xy}
+        --
+        @{super::binding_scene((backward, SwizzleAxis::ZYX))}
+        --
+        @{super::binding_scene((Negate::all(), forward, SwizzleAxis::ZYX))}
+    }
+}
+
 /// A preset to map 6 buttons as 3-dimensional input.
+///
+/// See also [`new`] for BSN usage.
 #[derive(Debug, Clone, Copy)]
 pub struct Spatial<F, B, L, R, U, D> {
     pub forward: F,
@@ -33,6 +59,8 @@ impl<F, B, L, R, U, D, T: Clone> WithBundle<T> for Spatial<F, B, L, R, U, D> {
 
 impl Spatial<Binding, Binding, Binding, Binding, Binding, Binding> {
     /// Maps 6 bindings as 3-dimensional input.
+    ///
+    /// See also [`new`] for BSN usage.
     #[must_use]
     pub fn new(
         forward: impl Into<Binding>,

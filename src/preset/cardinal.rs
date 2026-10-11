@@ -6,7 +6,68 @@ use bevy::{
 
 use crate::prelude::*;
 
+/// Maps WASD keys as 2-dimensional input.
+///
+/// See also [`Cardinal::wasd_keys`] for bundle-based spawning.
+#[must_use]
+pub fn wasd_keys() -> impl SceneList {
+    new(KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD)
+}
+
+/// Maps keyboard arrow keys as 2-dimensional input.
+///
+/// See also [`Cardinal::arrows`] for bundle-based spawning.
+#[must_use]
+pub fn arrows() -> impl SceneList {
+    new(
+        KeyCode::ArrowUp,
+        KeyCode::ArrowLeft,
+        KeyCode::ArrowDown,
+        KeyCode::ArrowRight,
+    )
+}
+
+/// Maps D-pad as 2-dimensional input.
+///
+/// See also [`Cardinal::dpad`] for bundle-based spawning.
+#[must_use]
+pub fn dpad() -> impl SceneList {
+    new(
+        GamepadButton::DPadUp,
+        GamepadButton::DPadLeft,
+        GamepadButton::DPadDown,
+        GamepadButton::DPadRight,
+    )
+}
+
+/// Maps 4 bindings as 2-dimensional input.
+///
+/// See also [`Cardinal::new`] for bundle-based spawning.
+#[must_use]
+pub fn new(
+    north: impl IntoBindingSceneBundle,
+    west: impl IntoBindingSceneBundle,
+    south: impl IntoBindingSceneBundle,
+    east: impl IntoBindingSceneBundle,
+) -> impl SceneList {
+    let north = north.into_binding_scene_bundle();
+    let west = west.into_binding_scene_bundle();
+    let south = south.into_binding_scene_bundle();
+    let east = east.into_binding_scene_bundle();
+    bsn_list! {
+        @{super::binding_scene(east)}
+        --
+        @{super::binding_scene((Negate::all(), west))}
+        --
+        @{super::binding_scene((north, SwizzleAxis::YXZ))}
+        --
+        @{super::binding_scene((Negate::all(), south, SwizzleAxis::YXZ))}
+    }
+}
+
 /// A preset to 4 map buttons as 2-dimensional input.
+///
+/// See also [`new`] for BSN usage.
 ///
 /// In Bevy's 3D space, the -Z axis points forward and the +Z axis points
 /// toward the camera. To map movement correctly in 3D space for [`Transform::translation`],
@@ -34,12 +95,16 @@ impl<N, E, S, W, T: Clone> WithBundle<T> for Cardinal<N, E, S, W> {
 
 impl Cardinal<Binding, Binding, Binding, Binding> {
     /// Maps WASD keys as 2-dimensional input.
+    ///
+    /// See also [`wasd_keys`] for BSN usage.
     #[must_use]
     pub fn wasd_keys() -> Self {
         Self::new(KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD)
     }
 
     /// Maps keyboard arrow keys as 2-dimensional input.
+    ///
+    /// See also [`arrows`] for BSN usage.
     #[must_use]
     pub fn arrows() -> Self {
         Self::new(
@@ -51,6 +116,8 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     }
 
     /// Maps 4 bindings as 2-dimensional input.
+    ///
+    /// See also [`new`] for BSN usage.
     #[must_use]
     pub fn new(
         north: impl Into<Binding>,
@@ -80,6 +147,8 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
 
 impl Cardinal<Binding, Binding, Binding, Binding> {
     /// Maps D-pad as 2-dimensional input.
+    ///
+    /// See also [`dpad`] for BSN usage.
     #[must_use]
     pub fn dpad() -> Self {
         Self {

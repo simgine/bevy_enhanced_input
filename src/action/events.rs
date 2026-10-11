@@ -99,15 +99,21 @@ impl ActionEvents {
 /// Throw an item on the first frame when the button is pressed.
 ///
 /// ```
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 /// app.add_observer(throw);
 ///
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[Action::<Throw>::new(), bindings![KeyCode::KeyF]]),
-/// ));
+/// app.world_mut().spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<Throw>::new()
+///         Bindings [
+///             Binding(KeyCode::KeyF)
+///         ]
+///     ]
+/// }).unwrap();
 ///
 /// /// Triggered only once on the first press, similar to `just_pressed` in `bevy_input`.
 /// ///
@@ -115,7 +121,7 @@ impl ActionEvents {
 /// fn throw(throw: On<Start<Throw>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component)]
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -171,28 +177,29 @@ impl<A: InputAction> Copy for Start<A> {}
 /// Can be paired with [`Complete`] to apply a bonus healing when the hold duration is met.
 ///
 /// ```
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 /// app.add_observer(heal);
 ///
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[
-///         (
-///             Action::<Heal>::new(),
-///             Hold::new(2.0), // The action lasts for 2.0 seconds.
-///             bindings![KeyCode::KeyH],
-///         ),
-///     ])
-/// ));
+/// app.world_mut().spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<Heal>::new()
+///         ~Hold::new(2.0) // The action lasts for 2.0 seconds.
+///         Bindings [
+///             Binding(KeyCode::KeyH)
+///         ]
+///     ]
+/// }).unwrap();
 ///
 /// /// Triggered continuously while the user is holding down the button,
 /// /// until the specified duration is reached.
 /// fn heal(heal: On<Ongoing<Heal>>, players: Query<&mut Health>) {
 ///     // ..
 /// }
-/// # #[derive(Component)]
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -249,21 +256,27 @@ impl<A: InputAction> Copy for Ongoing<A> {}
 /// Continuously fires while the button is held down.
 ///
 /// ```
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 /// app.add_observer(primary_fire);
 ///
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
-/// ));
+/// app.world_mut().spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<PrimaryFire>::new()
+///         Bindings [
+///             Binding(MouseButton::Left)
+///         ]
+///     ]
+/// }).unwrap();
 ///
 /// /// Triggered every frame while the key is held down.
 /// fn primary_fire(fire: On<Fire<PrimaryFire>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component)]
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -323,27 +336,28 @@ impl<A: InputAction> Copy for Fire<A> {}
 ///
 ///
 /// ```
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 /// app.add_observer(weak_attack);
 ///
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[
-///         (
-///             Action::<SecondaryAttack>::new(),
-///             Hold::new(1.5), // User needs to hold the button for 1.5 seconds.
-///             bindings![MouseButton::Left],
-///         ),
-///     ])
-/// ));
+/// app.world_mut().spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<SecondaryAttack>::new()
+///         ~Hold::new(1.5) // User needs to hold the button for 1.5 seconds.
+///         Bindings [
+///             Binding(MouseButton::Left)
+///         ]
+///     ]
+/// }).unwrap();
 ///
 /// /// Triggered if the user releases the key before 1.5 seconds.
 /// fn weak_attack(attack: On<Cancel<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component)]
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;
@@ -397,21 +411,27 @@ impl<A: InputAction> Copy for Cancel<A> {}
 /// Perform a jump when the button is released.
 ///
 /// ```
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 /// app.add_observer(jump);
 ///
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[Action::<Jump>::new(), bindings![KeyCode::Space]]),
-/// ));
+/// app.world_mut().spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<Jump>::new()
+///         Bindings [
+///             Binding(KeyCode::Space)
+///         ]
+///     ]
+/// }).unwrap();
 ///
 /// /// Triggered only once when the user releases the key, similar to `just_released` in `bevy_input`.
 /// fn jump(jump: On<Complete<Jump>>, players: Query<&mut Transform>) {
 ///     // ...
 /// }
-/// # #[derive(Component)]
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(bool)]
@@ -421,27 +441,28 @@ impl<A: InputAction> Copy for Cancel<A> {}
 /// Perform a strong attack after holding the button enough with the [`Hold`] condition.
 ///
 /// ```
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 /// app.add_observer(strong_attack);
 ///
-/// app.world_mut().spawn((
-///     Player,
-///     actions!(Player[
-///         (
-///             Action::<SecondaryAttack>::new(),
-///             Hold::new(1.5), // User needs to hold the button for 1.5 seconds.
-///             bindings![MouseButton::Left],
-///         ),
-///     ])
-/// ));
+/// app.world_mut().spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<SecondaryAttack>::new()
+///         ~Hold::new(1.5) // User needs to hold the button for 1.5 seconds.
+///         Bindings [
+///             Binding(MouseButton::Left)
+///         ]
+///     ]
+/// }).unwrap();
 ///
 /// /// Triggered if the user releases the key before 1.5 seconds.
 /// fn strong_attack(attack: On<Complete<SecondaryAttack>>, players: Query<(&Transform, &mut Health)>) {
 ///     // ...
 /// }
-/// # #[derive(Component)]
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(Component)]
 /// # struct Health;

@@ -29,26 +29,34 @@ fn main() {
 }
 
 fn spawn(mut commands: Commands) {
-    commands.spawn((
-        Player,
-        actions!(Player[
-            (
-                Action::<Movement>::new(),
-                DeadZone::default(),
-                DeltaScale::default(),
-                Scale::splat(10.0),
-                Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-            ),
-            (
-                Action::<Jump>::new(),
-                bindings![KeyCode::Space, GamepadButton::South]
-            ),
-            (
-                Action::<EnterCar>::new(),
-                bindings![KeyCode::Enter, GamepadButton::North]
-            ),
-        ]),
-    ));
+    commands.spawn_scene(bsn! {
+        Player
+        Actions<Player> [
+            Action::<Movement>::new()
+            DeadZone
+            DeltaScale
+            ~Scale::splat(10.0)
+            Bindings [
+                {preset::cardinal::wasd_keys()}
+                --
+                {preset::axial::left_stick()}
+            ]
+            --
+            Action::<Jump>::new()
+            Bindings [
+                Binding(KeyCode::Space)
+                --
+                Binding(GamepadButton::South)
+            ]
+            --
+            Action::<EnterCar>::new()
+            Bindings [
+                Binding(KeyCode::Enter)
+                --
+                Binding(GamepadButton::North)
+            ]
+        ]
+    });
 }
 
 fn apply_movement(movement: On<Fire<Movement>>) {
@@ -64,28 +72,32 @@ fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
     // preventing `Rotate` and `EnterCar` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
-    commands.entity(enter.context).insert((
-        Driving,
-        ContextPriority::<Driving>::new(1),
-        actions!(Driving[
-            (
-                Action::<Brake>::new(),
-                bindings![KeyCode::Space, GamepadButton::South]
-            ),
-            (
-                Action::<ExitCar>::new(),
-                ActionSettings {
-                    // We set `require_reset` to `true` because `EnterCar` action uses the same input,
-                    // and we want it to be triggerable only after the button is released.
-                    require_reset: true,
-                    // We also set `consume_input` to `true` otherwise, we would immediately re-trigger `EnterCar`.
-                    consume_input: true,
-                    ..Default::default()
-                },
-                bindings![KeyCode::Enter, GamepadButton::North]
-            ),
-        ]),
-    ));
+    commands.entity(enter.context).apply_scene(bsn! {
+        Driving
+        ~ContextPriority::<Driving>::new(1)
+        Actions<Driving> [
+            Action::<Brake>::new()
+            Bindings [
+                Binding(KeyCode::Space)
+                --
+                Binding(GamepadButton::South)
+            ]
+            --
+            Action::<ExitCar>::new()
+            ActionSettings {
+                // We set `require_reset` to `true` because `EnterCar` action uses the same input,
+                // and we want it to be triggerable only after the button is released.
+                require_reset: true,
+                // We also set `consume_input` to `true` otherwise, we would immediately re-trigger `EnterCar`.
+                consume_input: true,
+            }
+            Bindings [
+                Binding(KeyCode::Enter)
+                --
+                Binding(GamepadButton::North)
+            ]
+        ]
+    });
 }
 
 fn brake(_on: On<Fire<Brake>>) {
@@ -100,7 +112,7 @@ fn exit_car(exit: On<Start<ExitCar>>, mut commands: Commands) {
         .despawn_related::<Actions<Driving>>();
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
 #[derive(InputAction)]
@@ -117,7 +129,7 @@ struct Jump;
 struct EnterCar;
 
 /// Overrides some actions from [`Player`].
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Driving;
 
 /// This action overrides [`Jump`] when the player is [`Driving`].

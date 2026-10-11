@@ -14,20 +14,24 @@ use crate::prelude::*;
 /// use bevy::prelude::*;
 /// use bevy_enhanced_input::prelude::*;
 ///
-/// actions!(Ui[
-///     (
-///         Action::<Up>::new(),
-///         Clamp::pos(),
-///         bindings![GamepadAxis::LeftStickY],
-///     ),
-///     (
-///         Action::<Down>::new(),
-///         Clamp::neg(),
-///         bindings![GamepadAxis::LeftStickY],
-///     ),
-/// ]);
+/// let scene = bsn! {
+///     Ui
+///     Actions<Ui> [
+///         Action::<Up>::new()
+///         ~Clamp::pos()
+///         Bindings [
+///             Binding(GamepadAxis::LeftStickY)
+///         ]
+///         --
+///         Action::<Down>::new()
+///         ~Clamp::neg()
+///         Bindings [
+///             Binding(GamepadAxis::LeftStickY)
+///         ]
+///     ]
+/// };
 ///
-/// #[derive(Component)]
+/// #[derive(Component, Default, Clone)]
 /// struct Ui;
 ///
 /// #[derive(InputAction)]

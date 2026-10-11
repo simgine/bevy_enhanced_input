@@ -5,7 +5,7 @@
 //!
 //! Press keys from the number row on the keyboard to trigger actions and observe the output in console.
 
-use bevy::{ecs::spawn::SpawnWith, log::LogPlugin, prelude::*};
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_enhanced_input::prelude::*;
 
 fn main() {
@@ -21,87 +21,103 @@ fn main() {
 }
 
 fn spawn(mut commands: Commands) {
-    commands.spawn((
-        TestContext,
-        Actions::<TestContext>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
-            context.spawn((
-                Action::<TestDown>::new(),
-                Down::default(),
-                bindings![TestDown::KEY],
-            ));
-            context.spawn((
-                Action::<TestPress>::new(),
-                Press::default(),
-                bindings![TestPress::KEY],
-            ));
-            context.spawn((
-                Action::<TestHold>::new(),
-                Hold::new(1.0),
-                bindings![TestHold::KEY],
-            ));
-            context.spawn((
-                Action::<TestHoldAndRelease>::new(),
-                HoldAndRelease::new(1.0),
-                bindings![TestHoldAndRelease::KEY],
-            ));
-            context.spawn((
-                Action::<TestPulse>::new(),
-                Pulse::new(1.0),
-                bindings![TestPulse::KEY],
-            ));
-            context.spawn((
-                Action::<TestRelease>::new(),
-                Release::default(),
-                bindings![TestRelease::KEY],
-            ));
-            context.spawn((
-                Action::<TestTap>::new(),
-                Tap::new(0.5),
-                bindings![TestTap::KEY],
-            ));
-            context.spawn((
-                Action::<TestToggle>::new(),
-                Toggle::default(),
-                bindings![TestToggle::KEY],
-            ));
-
-            let member1 = context
-                .spawn((Action::<ChordMember1>::new(), bindings![ChordMember1::KEY]))
-                .id();
-            let member2 = context
-                .spawn((Action::<ChordMember2>::new(), bindings![ChordMember2::KEY]))
-                .id();
-
-            context.spawn((Action::<TestChord>::new(), Chord::new([member1, member2])));
-
-            let blocker = context
-                .spawn((Action::<Blocker>::new(), bindings![Blocker::KEY]))
-                .id();
-            context.spawn((
-                Action::<TestBlockBy>::new(),
-                BlockBy::single(blocker),
-                bindings![TestBlockBy::KEY],
-            ));
-
-            context.spawn((
-                Action::<TestCooldown>::new(),
-                Cooldown::new(1.0),
-                bindings![TestCooldown::KEY],
-            ));
-
-            let combo_step = context
-                .spawn((Action::<ComboStep>::new(), bindings![ComboStep::KEY]))
-                .id();
-
-            context.spawn((
-                Action::<TestCombo>::new(),
-                Combo::default().with_step(combo_step).with_step(combo_step),
-            ));
-        })),
-    ));
+    commands.spawn_scene(bsn! {
+        TestContext
+        Actions<TestContext> [
+            Action::<TestDown>::new()
+            Down
+            Bindings [
+                Binding(TestDown::KEY)
+            ]
+            --
+            Action::<TestPress>::new()
+            Press
+            Bindings [
+                Binding(TestPress::KEY)
+            ]
+            --
+            Action::<TestHold>::new()
+            ~Hold::new(1.0)
+            Bindings [
+                Binding(TestHold::KEY)
+            ]
+            --
+            Action::<TestHoldAndRelease>::new()
+            ~HoldAndRelease::new(1.0)
+            Bindings [
+                Binding(TestHoldAndRelease::KEY)
+            ]
+            --
+            Action::<TestPulse>::new()
+            ~Pulse::new(1.0)
+            Bindings [
+                Binding(TestPulse::KEY)
+            ]
+            --
+            Action::<TestRelease>::new()
+            Release
+            Bindings [
+                Binding(TestRelease::KEY)
+            ]
+            --
+            Action::<TestTap>::new()
+            ~Tap::new(0.5)
+            Bindings [
+                Binding(TestTap::KEY)
+            ]
+            --
+            Action::<TestToggle>::new()
+            Toggle
+            Bindings [
+                Binding(TestToggle::KEY)
+            ]
+            --
+            #member1
+            Action::<ChordMember1>::new()
+            Bindings [
+                Binding(ChordMember1::KEY)
+            ]
+            --
+            #member2
+            Action::<ChordMember2>::new()
+            Bindings [
+                Binding(ChordMember2::KEY)
+            ]
+            --
+            Action::<TestChord>::new()
+            Chord::new([#member1, #member2])
+            --
+            #blocker
+            Action::<Blocker>::new()
+            Bindings [
+                Binding(Blocker::KEY)
+            ]
+            --
+            Action::<TestBlockBy>::new()
+            BlockBy::single(#blocker)
+            Bindings [
+                Binding(TestBlockBy::KEY)
+            ]
+            --
+            Action::<TestCooldown>::new()
+            ~Cooldown::new(1.0)
+            Bindings [
+                Binding(TestCooldown::KEY)
+            ]
+            --
+            #combo_step
+            Action::<ComboStep>::new()
+            Bindings [
+                Binding(ComboStep::KEY)
+            ]
+            --
+            Action::<TestCombo>::new()
+            Combo::new([#combo_step, #combo_step])
+        ]
+    });
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct TestContext;
 
 #[derive(InputAction)]

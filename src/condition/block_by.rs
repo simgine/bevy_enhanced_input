@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::template::EntityTemplate, prelude::*};
 use log::warn;
 use smallvec::{SmallVec, smallvec};
 
@@ -8,7 +8,43 @@ use crate::prelude::*;
 ///
 /// # Examples
 ///
-/// To get action entities during spawning, you could use [`SpawnWith`].
+/// Use named entity references in BSN to refer to the blocking actions:
+///
+/// ```
+/// use bevy::prelude::*;
+/// use bevy_enhanced_input::prelude::*;
+///
+/// let scene = bsn! {
+///     TestContext
+///     Actions<TestContext> [
+///         #fly
+///         Action::<Fly>::new()
+///         Bindings [
+///             Binding(KeyCode::Space)
+///         ]
+///         --
+///         // Requires `Fly` to be inactive in order to trigger.
+///         Action::<Melee>::new()
+///         BlockBy::single(#fly)
+///         Bindings [
+///             Binding(KeyCode::KeyF)
+///         ]
+///     ]
+/// };
+///
+/// #[derive(Component, Default, Clone)]
+/// struct TestContext;
+///
+/// #[derive(InputAction)]
+/// #[action_output(bool)]
+/// struct Fly;
+///
+/// #[derive(InputAction)]
+/// #[action_output(bool)]
+/// struct Melee;
+/// ```
+///
+/// When spawning bundles, you could use [`SpawnWith`] to get action entities during spawning:
 ///
 /// ```
 /// use bevy::{ecs::spawn::SpawnWith, prelude::*};
@@ -41,10 +77,11 @@ use crate::prelude::*;
 /// #[action_output(bool)]
 /// struct Melee;
 /// ```
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, FromTemplate)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct BlockBy {
     /// Actions that block this action when they are firing.
+    #[template(SmallVecTemplate<EntityTemplate, 2>)]
     pub actions: SmallVec<[Entity; 2]>,
 }
 
@@ -58,6 +95,28 @@ impl BlockBy {
     /// Creates a new instance for multiple actions.
     #[must_use]
     pub fn new(actions: impl Into<SmallVec<[Entity; 2]>>) -> Self {
+        Self {
+            actions: actions.into(),
+        }
+    }
+}
+
+/// Constructors that mirror [`BlockBy`] to allow passing entity references in BSN.
+impl BlockByTemplate {
+    /// Creates a template for a single action.
+    ///
+    /// See also [`BlockBy::single`].
+    #[must_use]
+    pub fn single(action: impl Into<EntityTemplate>) -> Self {
+        let action = action.into();
+        Self::new([action])
+    }
+
+    /// Creates a template for multiple actions.
+    ///
+    /// See also [`BlockBy::new`].
+    #[must_use]
+    pub fn new(actions: impl Into<SmallVecTemplate<EntityTemplate, 2>>) -> Self {
         Self {
             actions: actions.into(),
         }

@@ -15,6 +15,7 @@ This crate introduces three main concepts:
   entities and define when those actions are evaluated.
 
 In short, actions are mapped to inputs via bindings, and contexts control which actions are active.
+You can declare them using Bevy's [BSN](bevy::scene::bsn) API.
 
 ## [Actions](action)
 
@@ -30,7 +31,7 @@ while a "Movement" action might produce a `Vec2` representing the direction and 
 
 Actions are stored as entities with the [`Action<A>`] component, where `A` is your [`InputAction`] type.
 These are associated to contexts via the [`ActionOf<C>`] relationship, where `C` is your context type,
-and can be quickly bound to them using the [`actions!`] macro.
+and can be declared in BSN using `Actions<Context> [...]`.
 
 By default, when actions are triggered, they "consume" the input values from their bindings.
 This means that if multiple actions are bound to the same input source (e.g., the same key),
@@ -43,8 +44,9 @@ Bindings define how actions are triggered by input sources (e.g. mouse movement 
 We provide support for a variety of input sources out of the box: see the [`Binding`] enum for a full list.
 
 Bindings are represented by entities with the [`Binding`] component.
-Bindings associated with actions via [`BindingOf`] relationship. Similar to [`actions!`],
-we provide the [`bindings!`] macro to spawn related bindings.
+Bindings are associated with actions via the [`BindingOf`] relationship. In BSN, use
+`Bindings [...]` to declare them, with entries such as `Binding(KeyCode::Space)`.
+
 
 By default, input is read from all connected gamepads. You can customize this by adding the [`GamepadDevice`] component to the
 context entity.
@@ -79,20 +81,21 @@ Then, for each of the actions that you might want the player to be able to take 
 you define a new action type `A` that implements the [`InputAction`] trait.
 These actions are represented as entities with the [`Action<A>`] component,
 and are associated with the context entity via the [`ActionOf<C>`] relationship,
-spawned using the [`actions!`] macro.
+spawned using an `Actions<Context> [...]` relationship in BSN.
 
 Finally, for each action, you define one or more bindings that specify which input sources
 will trigger the action. These bindings are represented as entities with the [`Binding`] component,
 and are associated with the action entity via the [`BindingOf`] relationship,
-spawned using the [`bindings!`] macro.
+spawned using a `Bindings [...]` relationship in BSN.
 
 Here's a complete example that demonstrates these concepts in action.
+Bevy's `DefaultPlugins` include the scene support needed to spawn BSN.
 
 ```
-use bevy::prelude::*;
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
 #[derive(InputAction)]
@@ -104,10 +107,50 @@ struct Jump;
 struct Fire;
 
 let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 app.add_plugins(EnhancedInputPlugin)
     .add_input_context::<Player>()
     .finish();
 
+app.world_mut().spawn_scene(bsn! {
+    Player
+    Actions<Player> [
+        Action::<Jump>::new()
+        Bindings [
+            Binding(KeyCode::Space)
+            --
+            Binding(GamepadButton::South)
+        ]
+        --
+        Action::<Fire>::new()
+        Bindings [
+            Binding(MouseButton::Left)
+            --
+            Binding(GamepadButton::RightTrigger2)
+        ]
+    ]
+}).unwrap();
+```
+
+We also provide a bundle API that creates the same ECS relationships: [`actions!`] and [`bindings!`] are the
+bundle equivalents of BSN's `Actions<Context> [...]` and `Bindings [...]`, respectively. The [`bindings!`]
+macro converts inputs such as `KeyCode::Space` into [`Binding`] components automatically.
+
+```
+# use bevy::prelude::*;
+# use bevy_enhanced_input::prelude::*;
+# #[derive(Component)]
+# struct Player;
+# #[derive(InputAction)]
+# #[action_output(bool)]
+# struct Jump;
+# #[derive(InputAction)]
+# #[action_output(bool)]
+# struct Fire;
+# let mut app = App::new();
+# app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
+#     .add_input_context::<Player>()
+#     .finish();
 app.world_mut().spawn((
     Player,
     actions!(Player[
@@ -349,6 +392,7 @@ pub mod condition;
 pub mod context;
 pub mod modifier;
 pub mod preset;
+pub mod smallvec_template;
 #[cfg(feature = "state")]
 pub mod state;
 
@@ -367,7 +411,7 @@ pub mod prelude {
         },
         actions,
         binding::{
-            Binding, InputModKeys,
+            Binding, BindingTemplate, InputModKeys,
             mod_keys::ModKeys,
             relationship::{
                 BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings, IntoBindingBundle,
@@ -391,7 +435,11 @@ pub mod prelude {
             exponential_curve::*, fns::InputModifierAppExt, linear_step::*, negate::*, scale::*,
             smooth_nudge::*, swizzle_axis::*,
         },
-        preset::{WithBundle, axial::*, bidirectional::*, cardinal::*, ordinal::*, spatial::*},
+        preset::{
+            self, IntoBindingSceneBundle, WithBundle, axial::Axial, bidirectional::Bidirectional,
+            cardinal::Cardinal, ordinal::Ordinal, spatial::Spatial,
+        },
+        smallvec_template::SmallVecTemplate,
     };
     #[allow(deprecated)]
     pub use super::{

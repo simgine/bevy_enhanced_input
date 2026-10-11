@@ -25,81 +25,82 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut cursor_options: Single<&mut CursorOptions>,
-) {
+fn setup(mut commands: Commands, mut cursor_options: Single<&mut CursorOptions>) {
     grab_cursor(&mut cursor_options, true);
 
     // Spawn a camera with an input context.
-    commands.spawn((
-        Camera3d::default(),
-        Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
-        FlyCam,
-        // Similar to `related!`, but you only specify the context type.
+    commands.spawn_scene(bsn! {
+        Camera3d
+        ~Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y)
+        FlyCam
         // Actions are related to specific context since a single entity can have multiple contexts.
-        actions!(FlyCam[
-            (
-                Action::<Movement>::new(),
-                // Conditions and modifiers as components.
-                DeadZone::default(), // Apply non-uniform normalization that works for both digital and analog inputs, otherwise diagonal movement will be faster.
-                SmoothNudge::default(), // Apply smoothing.
-                DeltaScale::default(), // Multiply by delta time to make it framerate-independent.
-                Scale::splat(10.0), // Additionally multiply by a constant to achieve the desired speed.
-                // Bindings are entities related to actions.
-                // An action can have multiple bindings and will respond to any of them.
-                Bindings::spawn((
-                    // Bindings like WASD or sticks are very common,
-                    // so we provide built-in `SpawnableList`s to assign all keys/axes at once.
-                    Cardinal::wasd_keys(),
-                    Axial::left_stick(),
-                )),
-            ),
-            (
-                Action::<Rotate>::new(),
-                DeltaScale::default(),
-                Bindings::spawn((
-                    // Bevy requires single entities to be wrapped in `Spawn`.
-                    // You can attach modifiers to individual bindings as well.
-                    Spawn((Binding::mouse_motion(), Negate::all())),
-                    Axial::right_stick().with((Scale::splat(100.0), Negate::x())),
-                )),
-            ),
-            (
-                Action::<Zoom>::new(),
-                Scale::splat(0.1),
-                Bindings::spawn((
-                    // In Bevy, vertical scrolling maps to the Y axis,
-                    // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
-                    Spawn((Binding::mouse_wheel(), SwizzleAxis::YXZ)),
-                    Bidirectional::new(GamepadButton::DPadUp, GamepadButton::DPadDown),
-                )),
-            ),
-            // For bindings we also have a macro similar to `children!`.
-            (Action::<CaptureCursor>::new(), bindings![MouseButton::Left]),
-            (Action::<ReleaseCursor>::new(), bindings![KeyCode::Escape]),
-        ]),
-    ));
+        Actions<FlyCam> [
+            Action::<Movement>::new()
+            // Conditions and modifiers as components.
+            DeadZone // Apply non-uniform normalization that works for both digital and analog inputs, otherwise diagonal movement will be faster.
+            SmoothNudge // Apply smoothing.
+            DeltaScale // Multiply by delta time to make it framerate-independent.
+            ~Scale::splat(10.0) // Additionally multiply by a constant to achieve the desired speed.
+            // Bindings are entities related to actions.
+            // An action can have multiple bindings and will respond to any of them.
+            Bindings [
+                // Bindings like WASD or sticks are very common,
+                // so we provide built-in presets to assign all keys/axes at once.
+                {preset::cardinal::wasd_keys()}
+                --
+                {preset::axial::left_stick()}
+            ]
+            --
+            Action::<Rotate>::new()
+            DeltaScale
+            Bindings [
+                // You can attach modifiers to individual bindings as well.
+                Binding::mouse_motion()
+                ~Negate::all()
+                --
+                {preset::axial::new(
+                    (GamepadAxis::RightStickX, Scale::splat(100.0), Negate::x()),
+                    (GamepadAxis::RightStickY, Scale::splat(100.0), Negate::x()),
+                )}
+            ]
+            --
+            Action::<Zoom>::new()
+            ~Scale::splat(0.1)
+            Bindings [
+                // In Bevy, vertical scrolling maps to the Y axis,
+                // so we apply `SwizzleAxis` to map it to our 1-dimensional action.
+                Binding::mouse_wheel()
+                ~SwizzleAxis::YXZ
+                --
+                {preset::bidirectional::new(GamepadButton::DPadUp, GamepadButton::DPadDown)}
+            ]
+            --
+            Action::<CaptureCursor>::new()
+            Bindings [
+                Binding(MouseButton::Left)
+            ]
+            --
+            Action::<ReleaseCursor>::new()
+            Bindings [
+                Binding(KeyCode::Escape)
+            ]
+        ]
+    });
 
     // Setup simple 3D scene.
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(25.0)))),
-        MeshMaterial3d(materials.add(Color::WHITE)),
-    ));
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
-        MeshMaterial3d(materials.add(Color::srgb_u8(124, 144, 255))),
-        Transform::from_xyz(0.0, 0.5, 0.0),
-    ));
-    commands.spawn((
-        PointLight {
-            shadow_maps_enabled: true,
-            ..Default::default()
-        },
-        Transform::from_xyz(4.0, 8.0, 4.0),
-    ));
+    commands.spawn_scene(bsn! {
+        Mesh3d(asset_value(Plane3d::new(Vec3::Y, Vec2::splat(25.0))))
+        MeshMaterial3d<StandardMaterial>(asset_value(Color::WHITE))
+    });
+    commands.spawn_scene(bsn! {
+        Mesh3d(asset_value(Cuboid::new(1.0, 1.0, 1.0)))
+        MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb_u8(124, 144, 255)))
+        ~Transform::from_xyz(0.0, 0.5, 0.0)
+    });
+    commands.spawn_scene(bsn! {
+        PointLight { shadow_maps_enabled: true }
+        ~Transform::from_xyz(4.0, 8.0, 4.0)
+    });
 }
 
 fn apply_movement(movement: On<Fire<Movement>>, mut transforms: Query<&mut Transform>) {
@@ -170,7 +171,7 @@ fn grab_cursor(cursor_options: &mut CursorOptions, grab: bool) {
 
 // Since it's possible to have multiple input contexts on a single entity,
 // you need to define a marker component and register it in the app.
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct FlyCam;
 
 // All actions should implement the `InputAction` trait.

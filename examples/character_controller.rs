@@ -40,48 +40,46 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2d);
 
     // Ground
-    commands.spawn((
-        Mesh2d(meshes.add(Rectangle::new(GROUND_WIDTH, 5.0))),
-        MeshMaterial2d(materials.add(Color::srgb(0.0, 1.0, 0.5))),
-        Transform::from_translation(Vec3::Y * GROUND_LEVEL),
-    ));
+    commands.spawn_scene(bsn! {
+        Mesh2d(asset_value(Rectangle::new(GROUND_WIDTH, 5.0)))
+        MeshMaterial2d<ColorMaterial>(asset_value(Color::srgb(0.0, 1.0, 0.5)))
+        ~Transform::from_translation(Vec3::Y * GROUND_LEVEL)
+    });
 
-    commands.spawn((
-        Player,
-        Mesh2d(meshes.add(Rectangle::new(PLAYER.x, PLAYER.y))),
-        MeshMaterial2d(materials.add(Color::srgb(1.0, 0.0, 0.5))),
-        Transform::from_translation(Vec3::Y * (GROUND_LEVEL + 500.0)),
-        PlayerPhysics::default(),
-        AccumulatedInput::default(),
-        actions!(Player[
-            (
-                Action::<Movement>::new(),
-                DeadZone::default(),
-                // Velocity is set to a smoothed input to simulate acceleration.
-                SmoothNudge::default(),
-                // We don't apply `DeltaScale` here because the movement vector is
-                // multiplied by delta time during the physics calculation.
-                Scale::splat(450.0),
-                Bindings::spawn((
-                    Bidirectional::new(KeyCode::KeyD, KeyCode::KeyA),
-                    Bidirectional::new(KeyCode::ArrowRight, KeyCode::ArrowLeft),
-                    Axial::left_stick(),
-                )),
-            ),
-            (
-                Action::<Jump>::new(),
-                bindings![KeyCode::Space, GamepadButton::South],
-            )
-        ]),
-    ));
+    commands.spawn_scene(bsn! {
+        Player
+        Mesh2d(asset_value(Rectangle::new(PLAYER.x, PLAYER.y)))
+        MeshMaterial2d<ColorMaterial>(asset_value(Color::srgb(1.0, 0.0, 0.5)))
+        ~Transform::from_translation(Vec3::Y * (GROUND_LEVEL + 500.0))
+        PlayerPhysics
+        AccumulatedInput
+        Actions<Player> [
+            Action::<Movement>::new()
+            DeadZone
+            // Velocity is set to a smoothed input to simulate acceleration.
+            SmoothNudge
+            // Delta time is applied during physics, not to this action.
+            ~Scale::splat(450.0)
+            Bindings [
+                {preset::bidirectional::new(KeyCode::KeyD, KeyCode::KeyA)}
+                --
+                {preset::bidirectional::new(KeyCode::ArrowRight, KeyCode::ArrowLeft)}
+                --
+                {preset::axial::left_stick()}
+            ]
+            --
+            Action::<Jump>::new()
+            Bindings [
+                Binding(KeyCode::Space)
+                --
+                Binding(GamepadButton::South)
+            ]
+        ]
+    });
 }
 
 fn accumulate_movement(movement: On<Fire<Movement>>, mut inputs: Query<&mut AccumulatedInput>) {
@@ -133,10 +131,10 @@ fn advance_physics(
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 struct PlayerPhysics {
     velocity: Vec2,
     is_grounded: bool,
@@ -151,7 +149,7 @@ struct Movement;
 struct Jump;
 
 /// Accumulated input since the last fixed update.
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 struct AccumulatedInput {
     movement: f32,
     jump: bool,
