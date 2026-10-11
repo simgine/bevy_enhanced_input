@@ -1,8 +1,8 @@
 use bevy::{
     ecs::template::{EntityTemplate, Template, TemplateContext},
+    log::warn_once,
     prelude::*,
 };
-use log::warn;
 use smallvec::{SmallVec, smallvec};
 
 use crate::prelude::*;
@@ -232,8 +232,7 @@ impl InputCondition for Chord {
         let mut all_fired = true;
         for &action in &self.actions {
             let Ok((_, &state, ..)) = actions.get(action) else {
-                // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-                warn!("`{action}` is not a valid action");
+                warn_once!("`{action}` is not a valid action");
                 continue;
             };
 

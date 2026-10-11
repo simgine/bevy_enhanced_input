@@ -1,4 +1,4 @@
-use core::fmt::{self, Debug, Formatter};
+use std::fmt::{self, Debug, Formatter};
 
 use bevy::prelude::*;
 use bitflags::bitflags;

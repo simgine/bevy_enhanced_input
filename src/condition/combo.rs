@@ -1,10 +1,10 @@
-use core::time::Duration;
+use std::time::Duration;
 
 use bevy::{
     ecs::template::{EntityTemplate, Template, TemplateContext, VecTemplate},
+    log::warn_once,
     prelude::*,
 };
-use log::warn;
 
 use crate::prelude::*;
 
@@ -157,8 +157,7 @@ impl Combo {
             }
 
             let Ok((.., events, _)) = actions.get(condition.action) else {
-                // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-                warn!(
+                warn_once!(
                     "cancel condition references an invalid action `{}`",
                     condition.action
                 );
@@ -221,8 +220,7 @@ impl InputCondition for Combo {
         _value: ActionValue,
     ) -> TriggerState {
         if self.steps.is_empty() {
-            // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-            warn!("combo has no steps");
+            warn_once!("combo has no steps");
             return TriggerState::None;
         }
 
@@ -241,10 +239,10 @@ impl InputCondition for Combo {
 
         let current_step = &self.steps[self.step_index];
         let Ok((_, &state, events, _)) = actions.get(current_step.action) else {
-            // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-            warn!(
+            warn_once!(
                 "step {} references an invalid action `{}`",
-                self.step_index, current_step.action
+                self.step_index,
+                current_step.action
             );
             self.reset();
             return TriggerState::None;

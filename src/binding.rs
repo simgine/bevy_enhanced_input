@@ -14,7 +14,7 @@
 pub mod mod_keys;
 pub mod relationship;
 
-use core::fmt::{self, Display, Formatter};
+use std::fmt::{self, Display, Formatter};
 
 use bevy::{
     ecs::{
@@ -22,9 +22,9 @@ use bevy::{
         template::{Template, TemplateContext},
         world::DeferredWorld,
     },
+    log::{Level, error, tracing::enabled, warn},
     prelude::*,
 };
-use log::{Level, error, log_enabled, warn};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -338,7 +338,7 @@ fn on_insert(mut world: DeferredWorld, ctx: HookContext) {
     let mut first_activation = entity.get_mut::<FirstActivation>().unwrap();
     **first_activation = true;
 
-    if log_enabled!(Level::Warn) {
+    if enabled!(Level::WARN) {
         if let Some(action) = entity.get::<BindingOf>().map(|b| **b) {
             if world.get::<TriggerState>(action).is_none() {
                 let binding = world.get::<Binding>(ctx.entity).unwrap();
@@ -368,7 +368,7 @@ pub(crate) struct FirstActivation(bool);
 
 #[cfg(test)]
 mod tests {
-    use alloc::string::ToString;
+    use std::string::ToString;
 
     use super::*;
 

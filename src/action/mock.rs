@@ -8,7 +8,7 @@
 //! - Driving cutscenes.
 //! - Applying input over a network.
 
-use core::time::Duration;
+use std::time::Duration;
 
 use bevy::{ecs::error::warn, prelude::*};
 #[cfg(feature = "serialize")]
@@ -42,7 +42,7 @@ use crate::prelude::*;
 /// Spawn and move up for 2 seconds:
 ///
 /// ```
-/// # use core::time::Duration;
+/// # use std::time::Duration;
 /// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
 /// # let mut app = App::new();
@@ -224,7 +224,7 @@ pub trait MockEntityCommandsExt {
     /// ```
     /// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
     /// # use bevy_enhanced_input::prelude::*;
-    /// # use core::time::Duration;
+    /// # use std::time::Duration;
     /// # let mut app = App::new();
     /// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
     /// app.world_mut().spawn_scene(bsn! {

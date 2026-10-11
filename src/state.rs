@@ -49,16 +49,16 @@ app.world_mut().spawn_scene(bsn! {
 */
 
 #[cfg(feature = "reflect")]
-use core::any::type_name;
-use core::marker::PhantomData;
+use std::any::type_name;
+use std::marker::PhantomData;
 
 #[cfg(feature = "reflect")]
 use bevy::reflect::utility::GenericTypePathCell;
 use bevy::{
+    log::debug,
     prelude::*,
     state::state::{StateTransitionEvent, StateTransitionSystems, States},
 };
-use log::debug;
 use smallvec::SmallVec;
 
 use crate::prelude::*;

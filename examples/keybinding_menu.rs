@@ -7,7 +7,7 @@
 //! Bevy's settings system handles the file I/O, serialization, and
 //! deserialization for you.
 
-use core::fmt::Write;
+use std::fmt::Write;
 
 use bevy::{
     input::{ButtonState, common_conditions::*, keyboard::KeyboardInput, mouse::MouseButtonInput},

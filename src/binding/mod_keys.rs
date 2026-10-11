@@ -1,4 +1,4 @@
-use core::fmt::{self, Display, Formatter};
+use std::fmt::{self, Display, Formatter};
 
 use bevy::prelude::*;
 use bitflags::bitflags;
@@ -114,7 +114,7 @@ impl From<KeyCode> for ModKeys {
 
 #[cfg(test)]
 mod tests {
-    use alloc::string::ToString;
+    use std::string::ToString;
 
     use super::*;
 

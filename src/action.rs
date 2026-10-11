@@ -51,7 +51,7 @@ pub mod mock;
 pub mod relationship;
 pub mod value;
 
-use core::{any, fmt::Debug};
+use std::{any, fmt::Debug};
 
 use bevy::prelude::*;
 #[cfg(feature = "serialize")]

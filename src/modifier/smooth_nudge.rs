@@ -79,7 +79,7 @@ impl InputModifier for SmoothNudge {
 
 #[cfg(test)]
 mod tests {
-    use core::time::Duration;
+    use std::time::Duration;
 
     use super::*;
     use crate::context;

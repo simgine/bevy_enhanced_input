@@ -4,7 +4,7 @@
 //! to demonstrate how to set up actions, define keybinds and respond to actions
 //! to modify the state of your application.
 
-use core::f32::consts::{FRAC_PI_2, FRAC_PI_8};
+use std::f32::consts::{FRAC_PI_2, FRAC_PI_8};
 
 use bevy::{
     prelude::*,

@@ -1,4 +1,4 @@
-use core::time::Duration;
+use std::time::Duration;
 
 use bevy::{input::InputPlugin, prelude::*, time::TimeUpdateStrategy};
 use bevy_enhanced_input::{context::ExternallyMocked, prelude::*};

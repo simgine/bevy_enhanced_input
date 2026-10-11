@@ -1,10 +1,10 @@
-use alloc::slice;
 #[cfg(feature = "reflect")]
-use core::any::type_name;
-use core::{
+use std::any::type_name;
+use std::{
     fmt::{self, Debug, Formatter},
     iter::Copied,
     marker::PhantomData,
+    slice,
 };
 
 #[cfg(feature = "reflect")]

@@ -1,4 +1,4 @@
-use core::fmt::Debug;
+use std::fmt::Debug;
 
 use bevy::prelude::*;
 #[cfg(feature = "serialize")]

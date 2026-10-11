@@ -1,5 +1,4 @@
-use bevy::{ecs::template::EntityTemplate, prelude::*};
-use log::warn;
+use bevy::{ecs::template::EntityTemplate, log::warn_once, prelude::*};
 use smallvec::{SmallVec, smallvec};
 
 use crate::prelude::*;
@@ -132,8 +131,7 @@ impl InputCondition for BlockBy {
     ) -> TriggerState {
         for &action in &self.actions {
             let Ok((_, &state, ..)) = actions.get(action) else {
-                // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-                warn!("`{action}` is not a valid action");
+                warn_once!("`{action}` is not a valid action");
                 continue;
             };
 
