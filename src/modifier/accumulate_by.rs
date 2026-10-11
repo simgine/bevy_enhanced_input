@@ -1,5 +1,4 @@
-use bevy::{ecs::template::EntityTemplate, prelude::*};
-use log::warn;
+use bevy::{ecs::template::EntityTemplate, log::warn_once, prelude::*};
 
 use crate::prelude::*;
 
@@ -136,8 +135,7 @@ impl InputModifier for AccumulateBy {
             }
             ActionValue::Axis3D(self.value).convert(value.dim())
         } else {
-            // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-            warn!("`{}` is not a valid action", self.action);
+            warn_once!("`{}` is not a valid action", self.action);
             value
         }
     }

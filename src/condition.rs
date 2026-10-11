@@ -72,7 +72,7 @@ pub mod release;
 pub mod tap;
 pub mod toggle;
 
-use core::fmt::Debug;
+use std::fmt::Debug;
 
 use crate::prelude::*;
 

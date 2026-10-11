@@ -1,5 +1,4 @@
-use alloc::slice;
-use core::iter::Copied;
+use std::{iter::Copied, slice};
 
 use bevy::{
     ecs::relationship::{RelatedSpawner, RelatedSpawnerCommands},

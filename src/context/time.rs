@@ -1,4 +1,4 @@
-use core::time::Duration;
+use std::time::Duration;
 
 use bevy::{ecs::system::SystemParam, prelude::*};
 

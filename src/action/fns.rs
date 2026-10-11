@@ -1,5 +1,7 @@
-use bevy::prelude::*;
-use log::{debug, warn};
+use bevy::{
+    log::{debug, warn},
+    prelude::*,
+};
 
 use crate::prelude::*;
 

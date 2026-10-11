@@ -77,8 +77,8 @@ pub mod time;
 mod trigger_tracker;
 
 #[cfg(feature = "reflect")]
-use core::any::type_name;
-use core::{
+use std::any::type_name;
+use std::{
     any::TypeId,
     cmp::{Ordering, Reverse},
     marker::PhantomData,
@@ -96,9 +96,9 @@ use bevy::{
         system::{ParamBuilder, QueryParamBuilder},
         world::{FilteredEntityMut, FilteredEntityRef},
     },
+    log::{debug, trace},
     prelude::*,
 };
-use log::{debug, trace};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

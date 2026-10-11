@@ -75,7 +75,7 @@ pub mod scale;
 pub mod smooth_nudge;
 pub mod swizzle_axis;
 
-use core::fmt::Debug;
+use std::fmt::Debug;
 
 use crate::prelude::*;
 

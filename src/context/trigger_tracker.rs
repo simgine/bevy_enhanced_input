@@ -1,5 +1,4 @@
-use bevy::ecs::world::FilteredEntityMut;
-use log::trace;
+use bevy::{ecs::world::FilteredEntityMut, log::trace};
 
 use crate::{condition::fns::ConditionFns, modifier::fns::ModifierFns, prelude::*};
 

@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-use log::warn;
+use bevy::{log::warn_once, prelude::*};
 
 use crate::prelude::*;
 
@@ -59,8 +58,7 @@ impl InputModifier for LinearStep {
         };
 
         if !(0.0..=1.0).contains(&step_rate) {
-            // TODO: use `warn_once` when `bevy_log` becomes `no_std` compatible.
-            warn!("step rate can't be outside 0.0..=1.0: {step_rate}");
+            warn_once!("step rate can't be outside 0.0..=1.0: {step_rate}");
             return value;
         }
 
@@ -86,7 +84,7 @@ impl InputModifier for LinearStep {
 
 #[cfg(test)]
 mod tests {
-    use core::time::Duration;
+    use std::time::Duration;
 
     use super::*;
     use crate::context;

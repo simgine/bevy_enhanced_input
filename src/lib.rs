@@ -379,10 +379,6 @@ Alternatively you can configure `LogPlugin` to make it permanent.
 [`SpawnableList`]: bevy::ecs::spawn::SpawnableList
 */
 
-#![no_std]
-
-extern crate alloc;
-
 // Required for the derive macro to work within the crate.
 extern crate self as bevy_enhanced_input;
 
