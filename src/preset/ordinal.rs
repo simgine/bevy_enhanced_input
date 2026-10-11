@@ -6,7 +6,67 @@ use bevy::{
 
 use crate::prelude::*;
 
+/// Maps numpad keys as 2-dimensional input.
+///
+/// See also [`Ordinal::numpad`] for bundle-based spawning.
+#[must_use]
+pub fn numpad() -> impl SceneList {
+    new(
+        KeyCode::Numpad8,
+        KeyCode::Numpad9,
+        KeyCode::Numpad6,
+        KeyCode::Numpad3,
+        KeyCode::Numpad2,
+        KeyCode::Numpad1,
+        KeyCode::Numpad4,
+        KeyCode::Numpad7,
+    )
+}
+
+/// Maps 8 bindings as 2-dimensional input.
+///
+/// ```text
+/// NW  N   NE
+///   🡴 🡱 🡵
+/// W 🡰 · 🡲 E
+///   🡷 🡳 🡶
+/// SW  S   SE
+/// ```
+///
+/// See also [`Ordinal::new`] for bundle-based spawning.
+#[must_use]
+#[expect(clippy::too_many_arguments)]
+pub fn new(
+    north: impl IntoBindingSceneBundle,
+    north_east: impl IntoBindingSceneBundle,
+    east: impl IntoBindingSceneBundle,
+    south_east: impl IntoBindingSceneBundle,
+    south: impl IntoBindingSceneBundle,
+    south_west: impl IntoBindingSceneBundle,
+    west: impl IntoBindingSceneBundle,
+    north_west: impl IntoBindingSceneBundle,
+) -> impl SceneList {
+    let cardinal = super::cardinal::new(north, west, south, east);
+    let north_east = north_east.into_binding_scene_bundle();
+    let south_east = south_east.into_binding_scene_bundle();
+    let south_west = south_west.into_binding_scene_bundle();
+    let north_west = north_west.into_binding_scene_bundle();
+    bsn_list! {
+        {cardinal}
+        --
+        @{super::binding_scene((north_east, SwizzleAxis::XXZ))}
+        --
+        @{super::binding_scene((SwizzleAxis::XXZ, Negate::y(), south_east))}
+        --
+        @{super::binding_scene((SwizzleAxis::XXZ, Negate::all(), south_west))}
+        --
+        @{super::binding_scene((SwizzleAxis::XXZ, Negate::x(), north_west))}
+    }
+}
+
 /// A preset to 8 map buttons as 2-dimensional input.
+///
+/// See also [`new`] for BSN usage.
 #[derive(Debug, Clone, Copy)]
 pub struct Ordinal<N, NE, E, SE, S, SW, W, NW> {
     pub north: N,
@@ -38,6 +98,8 @@ impl<N, NE, E, SE, S, SW, W, NW, T: Clone> WithBundle<T> for Ordinal<N, NE, E, S
 
 impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Binding> {
     /// Maps numpad keys as 2-dimensional input.
+    ///
+    /// See also [`numpad`] for BSN usage.
     #[must_use]
     pub fn numpad() -> Self {
         Self::new(
@@ -61,6 +123,8 @@ impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Bind
     ///   🡷 🡳 🡶
     /// SW  S   SE
     /// ```
+    ///
+    /// See also [`new`] for BSN usage.
     #[must_use]
     #[expect(clippy::too_many_arguments)]
     pub fn new(

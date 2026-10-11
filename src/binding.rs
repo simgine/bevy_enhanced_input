@@ -17,7 +17,11 @@ pub mod relationship;
 use core::fmt::{self, Display, Formatter};
 
 use bevy::{
-    ecs::{lifecycle::HookContext, world::DeferredWorld},
+    ecs::{
+        lifecycle::HookContext,
+        template::{Template, TemplateContext},
+        world::DeferredWorld,
+    },
     prelude::*,
 };
 use log::{Level, error, log_enabled, warn};
@@ -81,19 +85,23 @@ pub enum Binding {
     /// use bevy::prelude::*;
     /// use bevy_enhanced_input::prelude::*;
     ///
-    /// actions!(PlayerCam[
-    ///     (
-    ///         Action::<Zoom>::new(),
-    ///         // Without this modifier, it will use horizontal mouse scrolling.
-    ///         bindings![(Binding::mouse_wheel(), SwizzleAxis::YXZ)],
-    ///     )
-    /// ]);
+    /// let scene = bsn! {
+    ///     PlayerCam
+    ///     Actions<PlayerCam> [
+    ///         Action::<Zoom>::new()
+    ///         Bindings [
+    ///             Binding::mouse_wheel()
+    ///             // Without this modifier, it will use horizontal mouse scrolling.
+    ///             ~SwizzleAxis::YXZ
+    ///         ]
+    ///     ]
+    /// };
     ///
     /// #[derive(InputAction)]
     /// #[action_output(f32)]
     /// struct Zoom;
     ///
-    /// #[derive(Component)]
+    /// #[derive(Component, Default, Clone)]
     /// struct PlayerCam;
     /// ```
     MouseWheel { mod_keys: ModKeys },
@@ -168,6 +176,77 @@ impl Binding {
     #[must_use]
     pub fn without_mod_keys(self) -> Self {
         self.with_mod_keys(ModKeys::empty())
+    }
+}
+
+impl FromTemplate for Binding {
+    type Template = BindingTemplate;
+}
+
+/// BSN template for a [`Binding`].
+///
+/// Its tuple field accepts values convertible into [`Binding`], enabling declarations like
+/// `Binding(KeyCode::Space)` and `Binding(GamepadButton::South)` inside BSN.
+/// Use `Binding(Binding::None)` or `Binding(Binding::AnyKey)` for explicit enum values.
+/// An omitted value defaults to [`Binding::None`].
+#[derive(Debug, PartialEq)]
+pub struct BindingTemplate(pub Binding);
+
+impl Default for BindingTemplate {
+    fn default() -> Self {
+        Self(Binding::None)
+    }
+}
+
+impl<I: Into<Binding>> From<I> for BindingTemplate {
+    fn from(input: I) -> Self {
+        Self(input.into())
+    }
+}
+
+impl BindingTemplate {
+    /// Returns a mouse motion template without keyboard modifiers.
+    ///
+    /// See also [`Binding::mouse_motion`].
+    #[must_use]
+    pub const fn mouse_motion() -> Self {
+        Self(Binding::mouse_motion())
+    }
+
+    /// Returns a mouse wheel template without keyboard modifiers.
+    ///
+    /// See also [`Binding::mouse_wheel`].
+    #[must_use]
+    pub const fn mouse_wheel() -> Self {
+        Self(Binding::mouse_wheel())
+    }
+
+    /// Returns a template with assigned keyboard modifiers.
+    ///
+    /// See also [`InputModKeys::with_mod_keys`].
+    #[must_use]
+    pub fn with_mod_keys(self, mod_keys: ModKeys) -> Self {
+        Self(self.0.with_mod_keys(mod_keys))
+    }
+
+    /// Returns a template without keyboard modifiers.
+    ///
+    /// See also [`Binding::without_mod_keys`].
+    #[must_use]
+    pub fn without_mod_keys(self) -> Self {
+        Self(self.0.without_mod_keys())
+    }
+}
+
+impl Template for BindingTemplate {
+    type Output = Binding;
+
+    fn build_template(&self, _context: &mut TemplateContext) -> Result<Binding> {
+        Ok(self.0)
+    }
+
+    fn clone_template(&self) -> Self {
+        Self(self.0)
     }
 }
 

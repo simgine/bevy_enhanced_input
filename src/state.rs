@@ -8,7 +8,7 @@ input contexts based on the current application state, eliminating manual
 # Example
 
 ```
-use bevy::{prelude::*, state::app::StatesPlugin};
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin, state::app::StatesPlugin};
 use bevy_enhanced_input::prelude::*;
 
 #[derive(States, Clone, PartialEq, Eq, Hash, Debug, Default)]
@@ -18,7 +18,7 @@ enum GameState {
     Paused,
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
 #[derive(InputAction)]
@@ -26,6 +26,7 @@ struct Player;
 struct Jump;
 
 let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 app.add_plugins((StatesPlugin, EnhancedInputPlugin))
     .init_state::<GameState>()
     .add_input_context::<Player>()
@@ -33,12 +34,17 @@ app.add_plugins((StatesPlugin, EnhancedInputPlugin))
     .finish();
 
 // When spawning entities, use `ActiveInStates` to declare which states activate the context.
-app.world_mut().spawn((
-    Player,
-    ContextActivity::<Player>::INACTIVE,
-    ActiveInStates::<Player, _>::single(GameState::Playing),
-    actions!(Player[(Action::<Jump>::new(), bindings![KeyCode::Space])]),
-));
+app.world_mut().spawn_scene(bsn! {
+    Player
+    ~ContextActivity::<Player>::INACTIVE
+    ~ActiveInStates::<Player, GameState>::single(GameState::Playing)
+    Actions<Player> [
+        Action::<Jump>::new()
+        Bindings [
+            Binding(KeyCode::Space)
+        ]
+    ]
+}).unwrap();
 ```
 */
 

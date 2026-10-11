@@ -1,6 +1,9 @@
 use core::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{
+    ecs::template::{EntityTemplate, Template, TemplateContext, VecTemplate},
+    prelude::*,
+};
 use log::warn;
 
 use crate::prelude::*;
@@ -14,12 +17,45 @@ cancel action.
 After the first step, returns [`TriggerState::Ongoing`] until the last step.
 Once all steps are completed, returns [`TriggerState::Fired`] once, then resets.
 
-Requires using [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
-because you need to pass [`Entity`] for step and cancel actions.
-
 # Examples
 
-Double click:
+Use named entity references in BSN to refer to step and cancel actions:
+
+```
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
+use bevy_enhanced_input::prelude::*;
+
+# let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+# let world = app.world_mut();
+world.spawn_scene(bsn! {
+    Menu
+    Actions<Menu> [
+        #click
+        Action::<Click>::new()
+        Bindings [
+            Binding(MouseButton::Left)
+        ]
+        --
+        Action::<DoubleClick>::new()
+        Combo::new([#click, #click])
+    ]
+}).unwrap();
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Click;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct DoubleClick;
+
+#[derive(Component, Default, Clone)]
+struct Menu;
+```
+
+When spawning bundles, use [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
+because you need to pass [`Entity`] for step and cancel actions:
 
 ```
 use bevy::prelude::*;
@@ -52,7 +88,7 @@ struct DoubleClick;
 struct Menu;
 ```
 */
-#[derive(Component, Default, Debug, Clone)]
+#[derive(Component, Default, Debug, FromTemplate, Clone)]
 #[cfg_attr(
     feature = "reflect",
     derive(Reflect),
@@ -63,11 +99,13 @@ pub struct Combo {
     ///
     /// Each step is satisfied when its [`ComboStep::events`] occur,
     /// and steps must be completed in order.
+    #[template(built_in)]
     pub steps: Vec<ComboStep>,
 
     /// Actions that can cancel the combo.
     ///
     /// If a cancel action matches the action from the current step, it will be ignored.
+    #[template(built_in)]
     pub cancel_actions: Vec<CancelAction>,
 
     /// The type of time used to advance the timer.
@@ -147,6 +185,31 @@ impl Combo {
         }
 
         false
+    }
+}
+
+/// Constructors and methods for [`Combo`] that allow passing entity references in BSN.
+impl ComboTemplate {
+    /// Creates a template for an ordered sequence of steps.
+    ///
+    /// Accepts entity references or configured [`ComboStepTemplate`] values.
+    /// See also [`Combo::with_step`].
+    #[must_use]
+    pub fn new(steps: impl IntoIterator<Item = impl Into<ComboStepTemplate>>) -> Self {
+        Self {
+            steps: VecTemplate(steps.into_iter().map(Into::into).collect()),
+            ..Default::default()
+        }
+    }
+
+    /// Adds an action that cancels the combo.
+    ///
+    /// Accepts an entity reference or a configured [`CancelActionTemplate`].
+    /// See also [`Combo::with_cancel`].
+    #[must_use]
+    pub fn with_cancel(mut self, action: impl Into<CancelActionTemplate>) -> Self {
+        self.cancel_actions.0.push(action.into());
+        self
     }
 }
 
@@ -289,6 +352,173 @@ impl CancelAction {
 impl From<Entity> for CancelAction {
     fn from(action: Entity) -> Self {
         Self::new(action)
+    }
+}
+
+// We can't derive the template because `ComboStep` defaults to
+// `events: COMPLETE` and `timeout: 0.5`, and we can't override these defaults in the `FromTemplate` derive.
+impl FromTemplate for ComboStep {
+    type Template = ComboStepTemplate;
+}
+
+/// BSN template for [`ComboStep`] that accepts an entity reference.
+pub struct ComboStepTemplate {
+    /// Associated action or named scene reference.
+    pub action: EntityTemplate,
+
+    /// Events for the action to complete this step.
+    pub events: ActionEvents,
+
+    /// Time in seconds to complete this step after the previous step.
+    pub timeout: f32,
+}
+
+impl Default for ComboStepTemplate {
+    fn default() -> Self {
+        Self {
+            action: EntityTemplate::default(),
+            events: ActionEvents::COMPLETE,
+            timeout: 0.5,
+        }
+    }
+}
+
+/// Constructors and methods that mirror [`ComboStep`] to allow passing entity references in BSN.
+impl ComboStepTemplate {
+    /// Creates a step template.
+    ///
+    /// See also [`ComboStep::new`].
+    #[must_use]
+    pub fn new(action: impl Into<EntityTemplate>) -> Self {
+        Self {
+            action: action.into(),
+            ..Default::default()
+        }
+    }
+
+    /// Sets [`Self::events`].
+    ///
+    /// See also [`ComboStep::with_events`].
+    #[must_use]
+    pub fn with_events(mut self, events: ActionEvents) -> Self {
+        self.events = events;
+        self
+    }
+
+    /// Sets [`Self::timeout`].
+    ///
+    /// See also [`ComboStep::with_timeout`].
+    #[must_use]
+    pub fn with_timeout(mut self, timeout: f32) -> Self {
+        self.timeout = timeout;
+        self
+    }
+}
+
+impl<T: Into<EntityTemplate>> From<T> for ComboStepTemplate {
+    fn from(action: T) -> Self {
+        Self::new(action)
+    }
+}
+
+impl From<ComboStep> for ComboStepTemplate {
+    fn from(step: ComboStep) -> Self {
+        Self::new(step.action)
+            .with_events(step.events)
+            .with_timeout(step.timeout)
+    }
+}
+
+impl Template for ComboStepTemplate {
+    type Output = ComboStep;
+
+    fn build_template(&self, context: &mut TemplateContext) -> Result<ComboStep> {
+        Ok(ComboStep::new(self.action.build_template(context)?)
+            .with_events(self.events)
+            .with_timeout(self.timeout))
+    }
+
+    fn clone_template(&self) -> Self {
+        Self {
+            action: self.action.clone_template(),
+            events: self.events,
+            timeout: self.timeout,
+        }
+    }
+}
+
+impl FromTemplate for CancelAction {
+    type Template = CancelActionTemplate;
+}
+
+/// BSN template for [`CancelAction`] that accepts an entity reference.
+///
+/// Defaults to [`ActionEvents::ONGOING`] and [`ActionEvents::FIRE`].
+/// An action must be supplied before spawning.
+pub struct CancelActionTemplate {
+    /// Associated action or named scene reference.
+    pub action: EntityTemplate,
+    /// Events that cancel the combo if any occur.
+    pub events: ActionEvents,
+}
+
+impl Default for CancelActionTemplate {
+    fn default() -> Self {
+        Self {
+            action: EntityTemplate::default(),
+            events: ActionEvents::ONGOING | ActionEvents::FIRE,
+        }
+    }
+}
+
+/// Constructors and methods for [`CancelAction`] that allow passing entity references in BSN.
+impl CancelActionTemplate {
+    /// Creates a cancel action template.
+    ///
+    /// See also [`CancelAction::from`].
+    #[must_use]
+    pub fn new(action: impl Into<EntityTemplate>) -> Self {
+        Self {
+            action: action.into(),
+            ..Default::default()
+        }
+    }
+
+    /// Sets [`Self::events`].
+    #[must_use]
+    pub fn with_events(mut self, events: ActionEvents) -> Self {
+        self.events = events;
+        self
+    }
+}
+
+impl<T: Into<EntityTemplate>> From<T> for CancelActionTemplate {
+    fn from(action: T) -> Self {
+        Self::new(action)
+    }
+}
+
+impl From<CancelAction> for CancelActionTemplate {
+    fn from(action: CancelAction) -> Self {
+        Self::new(action.action).with_events(action.events)
+    }
+}
+
+impl Template for CancelActionTemplate {
+    type Output = CancelAction;
+
+    fn build_template(&self, context: &mut TemplateContext) -> Result<CancelAction> {
+        Ok(CancelAction {
+            action: self.action.build_template(context)?,
+            events: self.events,
+        })
+    }
+
+    fn clone_template(&self) -> Self {
+        Self {
+            action: self.action.clone_template(),
+            events: self.events,
+        }
     }
 }
 

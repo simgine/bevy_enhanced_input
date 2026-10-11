@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    ecs::template::{EntityTemplate, Template, TemplateContext},
+    prelude::*,
+};
 use log::warn;
 use smallvec::{SmallVec, smallvec};
 
@@ -13,10 +16,59 @@ Set of actions that need to be triggered at the same time.
 
 Useful for defining a composite action that fires only when all listed actions fire.
 
-Requires using [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
-because you need to pass [`Entity`] for step and cancel actions.
-
 # Examples
+
+Use named entity references in BSN to refer to the chorded actions:
+
+```
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
+use bevy_enhanced_input::prelude::*;
+
+# let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+# let world = app.world_mut();
+world.spawn_scene(bsn! {
+    Player
+    Actions<Player> [
+        #modifier
+        Action::<Modifier>::new()
+        Bindings [
+            Binding(GamepadButton::LeftTrigger)
+        ]
+        --
+        // Use `Heal` if `Modifier` is active.
+        Action::<Heal>::new()
+        Chord::single(#modifier)
+        Bindings [
+            Binding(GamepadButton::West)
+        ]
+        --
+        // Otherwise use `Attack`.
+        Action::<Attack>::new()
+        Bindings [
+            Binding(GamepadButton::West)
+        ]
+    ]
+}).unwrap();
+
+#[derive(Component, Default, Clone)]
+struct Player;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Attack;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Modifier;
+
+#[derive(InputAction)]
+#[action_output(bool)]
+struct Heal;
+```
+
+When spawning bundles, use [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
+because you need to pass [`Entity`] for step and cancel actions:
 
 ```
 use bevy::prelude::*;
@@ -94,6 +146,78 @@ impl Chord {
     pub fn with_ongoing(mut self, enable: bool) -> Self {
         self.ongoing = enable;
         self
+    }
+}
+
+// We can't derive the template because `Chord` defaults to
+// `ongoing: true`, and we can't override this default in the `FromTemplate` derive.
+impl FromTemplate for Chord {
+    type Template = ChordTemplate;
+}
+
+/// BSN template for [`Chord`] that accepts entity references.
+#[derive(Debug)]
+pub struct ChordTemplate {
+    /// Actions whose state will be inherited when they are firing.
+    pub actions: SmallVecTemplate<EntityTemplate, 2>,
+
+    /// Whether partial activation returns [`TriggerState::Ongoing`].
+    pub ongoing: bool,
+}
+
+impl Default for ChordTemplate {
+    fn default() -> Self {
+        Self {
+            actions: SmallVecTemplate::default(),
+            ongoing: true,
+        }
+    }
+}
+
+/// Constructors and methods that mirror [`Chord`] to allow passing entity references in BSN.
+impl ChordTemplate {
+    /// Creates a template for a single action.
+    ///
+    /// See also [`Chord::single`].
+    #[must_use]
+    pub fn single(action: impl Into<EntityTemplate>) -> Self {
+        let action = action.into();
+        Self::new([action])
+    }
+
+    /// Creates a template for multiple actions.
+    ///
+    /// See also [`Chord::new`].
+    #[must_use]
+    pub fn new(actions: impl Into<SmallVecTemplate<EntityTemplate, 2>>) -> Self {
+        Self {
+            actions: actions.into(),
+            ongoing: true,
+        }
+    }
+
+    /// Sets [`Self::ongoing`].
+    ///
+    /// See also [`Chord::with_ongoing`].
+    #[must_use]
+    pub fn with_ongoing(mut self, enable: bool) -> Self {
+        self.ongoing = enable;
+        self
+    }
+}
+
+impl Template for ChordTemplate {
+    type Output = Chord;
+
+    fn build_template(&self, context: &mut TemplateContext) -> Result<Chord> {
+        Ok(Chord::new(self.actions.build_template(context)?).with_ongoing(self.ongoing))
+    }
+
+    fn clone_template(&self) -> Self {
+        Self {
+            actions: self.actions.clone_template(),
+            ongoing: self.ongoing,
+        }
     }
 }
 

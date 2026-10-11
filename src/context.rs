@@ -17,10 +17,10 @@ However, if you only want to remove a context from an entity, you must remove th
 **and** manually despawn its actions.
 
 ```
-use bevy::prelude::*;
+use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 use bevy_enhanced_input::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct OnFoot;
 
 #[derive(InputAction)]
@@ -31,15 +31,28 @@ struct Jump;
 #[action_output(bool)]
 struct Fire;
 
-let mut world = World::new();
+# let mut app = App::new();
+# app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+let world = app.world_mut();
 let before = world.entities().count_spawned();
-let mut player = world.spawn((
-    OnFoot,
-    actions!(OnFoot[
-        (Action::<Jump>::new(), bindings![KeyCode::Space, GamepadButton::South]),
-        (Action::<Fire>::new(), bindings![MouseButton::Left, GamepadButton::RightTrigger2]),
-    ])
-));
+let mut player = world.spawn_scene(bsn! {
+    OnFoot
+    Actions<OnFoot> [
+        Action::<Jump>::new()
+        Bindings [
+            Binding(KeyCode::Space)
+            --
+            Binding(GamepadButton::South)
+        ]
+        --
+        Action::<Fire>::new()
+        Bindings [
+            Binding(MouseButton::Left)
+            --
+            Binding(GamepadButton::RightTrigger2)
+        ]
+    ]
+}).unwrap();
 
 player
     .remove_with_requires::<OnFoot>()
@@ -873,21 +886,23 @@ impl<C: 'static> TypePath for ContextActivity<C> {
 /// # Examples
 ///
 /// ```
-/// use bevy::prelude::*;
+/// use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// use bevy_enhanced_input::prelude::*;
 ///
-/// # let mut world = World::new();
-/// world.spawn((
-///     OnFoot,
-///     InCar,
-///     ContextPriority::<InCar>::new(1), // `InCar` context will be evaluated earlier.
+/// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+/// # let world = app.world_mut();
+/// world.spawn_scene(bsn! {
+///     OnFoot
+///     InCar
+///     ContextPriority::<InCar>::new(1) // `InCar` context will be evaluated earlier.
 ///     // Actions...
-/// ));
+/// }).unwrap();
 ///
-/// #[derive(Component)]
+/// #[derive(Component, Default, Clone)]
 /// struct OnFoot;
 ///
-/// #[derive(Component)]
+/// #[derive(Component, Default, Clone)]
 /// struct InCar;
 /// ```
 #[derive(Component, Deref)]

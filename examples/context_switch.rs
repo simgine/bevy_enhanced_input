@@ -27,7 +27,7 @@ fn main() {
 }
 
 fn spawn(mut commands: Commands) {
-    commands.spawn(player_bundle());
+    commands.spawn_scene(player_scene());
 }
 
 fn apply_movement(movement: On<Fire<Movement>>) {
@@ -58,52 +58,59 @@ fn close_inventory(close: On<Start<CloseInventory>>, mut commands: Commands) {
     ));
 }
 
-fn player_bundle() -> impl Bundle {
-    (
-        Player,
-        actions!(Player[
-            (
-                Action::<Movement>::new(),
-                DeadZone::default(),
-                DeltaScale::default(),
-                Scale::splat(10.0),
-                Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-            ),
-            (
-                Action::<Attack>::new(),
-                bindings![MouseButton::Left, GamepadButton::West],
-            ),
-            (
-                Action::<OpenInventory>::new(),
-                // We set `require_reset` to `true` because `CloseInventory` action uses the same input,
-                // and we want it to be triggerable only after the button is released.
-                ActionSettings {
-                    require_reset: true,
-                    ..Default::default()
-                },
-                bindings![KeyCode::KeyI, GamepadButton::Select],
-            ),
-        ]),
-        Inventory,
-        actions!(Inventory[
-            (
-                Action::<NavigateInventory>::new(),
-                Bindings::spawn((Cardinal::wasd_keys(), Axial::left_stick())),
-                Pulse::new(0.2), // Avoid triggering every frame on hold for UI.
-            ),
-            (
-                Action::<CloseInventory>::new(),
-                ActionSettings {
-                    require_reset: true,
-                    ..Default::default()
-                },
-                bindings![KeyCode::KeyI, GamepadButton::Select],
-            )
-        ]),
-    )
+fn player_scene() -> impl Scene {
+    bsn! {
+        Player
+        Actions<Player> [
+            Action::<Movement>::new()
+            DeadZone
+            DeltaScale
+            ~Scale::splat(10.0)
+            Bindings [
+                {preset::cardinal::wasd_keys()}
+                --
+                {preset::axial::left_stick()}
+            ]
+            --
+            Action::<Attack>::new()
+            Bindings [
+                Binding(MouseButton::Left)
+                --
+                Binding(GamepadButton::West)
+            ]
+            --
+            Action::<OpenInventory>::new()
+            // We set `require_reset` to `true` because `CloseInventory` action uses the same input,
+            // and we want it to be triggerable only after the button is released.
+            ActionSettings { require_reset: true }
+            Bindings [
+                Binding(KeyCode::KeyI)
+                --
+                Binding(GamepadButton::Select)
+            ]
+        ]
+        Inventory
+        Actions<Inventory> [
+            Action::<NavigateInventory>::new()
+            Bindings [
+                {preset::cardinal::wasd_keys()}
+                --
+                {preset::axial::left_stick()}
+            ]
+            ~Pulse::new(0.2) // Avoid triggering every frame on hold for UI.
+            --
+            Action::<CloseInventory>::new()
+            ActionSettings { require_reset: true }
+            Bindings [
+                Binding(KeyCode::KeyI)
+                --
+                Binding(GamepadButton::Select)
+            ]
+        ]
+    }
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
 #[derive(InputAction)]
@@ -119,7 +126,7 @@ struct Attack;
 #[action_output(bool)]
 struct OpenInventory;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Inventory;
 
 #[derive(InputAction)]

@@ -43,20 +43,22 @@ use crate::prelude::*;
 ///
 /// ```
 /// # use core::time::Duration;
-/// # use bevy::prelude::*;
+/// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
 /// # use bevy_enhanced_input::prelude::*;
-/// # let mut world = World::new();
-/// world.spawn((
-///     Player,
-///     actions!(Player[
-///         (
-///             Action::<Movement>::new(),
-///             ActionMock::new(TriggerState::Fired, Vec2::Y, Duration::from_secs(2)),
-///             Bindings::spawn(Cardinal::wasd_keys()), // Bindings will be ignored while mocked.
-///         ),
-///     ]),
-/// ));
-/// # #[derive(Component)]
+/// # let mut app = App::new();
+/// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+/// # let world = app.world_mut();
+/// world.spawn_scene(bsn! {
+///     Player
+///     Actions<Player> [
+///         Action::<Movement>::new()
+///         ActionMock::new(TriggerState::Fired, Vec2::Y, Duration::from_secs(2))
+///         Bindings [ // Bindings will be ignored while mocked.
+///             {preset::cardinal::wasd_keys()}
+///         ]
+///     ]
+/// }).unwrap();
+/// # #[derive(Component, Default, Clone)]
 /// # struct Player;
 /// # #[derive(InputAction)]
 /// # #[action_output(Vec2)]
@@ -220,21 +222,27 @@ pub trait MockEntityCommandsExt {
     /// Mocks a 2 second long press.
     ///
     /// ```
-    /// # use bevy::prelude::*;
+    /// # use bevy::{asset::AssetPlugin, prelude::*, scene::ScenePlugin};
     /// # use bevy_enhanced_input::prelude::*;
     /// # use core::time::Duration;
     /// # let mut app = App::new();
-    /// app.world_mut().spawn((
-    ///     Player,
-    ///     actions!(Player[Action::<PrimaryFire>::new(), bindings![MouseButton::Left]])
-    /// ));
+    /// # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
+    /// app.world_mut().spawn_scene(bsn! {
+    ///     Player
+    ///     Actions<Player> [
+    ///         Action::<PrimaryFire>::new()
+    ///         Bindings [
+    ///             Binding(MouseButton::Left)
+    ///         ]
+    ///     ]
+    /// }).unwrap();
     ///
     /// fn mock_fire(mut commands: Commands, player: Single<Entity, With<Player>>) {
     ///     commands
     ///         .entity(player.into_inner())
     ///         .mock::<Player, PrimaryFire>(TriggerState::Fired, true, Duration::from_secs(2));
     /// }
-    /// # #[derive(Component)]
+    /// # #[derive(Component, Default, Clone)]
     /// # struct Player;
     /// # #[derive(InputAction)]
     /// # #[action_output(bool)]

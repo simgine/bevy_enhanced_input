@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::template::EntityTemplate, prelude::*};
 use log::warn;
 
 use crate::prelude::*;
@@ -10,7 +10,50 @@ use crate::prelude::*;
 ///
 /// # Examples
 ///
-/// To get action entities during spawning, you could use [`SpawnWith`].
+/// Use named entity references in BSN to refer to the blocking actions:
+///
+/// ```
+/// use bevy::prelude::*;
+/// use bevy_enhanced_input::prelude::*;
+///
+/// let scene = bsn! {
+///     TestContext
+///     Actions<TestContext> [
+///         #accelerate
+///         Action::<Accelerate>::new()
+///         Bindings [
+///             Binding(KeyCode::ShiftLeft)
+///             --
+///             Binding(KeyCode::ShiftRight)
+///         ]
+///         --
+///         // Sums movement when `Accelerate` is pressed.
+///         Action::<Movement>::new()
+///         AccumulateBy::new(#accelerate)
+///         Bindings [
+///             {preset::cardinal::new(
+///                 (KeyCode::KeyW, DeadZone::default()),
+///                 (KeyCode::KeyA, DeadZone::default()),
+///                 (KeyCode::KeyS, DeadZone::default()),
+///                 (KeyCode::KeyD, DeadZone::default()),
+///             )}
+///         ]
+///     ]
+/// };
+///
+/// #[derive(Component, Default, Clone)]
+/// struct TestContext;
+///
+/// #[derive(InputAction)]
+/// #[action_output(bool)]
+/// struct Accelerate;
+///
+/// #[derive(InputAction)]
+/// #[action_output(f32)]
+/// struct Movement;
+/// ```
+///
+/// When spawning bundles, you could use [`SpawnWith`] to get action entities during spawning:
 ///
 /// ```
 /// use bevy::{ecs::spawn::SpawnWith, prelude::*};
@@ -43,7 +86,7 @@ use crate::prelude::*;
 /// #[action_output(f32)]
 /// struct Movement;
 /// ```
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Debug, FromTemplate, Clone, Copy)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct AccumulateBy {
     /// Action that activates accumulation.
@@ -54,10 +97,25 @@ pub struct AccumulateBy {
 }
 
 impl AccumulateBy {
+    /// Creates a modifier with zero accumulated value.
     #[must_use]
     pub const fn new(action: Entity) -> Self {
         Self {
             action,
+            value: Vec3::ZERO,
+        }
+    }
+}
+
+/// Constructors that mirror [`AccumulateBy`] to allow passing entity references in BSN.
+impl AccumulateByTemplate {
+    /// Creates a template with zero accumulated value.
+    ///
+    /// See also [`AccumulateBy::new`].
+    #[must_use]
+    pub fn new(action: impl Into<EntityTemplate>) -> Self {
+        Self {
+            action: action.into(),
             value: Vec3::ZERO,
         }
     }

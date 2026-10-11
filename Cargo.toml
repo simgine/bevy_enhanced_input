@@ -31,6 +31,7 @@ bevy = { version = "0.20", default-features = false, features = [
   "keyboard",
   "gamepad",
   "touch",
+  "bevy_scene",
 ] }
 log = "0.4" # Directly depend on `log` like other `no_std` Bevy crates, since `bevy_log` currently requires `std`.
 smallvec = "1.15"
