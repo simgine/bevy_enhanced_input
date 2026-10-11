@@ -38,6 +38,12 @@ impl LinearStep {
     }
 }
 
+impl Default for LinearStep {
+    fn default() -> Self {
+        Self::splat(1.0)
+    }
+}
+
 impl InputModifier for LinearStep {
     fn transform(
         &mut self,

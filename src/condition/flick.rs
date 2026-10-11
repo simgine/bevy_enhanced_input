@@ -60,6 +60,12 @@ impl Flick {
     }
 }
 
+impl Default for Flick {
+    fn default() -> Self {
+        Self::new(0.2)
+    }
+}
+
 impl InputCondition for Flick {
     fn evaluate(
         &mut self,

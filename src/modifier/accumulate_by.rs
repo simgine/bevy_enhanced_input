@@ -43,7 +43,7 @@ use crate::prelude::*;
 /// #[action_output(f32)]
 /// struct Movement;
 /// ```
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, FromTemplate, Debug, Clone, Copy)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct AccumulateBy {
     /// Action that activates accumulation.
