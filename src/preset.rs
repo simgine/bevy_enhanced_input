@@ -249,9 +249,9 @@ struct InputSettings {
 // `Binding::None` represents unbound inputs.
 let settings = InputSettings {
     forward: [Binding::from(KeyCode::KeyW), Binding::None],
-    right: [Binding::from(KeyCode::KeyA), Binding::None],
+    right: [Binding::from(KeyCode::KeyD), Binding::None],
     backward: [Binding::from(KeyCode::KeyS), Binding::None],
-    left: [Binding::from(KeyCode::KeyD), Binding::None],
+    left: [Binding::from(KeyCode::KeyA), Binding::None],
 };
 
 Bindings::spawn((

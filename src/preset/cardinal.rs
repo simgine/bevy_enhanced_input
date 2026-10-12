@@ -11,7 +11,7 @@ use crate::prelude::*;
 /// See also [`Cardinal::wasd_keys`] for bundle-based spawning.
 #[must_use]
 pub fn wasd_keys() -> impl SceneList {
-    new(KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD)
+    new(KeyCode::KeyW, KeyCode::KeyD, KeyCode::KeyS, KeyCode::KeyA)
 }
 
 /// Maps keyboard arrow keys as 2-dimensional input.
@@ -21,9 +21,9 @@ pub fn wasd_keys() -> impl SceneList {
 pub fn arrows() -> impl SceneList {
     new(
         KeyCode::ArrowUp,
-        KeyCode::ArrowLeft,
-        KeyCode::ArrowDown,
         KeyCode::ArrowRight,
+        KeyCode::ArrowDown,
+        KeyCode::ArrowLeft,
     )
 }
 
@@ -34,9 +34,9 @@ pub fn arrows() -> impl SceneList {
 pub fn dpad() -> impl SceneList {
     new(
         GamepadButton::DPadUp,
-        GamepadButton::DPadLeft,
-        GamepadButton::DPadDown,
         GamepadButton::DPadRight,
+        GamepadButton::DPadDown,
+        GamepadButton::DPadLeft,
     )
 }
 
@@ -46,14 +46,14 @@ pub fn dpad() -> impl SceneList {
 #[must_use]
 pub fn new(
     north: impl IntoBindingSceneBundle,
-    west: impl IntoBindingSceneBundle,
-    south: impl IntoBindingSceneBundle,
     east: impl IntoBindingSceneBundle,
+    south: impl IntoBindingSceneBundle,
+    west: impl IntoBindingSceneBundle,
 ) -> impl SceneList {
     let north = north.into_binding_scene_bundle();
-    let west = west.into_binding_scene_bundle();
-    let south = south.into_binding_scene_bundle();
     let east = east.into_binding_scene_bundle();
+    let south = south.into_binding_scene_bundle();
+    let west = west.into_binding_scene_bundle();
     bsn_list! {
         @{super::binding_scene(east)}
         --
@@ -99,7 +99,7 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     /// See also [`wasd_keys`] for BSN usage.
     #[must_use]
     pub fn wasd_keys() -> Self {
-        Self::new(KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD)
+        Self::new(KeyCode::KeyW, KeyCode::KeyD, KeyCode::KeyS, KeyCode::KeyA)
     }
 
     /// Maps keyboard arrow keys as 2-dimensional input.
@@ -109,9 +109,9 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     pub fn arrows() -> Self {
         Self::new(
             KeyCode::ArrowUp,
-            KeyCode::ArrowLeft,
-            KeyCode::ArrowDown,
             KeyCode::ArrowRight,
+            KeyCode::ArrowDown,
+            KeyCode::ArrowLeft,
         )
     }
 
@@ -121,15 +121,15 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     #[must_use]
     pub fn new(
         north: impl Into<Binding>,
-        west: impl Into<Binding>,
-        south: impl Into<Binding>,
         east: impl Into<Binding>,
+        south: impl Into<Binding>,
+        west: impl Into<Binding>,
     ) -> Self {
         Self {
             north: north.into(),
-            west: west.into(),
-            south: south.into(),
             east: east.into(),
+            south: south.into(),
+            west: west.into(),
         }
     }
 

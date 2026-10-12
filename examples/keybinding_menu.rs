@@ -571,23 +571,23 @@ fn player_scene(settings: InputSettings) -> impl Scene {
             Bindings [
                 {preset::cardinal::new(
                     settings.forward[0],
-                    settings.left[0],
-                    settings.backward[0],
                     settings.right[0],
+                    settings.backward[0],
+                    settings.left[0],
                 )}
                 --
                 {preset::cardinal::new(
                     settings.forward[1],
-                    settings.left[1],
-                    settings.backward[1],
                     settings.right[1],
+                    settings.backward[1],
+                    settings.left[1],
                 )}
                 --
                 {preset::cardinal::new(
                     settings.forward[2],
-                    settings.left[2],
-                    settings.backward[2],
                     settings.right[2],
+                    settings.backward[2],
+                    settings.left[2],
                 )}
             ]
             --

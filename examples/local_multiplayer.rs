@@ -173,13 +173,13 @@ fn player_scene(
     transform: Transform,
 ) -> impl Scene {
     // Assign different bindings based on the player index.
-    let [north, west, south, east] = match player {
-        Player::First => [KeyCode::KeyW, KeyCode::KeyA, KeyCode::KeyS, KeyCode::KeyD],
+    let [north, east, south, west] = match player {
+        Player::First => [KeyCode::KeyW, KeyCode::KeyD, KeyCode::KeyS, KeyCode::KeyA],
         Player::Second => [
             KeyCode::ArrowUp,
-            KeyCode::ArrowLeft,
-            KeyCode::ArrowDown,
             KeyCode::ArrowRight,
+            KeyCode::ArrowDown,
+            KeyCode::ArrowLeft,
         ],
     };
     let arm_kick_binding = Binding::from(match player {
@@ -201,7 +201,7 @@ fn player_scene(
             DeltaScale
             ~Scale::splat(ACCELERATION)
             Bindings [
-                {preset::cardinal::new(north, west, south, east)}
+                {preset::cardinal::new(north, east, south, west)}
                 --
                 {preset::axial::left_stick()}
             ]
@@ -227,7 +227,7 @@ fn player_scene(
             Chord::single(#arm)
             ~Press::new(0.9)
             Bindings [
-                {preset::cardinal::new(north, west, south, east)}
+                {preset::cardinal::new(north, east, south, west)}
                 --
                 {preset::axial::left_stick()}
             ]

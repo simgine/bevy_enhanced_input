@@ -46,7 +46,7 @@ pub fn new(
     west: impl IntoBindingSceneBundle,
     north_west: impl IntoBindingSceneBundle,
 ) -> impl SceneList {
-    let cardinal = super::cardinal::new(north, west, south, east);
+    let cardinal = super::cardinal::new(north, east, south, west);
     let north_east = north_east.into_binding_scene_bundle();
     let south_east = south_east.into_binding_scene_bundle();
     let south_west = south_west.into_binding_scene_bundle();
