@@ -32,9 +32,9 @@ use crate::prelude::*;
 ///         Bindings [
 ///             {preset::cardinal::new(
 ///                 (KeyCode::KeyW, DeadZone::default()),
-///                 (KeyCode::KeyA, DeadZone::default()),
-///                 (KeyCode::KeyS, DeadZone::default()),
 ///                 (KeyCode::KeyD, DeadZone::default()),
+///                 (KeyCode::KeyS, DeadZone::default()),
+///                 (KeyCode::KeyA, DeadZone::default()),
 ///             )}
 ///         ]
 ///     ]

@@ -17,7 +17,7 @@ pub fn new(
     up: impl IntoBindingSceneBundle,
     down: impl IntoBindingSceneBundle,
 ) -> impl SceneList {
-    let xy = super::cardinal::new(up, left, down, right);
+    let xy = super::cardinal::new(up, right, down, left);
     let forward = forward.into_binding_scene_bundle();
     let backward = backward.into_binding_scene_bundle();
     bsn_list! {
