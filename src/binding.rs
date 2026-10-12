@@ -340,14 +340,14 @@ fn on_insert(mut world: DeferredWorld, ctx: HookContext) {
 
     if enabled!(Level::WARN) {
         // Scene bundle templates may insert `BindingOf` after this hook runs.
-        if let Some(action) = entity.get::<BindingOf>().map(|b| **b) {
-            if world.get::<TriggerState>(action).is_none() {
-                let binding = world.get::<Binding>(ctx.entity).unwrap();
-                warn!(
-                    "`{}` has binding `{binding:?}`, but the associated action `{action}` is invalid",
-                    ctx.entity
-                );
-            }
+        if let Some(action) = entity.get::<BindingOf>().map(|b| **b)
+            && world.get::<TriggerState>(action).is_none()
+        {
+            let binding = world.get::<Binding>(ctx.entity).unwrap();
+            warn!(
+                "`{}` has binding `{binding:?}`, but the associated action `{action}` is invalid",
+                ctx.entity
+            );
         }
     }
 }
