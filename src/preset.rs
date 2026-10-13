@@ -97,18 +97,6 @@ Each preset module also have a `new` function that accepts [`IntoBindingSceneBun
 [`KeyCode::KeyW`], or a tuple with additional components or bundles. They must be cloneable and have no
 [`bundle effects`](bevy::ecs::bundle::NoBundleEffect). Duplicate components within a bundle will panic.
 
-# Bundles
-
-A bundle-based API is also available. Preset structs such as [`Cardinal`](cardinal::Cardinal) and
-[`Axial`](axial::Axial) implement [`SpawnableList`](bevy::ecs::spawn::SpawnableList). Their fields
-are bundles, and [`WithBundle::with`] attaches components to every binding.
-
-Similar to other [`SpawnableList`](bevy::ecs::spawn::SpawnableList)s in Bevy, like [`SpawnWith`]
-or [`SpawnIter`], you need to call [`Bindings::spawn`](bevy::prelude::SpawnRelated)
-from the [`SpawnRelated`] trait to generate the binding entities.
-
-You cannot use the [`bindings!`](crate::prelude::bindings) macro.
-
 # Examples
 
 Adding additional bindings:
@@ -130,20 +118,6 @@ let scene = bsn! {
         ~SwizzleAxis::YXZ
     ]
 };
-```
-
-## Bundles
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-Bindings::spawn((
-    Cardinal::wasd_keys(),
-    Axial::left_stick(),
-    // Additional bindings needs to use `Binding::from` wrapped
-    // into `Spawn`, which is what `bindings!` macro does.
-    Spawn((Binding::from(KeyCode::ArrowUp), SwizzleAxis::YXZ))
-));
 ```
 
 Initializing fields:
@@ -171,23 +145,8 @@ let scene = bsn! {
 };
 ```
 
-As with [`WithBundle::with`], avoid duplicating modifiers already supplied by a preset.
+Avoid duplicating modifiers already supplied by a preset, as duplicate components within a bundle will panic.
 Alternatively, attach shared modifiers at the action level, as in the movement example above.
-
-## Bundles
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-Bindings::spawn((
-    Bidirectional {
-        // Struct fields are bundles, so you can also attach modifiers to individual fields.
-        positive: (Binding::from(KeyCode::NumpadAdd), Scale::splat(2.0)),
-        negative: Binding::from(KeyCode::NumpadSubtract),
-    },
-    Axial::left_stick().with((Scale::splat(1.0), Negate::all())), // Attach components to each field.
-));
-```
 
 Loading from settings:
 
@@ -239,50 +198,6 @@ struct InputSettings {
     left: [Binding; 2],
 }
 ```
-
-## Bundles
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-// Could be loaded from a file.
-// `Binding::None` represents unbound inputs.
-let settings = InputSettings {
-    forward: [Binding::from(KeyCode::KeyW), Binding::None],
-    right: [Binding::from(KeyCode::KeyD), Binding::None],
-    backward: [Binding::from(KeyCode::KeyS), Binding::None],
-    left: [Binding::from(KeyCode::KeyA), Binding::None],
-};
-
-Bindings::spawn((
-    Cardinal {
-        north: settings.forward[0],
-        east: settings.right[0],
-        south: settings.backward[0],
-        west: settings.left[0],
-    },
-    Cardinal {
-        north: settings.forward[1],
-        east: settings.right[1],
-        south: settings.backward[1],
-        west: settings.left[1],
-    },
-));
-
-/// Bindings for actions.
-///
-/// Represented as arrays because in games you usually
-/// have 2 or 3 bindings for a single action.
-///
-/// Usually stored as a resource.
-#[derive(Resource)]
-struct InputSettings {
-    forward: [Binding; 2],
-    right: [Binding; 2],
-    backward: [Binding; 2],
-    left: [Binding; 2],
-}
-```
 */
 
 pub mod axial;
@@ -297,8 +212,7 @@ use crate::binding::Binding;
 
 /// A binding value, optionally followed by additional bundles in a tuple, for a BSN preset.
 ///
-/// Unlike the bundle API, these bundles must be cloneable and cannot
-/// have bundle effects.
+/// These bundles must be cloneable and cannot have bundle effects.
 pub trait IntoBindingSceneBundle {
     /// Converts the input into a bundle that can be used by a scene template.
     fn into_binding_scene_bundle(self) -> impl Bundle<Effect: NoBundleEffect> + Clone;
@@ -335,7 +249,11 @@ fn binding_scene(bundle: impl Bundle<Effect: NoBundleEffect> + Clone) -> impl Sc
 
 /// Helper trait for attaching a bundle to a preset.
 ///
-/// See the module documentation for a usage example.
+/// See the examples on [`WithBundle::with`].
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by passing modifier bundles to BSN preset constructors"
+)]
 pub trait WithBundle<B> {
     type Output;
 

@@ -17,8 +17,6 @@ use bevy::{
 use serde::{Deserialize, Serialize};
 
 /// Context entity associated with this action entity.
-///
-/// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
 #[derive(Component, Deref)]
 #[cfg_attr(
     feature = "reflect",
@@ -102,8 +100,6 @@ impl<C: Component> TypePath for ActionOf<C> {
 }
 
 /// Action entities associated with context `C`.
-///
-/// See also the [`actions!`](crate::prelude::actions) macro for conveniently spawning associated actions.
 #[derive(Component, Deref)]
 #[cfg_attr(
     feature = "reflect",
@@ -274,6 +270,10 @@ pub type ActionSpawnerCommands<'w, C> = RelatedSpawnerCommands<'w, ActionOf<C>>;
 /// # #[action_output(bool)]
 /// # struct Jump;
 /// ```
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by `bsn!` with `Actions<Context> [...]`"
+)]
 #[macro_export]
 macro_rules! actions {
     ($context:ty [$($action:expr),*$(,)?]) => {

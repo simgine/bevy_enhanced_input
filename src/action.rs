@@ -10,8 +10,8 @@
 //! allowing you to enable and disable actions based on the current game state.
 //!
 //! They are spawned as entities with the [`Action<C>`] component, where `C` is the action type,
-//! and related to the context entity via the [`ActionOf<C>`] relationship.
-//! The [`actions!`] macro can be used to conveniently spawn multiple actions at once.
+//! and related to the context entity via the [`ActionOf<C>`] relationship,
+//! declared in BSN using `Actions<Context> [...]`.
 //!
 //! In turn, actions have input mappings defined by [binding](crate::binding) entities,
 //! which are related to the action entity via the [`BindingOf`] relationship.

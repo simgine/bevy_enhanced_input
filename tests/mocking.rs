@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use std::time::Duration;
 
 use bevy::{input::InputPlugin, prelude::*, time::TimeUpdateStrategy};

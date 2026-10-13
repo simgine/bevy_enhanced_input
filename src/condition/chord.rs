@@ -66,49 +66,6 @@ struct Modifier;
 #[action_output(bool)]
 struct Heal;
 ```
-
-When spawning bundles, use [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
-because you need to pass [`Entity`] for step and cancel actions:
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-# let mut world = World::new();
-world.spawn((
-    Player,
-    Actions::<Player>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
-        let modifier = context
-            .spawn((Action::<Modifier>::new(), bindings![GamepadButton::LeftTrigger]))
-            .id();
-
-        // Use `Heal` if `Modifier` is active.
-        context.spawn((
-            Action::<Heal>::new(),
-            Chord::single(modifier),
-            bindings![GamepadButton::West],
-        ));
-
-        // Otherwise use `Attack`.
-        context.spawn((Action::<Attack>::new(), bindings![GamepadButton::West]));
-    })),
-));
-
-#[derive(Component)]
-struct Player;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Attack;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Modifier;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Heal;
-```
 */
 #[derive(Component, Debug, Clone)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]

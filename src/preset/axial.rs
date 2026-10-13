@@ -3,24 +3,18 @@ use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
 use crate::prelude::*;
 
 /// Maps left stick as 2-dimensional input.
-///
-/// See also [`Axial::left_stick`] for bundle-based spawning.
 #[must_use]
 pub fn left_stick() -> impl SceneList {
     new(GamepadAxis::LeftStickX, GamepadAxis::LeftStickY)
 }
 
 /// Maps right stick as 2-dimensional input.
-///
-/// See also [`Axial::right_stick`] for bundle-based spawning.
 #[must_use]
 pub fn right_stick() -> impl SceneList {
     new(GamepadAxis::RightStickX, GamepadAxis::RightStickY)
 }
 
 /// Maps 2 bindings as 2-dimensional input.
-///
-/// See also [`Axial::new`] for bundle-based spawning.
 #[must_use]
 pub fn new(x: impl IntoBindingSceneBundle, y: impl IntoBindingSceneBundle) -> impl SceneList {
     let x = x.into_binding_scene_bundle();
@@ -35,12 +29,17 @@ pub fn new(x: impl IntoBindingSceneBundle, y: impl IntoBindingSceneBundle) -> im
 /// A preset to map 2 axes as 2-dimensional input.
 ///
 /// See also [`new`] for BSN usage.
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by `preset::axial` functions in BSN"
+)]
 #[derive(Debug, Clone, Copy)]
 pub struct Axial<X, Y> {
     pub x: X,
     pub y: Y,
 }
 
+#[allow(deprecated)]
 impl<X, Y, T: Clone> WithBundle<T> for Axial<X, Y> {
     type Output = Axial<(X, T), (Y, T)>;
 
@@ -52,6 +51,7 @@ impl<X, Y, T: Clone> WithBundle<T> for Axial<X, Y> {
     }
 }
 
+#[allow(deprecated)]
 impl Axial<Binding, Binding> {
     /// Maps left stick as 2-dimensional input.
     ///
@@ -90,6 +90,7 @@ impl Axial<Binding, Binding> {
     }
 }
 
+#[allow(deprecated)]
 impl<X: Bundle, Y: Bundle> SpawnableList<BindingOf> for Axial<X, Y> {
     fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
         let axial = this.read();

@@ -132,40 +132,6 @@ app.world_mut().spawn_scene(bsn! {
 }).unwrap();
 ```
 
-We also provide a bundle API that creates the same ECS relationships: [`actions!`] and [`bindings!`] are the
-bundle equivalents of BSN's `Actions<Context> [...]` and `Bindings [...]`, respectively. The [`bindings!`]
-macro converts inputs such as `KeyCode::Space` into [`Binding`] components automatically.
-
-```
-# use bevy::prelude::*;
-# use bevy_enhanced_input::prelude::*;
-# #[derive(Component)]
-# struct Player;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Jump;
-# #[derive(InputAction)]
-# #[action_output(bool)]
-# struct Fire;
-# let mut app = App::new();
-# app.add_plugins((MinimalPlugins, EnhancedInputPlugin))
-#     .add_input_context::<Player>()
-#     .finish();
-app.world_mut().spawn((
-    Player,
-    actions!(Player[
-        (
-            Action::<Jump>::new(),
-            bindings![KeyCode::Space, GamepadButton::South],
-        ),
-        (
-            Action::<Fire>::new(),
-            bindings![MouseButton::Left, GamepadButton::RightTrigger2],
-        ),
-    ])
-));
-```
-
 If we wanted to add a new context for when the player is in a vehicle, we would create a new context component `InVehicle`
 and register it as an input context. We would then define new actions specific to vehicle control,
 such as `Accelerate` and `Brake`, and associate them with the `InVehicle` context entity.
@@ -375,8 +341,6 @@ RUST_LOG=bevy_enhanced_input=debug cargo run
 The exact method depends on the OS shell.
 
 Alternatively you can configure `LogPlugin` to make it permanent.
-
-[`SpawnableList`]: bevy::ecs::spawn::SpawnableList
 */
 
 // Required for the derive macro to work within the crate.
@@ -405,15 +369,11 @@ pub mod prelude {
             relationship::{ActionOf, ActionSpawner, ActionSpawnerCommands, Actions},
             value::{ActionValue, ActionValueDim},
         },
-        actions,
         binding::{
             Binding, BindingTemplate, InputModKeys,
             mod_keys::ModKeys,
-            relationship::{
-                BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings, IntoBindingBundle,
-            },
+            relationship::{BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings},
         },
-        bindings,
         condition::{
             ConditionKind, InputCondition, block_by::*, chord::*, combo::*, cooldown::*, down::*,
             flick::*, fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
@@ -431,16 +391,20 @@ pub mod prelude {
             exponential_curve::*, fns::InputModifierAppExt, linear_step::*, negate::*, scale::*,
             smooth_nudge::*, swizzle_axis::*,
         },
-        preset::{
-            self, IntoBindingSceneBundle, WithBundle, axial::Axial, bidirectional::Bidirectional,
-            cardinal::Cardinal, ordinal::Ordinal, spatial::Spatial,
-        },
+        preset::{self, IntoBindingSceneBundle},
         smallvec_template::SmallVecTemplate,
     };
     #[allow(deprecated)]
     pub use super::{
         action::ActionState,
+        actions,
+        binding::relationship::IntoBindingBundle,
+        bindings,
         context::time::{ContextTime, TimeKind},
+        preset::{
+            WithBundle, axial::Axial, bidirectional::Bidirectional, cardinal::Cardinal,
+            ordinal::Ordinal, spatial::Spatial,
+        },
     };
     pub use bevy_enhanced_input_macros::InputAction;
 }
