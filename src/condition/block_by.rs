@@ -42,40 +42,6 @@ use crate::prelude::*;
 /// #[action_output(bool)]
 /// struct Melee;
 /// ```
-///
-/// When spawning bundles, you could use [`SpawnWith`] to get action entities during spawning:
-///
-/// ```
-/// use bevy::{ecs::spawn::SpawnWith, prelude::*};
-/// use bevy_enhanced_input::prelude::*;
-///
-/// Actions::<TestContext>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
-///     let fly = context
-///         .spawn((
-///             Action::<Fly>::new(),
-///             bindings![KeyCode::Space],
-///         ))
-///         .id();
-///
-///     // Requires `Fly` to be inactive in order to trigger.
-///     context.spawn((
-///         Action::<Melee>::new(),
-///         BlockBy::single(fly),
-///         bindings![KeyCode::KeyF],
-///     ));
-/// }));
-///
-/// #[derive(Component)]
-/// struct TestContext;
-///
-/// #[derive(InputAction)]
-/// #[action_output(bool)]
-/// struct Fly;
-///
-/// #[derive(InputAction)]
-/// #[action_output(bool)]
-/// struct Melee;
-/// ```
 #[derive(Component, Debug, Clone, FromTemplate)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct BlockBy {

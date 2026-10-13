@@ -10,8 +10,6 @@ use serde::{Deserialize, Serialize};
 use crate::prelude::*;
 
 /// Action entity associated with this binding entity.
-///
-/// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
 #[derive(Component, Deref, Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(
     feature = "reflect",
@@ -27,8 +25,6 @@ use crate::prelude::*;
 pub struct BindingOf(pub Entity);
 
 /// Binding entities associated with this action entity.
-///
-/// See also the [`bindings!`](crate::prelude::bindings) macro for conveniently spawning associated actions.
 #[derive(Component, Deref, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(
     feature = "reflect",
@@ -111,6 +107,7 @@ pub type BindingSpawnerCommands<'w> = RelatedSpawnerCommands<'w, BindingOf>;
 /// ```
 ///
 /// [`SpawnableList`]: bevy::ecs::spawn::SpawnableList
+#[deprecated(since = "0.26.0", note = "Replaced by `bsn!` with `Bindings [...]`")]
 #[macro_export]
 macro_rules! bindings {
     [$($binding:expr),*$(,)?] => {
@@ -121,6 +118,10 @@ macro_rules! bindings {
 /// Types that can be converted into a bundle whose first element can be converted into a [`Binding`].
 ///
 /// Used to avoid writing [`Binding::from`] inside [`bindings!`].
+#[deprecated(
+    since = "0.26.0",
+    note = "Only used by the deprecated `bindings!` macro"
+)]
 #[diagnostic::on_unimplemented(
     message = "`{Self}` is not a valid binding bundle. The first element must be convertible into a `Binding`.",
     label = "invalid binding bundle"
@@ -130,22 +131,31 @@ pub trait IntoBindingBundle {
     fn into_binding_bundle(self) -> impl Bundle;
 }
 
+#[allow(deprecated)]
 impl<B: Into<Binding>> IntoBindingBundle for B {
     fn into_binding_bundle(self) -> impl Bundle {
         self.into()
     }
 }
 
-macro_rules! impl_into_binding_bundle {
-    ($($C:ident),*) => {
-        impl<B: Into<Binding>, $($C: Bundle,)*> IntoBindingBundle for (B, $($C),*) {
-            #[allow(non_snake_case, reason = "tuple unpack")]
-            fn into_binding_bundle(self) -> impl Bundle {
-                let (b, $($C),* ) = self;
-                (b.into(), $($C),*)
+#[allow(deprecated)]
+mod tuple_impls {
+    use bevy::prelude::*;
+
+    use super::IntoBindingBundle;
+    use crate::prelude::Binding;
+
+    macro_rules! impl_into_binding_bundle {
+        ($($C:ident),*) => {
+            impl<B: Into<Binding>, $($C: Bundle,)*> IntoBindingBundle for (B, $($C),*) {
+                #[allow(non_snake_case, reason = "tuple unpack")]
+                fn into_binding_bundle(self) -> impl Bundle {
+                    let (b, $($C),* ) = self;
+                    (b.into(), $($C),*)
+                }
             }
         }
     }
-}
 
-variadics_please::all_tuples!(impl_into_binding_bundle, 0, 14, C);
+    variadics_please::all_tuples!(impl_into_binding_bundle, 0, 14, C);
+}

@@ -53,40 +53,6 @@ struct DoubleClick;
 #[derive(Component, Default, Clone)]
 struct Menu;
 ```
-
-When spawning bundles, use [`SpawnRelated::spawn`] or separate spawning with [`ActionOf`]/[`BindingOf`]
-because you need to pass [`Entity`] for step and cancel actions:
-
-```
-use bevy::prelude::*;
-use bevy_enhanced_input::prelude::*;
-
-# let mut world = World::new();
-world.spawn((
-    Menu,
-    Actions::<Menu>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
-        let click = context
-            .spawn((Action::<Click>::new(), bindings![MouseButton::Left]))
-            .id();
-
-        context.spawn((
-            Action::<DoubleClick>::new(),
-            Combo::default().with_step(click).with_step(click),
-        ));
-    })),
-));
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct Click;
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct DoubleClick;
-
-#[derive(Component)]
-struct Menu;
-```
 */
 #[derive(Component, Default, Debug, FromTemplate, Clone)]
 #[cfg_attr(

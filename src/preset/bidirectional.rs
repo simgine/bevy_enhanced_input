@@ -3,8 +3,6 @@ use bevy::{ecs::spawn::SpawnableList, prelude::*, ptr::MovingPtr};
 use crate::prelude::*;
 
 /// Maps 2 bindings as 1-dimensional input.
-///
-/// See also [`Bidirectional::new`] for bundle-based spawning.
 #[must_use]
 pub fn new(
     positive: impl IntoBindingSceneBundle,
@@ -22,12 +20,17 @@ pub fn new(
 /// A preset to map 2 buttons as 1-dimensional input.
 ///
 /// See also [`new`] for BSN usage.
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by `preset::bidirectional` functions in BSN"
+)]
 #[derive(Debug, Clone, Copy)]
 pub struct Bidirectional<P, N> {
     pub positive: P,
     pub negative: N,
 }
 
+#[allow(deprecated)]
 impl<P, N, T: Clone> WithBundle<T> for Bidirectional<P, N> {
     type Output = Bidirectional<(P, T), (N, T)>;
 
@@ -39,6 +42,7 @@ impl<P, N, T: Clone> WithBundle<T> for Bidirectional<P, N> {
     }
 }
 
+#[allow(deprecated)]
 impl<P: Bundle, N: Bundle> SpawnableList<BindingOf> for Bidirectional<P, N> {
     fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
         let bidirectional = this.read();
@@ -51,6 +55,7 @@ impl<P: Bundle, N: Bundle> SpawnableList<BindingOf> for Bidirectional<P, N> {
     }
 }
 
+#[allow(deprecated)]
 impl Bidirectional<Binding, Binding> {
     /// Maps 2 bindings as 1-dimensional input.
     ///

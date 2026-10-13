@@ -1,7 +1,7 @@
 //! Input bindings define which physical inputs map to an action.
 //!
-//! These are bound to actions using the [`BindingOf`] relationship,
-//! which can be created using the [`bindings!`] macro, spawned underneath an [action entity](crate::action).
+//! These are bound to actions using the [`BindingOf`] relationship, spawned underneath an
+//! [action entity](crate::action), declared in BSN using `Bindings [...]`.
 //!
 //! Inputs can be modified using [input modifiers](crate::modifier) to alter the input value captured,
 //! or [input conditions](crate::condition) to change when the action is triggered.

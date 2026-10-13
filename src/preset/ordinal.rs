@@ -7,8 +7,6 @@ use bevy::{
 use crate::prelude::*;
 
 /// Maps numpad keys as 2-dimensional input.
-///
-/// See also [`Ordinal::numpad`] for bundle-based spawning.
 #[must_use]
 pub fn numpad() -> impl SceneList {
     new(
@@ -32,8 +30,6 @@ pub fn numpad() -> impl SceneList {
 ///   🡷 🡳 🡶
 /// SW  S   SE
 /// ```
-///
-/// See also [`Ordinal::new`] for bundle-based spawning.
 #[must_use]
 #[expect(clippy::too_many_arguments)]
 pub fn new(
@@ -67,6 +63,10 @@ pub fn new(
 /// A preset to 8 map buttons as 2-dimensional input.
 ///
 /// See also [`new`] for BSN usage.
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by `preset::ordinal` functions in BSN"
+)]
 #[derive(Debug, Clone, Copy)]
 pub struct Ordinal<N, NE, E, SE, S, SW, W, NW> {
     pub north: N,
@@ -79,6 +79,7 @@ pub struct Ordinal<N, NE, E, SE, S, SW, W, NW> {
     pub north_west: NW,
 }
 
+#[allow(deprecated)]
 impl<N, NE, E, SE, S, SW, W, NW, T: Clone> WithBundle<T> for Ordinal<N, NE, E, SE, S, SW, W, NW> {
     type Output = Ordinal<(N, T), (NE, T), (E, T), (SE, T), (S, T), (SW, T), (W, T), (NW, T)>;
 
@@ -96,6 +97,7 @@ impl<N, NE, E, SE, S, SW, W, NW, T: Clone> WithBundle<T> for Ordinal<N, NE, E, S
     }
 }
 
+#[allow(deprecated)]
 impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Binding> {
     /// Maps numpad keys as 2-dimensional input.
     ///
@@ -165,6 +167,7 @@ impl Ordinal<Binding, Binding, Binding, Binding, Binding, Binding, Binding, Bind
     }
 }
 
+#[allow(deprecated)]
 impl<N, NE, E, SE, S, SW, W, NW> SpawnableList<BindingOf> for Ordinal<N, NE, E, SE, S, SW, W, NW>
 where
     N: Bundle,

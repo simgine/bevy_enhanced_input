@@ -1,4 +1,5 @@
 #![cfg(feature = "state")]
+#![allow(deprecated)]
 
 use bevy::{
     input::InputPlugin,

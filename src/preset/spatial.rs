@@ -6,8 +6,6 @@ use bevy::{
 };
 
 /// Maps 6 bindings as 3-dimensional input.
-///
-/// See also [`Spatial::new`] for bundle-based spawning.
 #[must_use]
 pub fn new(
     forward: impl IntoBindingSceneBundle,
@@ -32,6 +30,10 @@ pub fn new(
 /// A preset to map 6 buttons as 3-dimensional input.
 ///
 /// See also [`new`] for BSN usage.
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by `preset::spatial` functions in BSN"
+)]
 #[derive(Debug, Clone, Copy)]
 pub struct Spatial<F, B, L, R, U, D> {
     pub forward: F,
@@ -42,6 +44,7 @@ pub struct Spatial<F, B, L, R, U, D> {
     pub down: D,
 }
 
+#[allow(deprecated)]
 impl<F, B, L, R, U, D, T: Clone> WithBundle<T> for Spatial<F, B, L, R, U, D> {
     type Output = Spatial<(F, T), (B, T), (L, T), (R, T), (U, T), (D, T)>;
 
@@ -57,6 +60,7 @@ impl<F, B, L, R, U, D, T: Clone> WithBundle<T> for Spatial<F, B, L, R, U, D> {
     }
 }
 
+#[allow(deprecated)]
 impl Spatial<Binding, Binding, Binding, Binding, Binding, Binding> {
     /// Maps 6 bindings as 3-dimensional input.
     ///
@@ -94,6 +98,7 @@ impl Spatial<Binding, Binding, Binding, Binding, Binding, Binding> {
     }
 }
 
+#[allow(deprecated)]
 impl<F, B, L, R, U, D> SpawnableList<BindingOf> for Spatial<F, B, L, R, U, D>
 where
     F: Bundle,

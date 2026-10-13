@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use bevy::{ecs::spawn::SpawnWith, input::InputPlugin, prelude::*};
 use bevy_enhanced_input::prelude::*;
 use test_log::test;

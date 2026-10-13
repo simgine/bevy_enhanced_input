@@ -7,16 +7,12 @@ use bevy::{
 use crate::prelude::*;
 
 /// Maps WASD keys as 2-dimensional input.
-///
-/// See also [`Cardinal::wasd_keys`] for bundle-based spawning.
 #[must_use]
 pub fn wasd_keys() -> impl SceneList {
     new(KeyCode::KeyW, KeyCode::KeyD, KeyCode::KeyS, KeyCode::KeyA)
 }
 
 /// Maps keyboard arrow keys as 2-dimensional input.
-///
-/// See also [`Cardinal::arrows`] for bundle-based spawning.
 #[must_use]
 pub fn arrows() -> impl SceneList {
     new(
@@ -28,8 +24,6 @@ pub fn arrows() -> impl SceneList {
 }
 
 /// Maps D-pad as 2-dimensional input.
-///
-/// See also [`Cardinal::dpad`] for bundle-based spawning.
 #[must_use]
 pub fn dpad() -> impl SceneList {
     new(
@@ -41,8 +35,6 @@ pub fn dpad() -> impl SceneList {
 }
 
 /// Maps 4 bindings as 2-dimensional input.
-///
-/// See also [`Cardinal::new`] for bundle-based spawning.
 #[must_use]
 pub fn new(
     north: impl IntoBindingSceneBundle,
@@ -72,6 +64,10 @@ pub fn new(
 /// In Bevy's 3D space, the -Z axis points forward and the +Z axis points
 /// toward the camera. To map movement correctly in 3D space for [`Transform::translation`],
 /// you will need to invert Y and apply it to Z inside your observer.
+#[deprecated(
+    since = "0.26.0",
+    note = "Replaced by `preset::cardinal` functions in BSN"
+)]
 #[derive(Debug, Clone, Copy)]
 pub struct Cardinal<N, E, S, W> {
     pub north: N,
@@ -80,6 +76,7 @@ pub struct Cardinal<N, E, S, W> {
     pub west: W,
 }
 
+#[allow(deprecated)]
 impl<N, E, S, W, T: Clone> WithBundle<T> for Cardinal<N, E, S, W> {
     type Output = Cardinal<(N, T), (E, T), (S, T), (W, T)>;
 
@@ -93,6 +90,7 @@ impl<N, E, S, W, T: Clone> WithBundle<T> for Cardinal<N, E, S, W> {
     }
 }
 
+#[allow(deprecated)]
 impl Cardinal<Binding, Binding, Binding, Binding> {
     /// Maps WASD keys as 2-dimensional input.
     ///
@@ -145,6 +143,7 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     }
 }
 
+#[allow(deprecated)]
 impl Cardinal<Binding, Binding, Binding, Binding> {
     /// Maps D-pad as 2-dimensional input.
     ///
@@ -160,6 +159,7 @@ impl Cardinal<Binding, Binding, Binding, Binding> {
     }
 }
 
+#[allow(deprecated)]
 impl<N: Bundle, E: Bundle, S: Bundle, W: Bundle> SpawnableList<BindingOf> for Cardinal<N, E, S, W> {
     fn spawn(this: MovingPtr<'_, Self>, world: &mut World, entity: Entity) {
         let cardinal = this.read();

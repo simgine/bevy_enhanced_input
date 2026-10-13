@@ -51,40 +51,6 @@ use crate::prelude::*;
 /// #[action_output(f32)]
 /// struct Movement;
 /// ```
-///
-/// When spawning bundles, you could use [`SpawnWith`] to get action entities during spawning:
-///
-/// ```
-/// use bevy::{ecs::spawn::SpawnWith, prelude::*};
-/// use bevy_enhanced_input::prelude::*;
-///
-/// Actions::<TestContext>::spawn(SpawnWith(|context: &mut ActionSpawner<_>| {
-///     let accelerate = context
-///         .spawn((
-///             Action::<Accelerate>::new(),
-///             bindings![KeyCode::ShiftLeft, KeyCode::ShiftRight],
-///         ))
-///         .id();
-///
-///     // Sums movement when `Accelerate` is pressed.
-///     context.spawn((
-///         Action::<Movement>::new(),
-///         AccumulateBy::new(accelerate),
-///         Bindings::spawn(Cardinal::wasd_keys().with(DeadZone::default())),
-///     ));
-/// }));
-///
-/// #[derive(Component)]
-/// struct TestContext;
-///
-/// #[derive(InputAction)]
-/// #[action_output(bool)]
-/// struct Accelerate;
-///
-/// #[derive(InputAction)]
-/// #[action_output(f32)]
-/// struct Movement;
-/// ```
 #[derive(Component, Debug, FromTemplate, Clone, Copy)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct AccumulateBy {
