@@ -28,6 +28,7 @@ This crate loosely follows the development practices laid out in [Bevy's Contrib
 
 | bevy   | bevy_enhanced_input |
 | ------ | ------------------- |
+| 0.20.0 | 0.27                |
 | 0.19.0 | 0.26                |
 | 0.18.0 | 0.21-0.25           |
 | 0.17.0 | 0.19-0.20           |

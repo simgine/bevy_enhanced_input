@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-10-14
+
 ### Changed
 
 - Update to Bevy 0.20.
@@ -640,7 +642,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.26.0...HEAD
+[unreleased]: https://github.com/simgine/bevy_replicon/compare/v0.27.0...HEAD
+[0.27.0]: https://github.com/simgine/bevy_replicon/compare/v0.26.0...v0.27.0
 [0.25.0]: https://github.com/simgine/bevy_replicon/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/simgine/bevy_replicon/compare/v0.24.4...v0.25.0
 [0.24.4]: https://github.com/simgine/bevy_replicon/compare/v0.24.3...v0.24.4
