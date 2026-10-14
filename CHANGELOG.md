@@ -9,10 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.0] - 2026-10-14
 
+### Added
+
+- BSN support. Everything now can be declared in BSN.
+
 ### Changed
 
 - Update to Bevy 0.20.
 - Split `EnhancedInputSystems::Apply` into two sets: `Apply` (where `Action` gets updated) and `Trigger` (where observers get triggered)
+
+### Deprecated
+
+- All bundle-related API. Use BSN instead.
 
 ### Fixed
 
