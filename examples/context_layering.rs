@@ -8,8 +8,8 @@
 //!
 //! In this example, we have a [`Player`] context that allows basic movement and jumping.
 //! When the player enters a vehicle, we add a [`Driving`] context on top of the [`Player`] context.
-//! The [`Driving`] context overrides the jump action with a brake action and adds actions for entering
-//! and exiting the vehicle.
+//! The [`Driving`] context consumes the jump inputs with a brake action and adds an action for exiting
+//! the vehicle. The action for entering the vehicle belongs to the [`Player`] context.
 
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -69,7 +69,7 @@ fn jump(_on: On<Start<Jump>>) {
 
 fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
     // `Player` has lower priority, so `Brake` and `ExitCar` consume inputs first,
-    // preventing `Rotate` and `EnterCar` from being triggered.
+    // preventing `Jump` and `EnterCar` from being triggered.
     // The consuming behavior can be configured using `ActionSettings` component.
     info!("entering car");
     commands.entity(enter.context).apply_scene(bsn! {
@@ -77,6 +77,9 @@ fn enter_car(enter: On<Start<EnterCar>>, mut commands: Commands) {
         ~ContextPriority::<Driving>::new(1)
         Actions<Driving> [
             Action::<Brake>::new()
+            ActionSettings {
+                consume_input: true,
+            }
             Bindings [
                 Binding(KeyCode::Space)
                 --
