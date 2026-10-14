@@ -17,3 +17,7 @@ skip-tree = ["bevy"]
 
 [advisories]
 version = 2
+ignore = [
+  # From `bevy_image`.
+  "RUSTSEC-2026-0344",
+]
