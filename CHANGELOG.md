@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update to Bevy 0.20.
 - Split `EnhancedInputSystems::Apply` into two sets: `Apply` (where `Action` gets updated) and `Trigger` (where observers get triggered)
 
 ### Fixed
