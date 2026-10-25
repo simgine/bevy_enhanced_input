@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- `Cooldown` input condition. It was implemented only because it was present in Unreal Engine's Enhanced Input, but input conditions are the wrong abstraction level for cooldowns. Handle cooldowns in gameplay logic instead.
+
 ## [0.27.0] - 2026-10-14
 
 ### Added

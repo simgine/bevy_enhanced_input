@@ -382,8 +382,8 @@ pub mod prelude {
             relationship::{BindingOf, BindingSpawner, BindingSpawnerCommands, Bindings},
         },
         condition::{
-            ConditionKind, InputCondition, block_by::*, chord::*, combo::*, cooldown::*, down::*,
-            flick::*, fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
+            ConditionKind, InputCondition, block_by::*, chord::*, combo::*, down::*, flick::*,
+            fns::InputConditionAppExt, hold::*, hold_and_release::*, press::*, pulse::*,
             release::*, tap::*, toggle::*,
         },
         context::{
@@ -407,6 +407,7 @@ pub mod prelude {
         actions,
         binding::relationship::IntoBindingBundle,
         bindings,
+        condition::cooldown::Cooldown,
         context::time::{ContextTime, TimeKind},
         preset::{
             WithBundle, axial::Axial, bidirectional::Bidirectional, cardinal::Cardinal,
@@ -433,6 +434,9 @@ pub struct EnhancedInputPlugin;
 
 impl Plugin for EnhancedInputPlugin {
     fn build(&self, app: &mut App) {
+        #[allow(deprecated)]
+        app.add_input_condition::<Cooldown>();
+
         app.init_resource::<ContextRegistry>()
             .init_resource::<ConsumedInputs>()
             .init_resource::<PendingBindings>()
@@ -451,7 +455,6 @@ impl Plugin for EnhancedInputPlugin {
             .add_input_condition::<Pulse>()
             .add_input_condition::<Release>()
             .add_input_condition::<Tap>()
-            .add_input_condition::<Cooldown>()
             .add_input_condition::<Toggle>()
             .add_input_modifier::<AccumulateBy>()
             .add_input_modifier::<Clamp>()

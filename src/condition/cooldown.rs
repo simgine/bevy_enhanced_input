@@ -7,6 +7,10 @@ use crate::prelude::*;
 
 /// Returns [`TriggerState::Fired`] when actuated, then [`TriggerState::None`]
 /// on subsequent actuations until the cooldown duration has elapsed.
+#[deprecated(
+    since = "0.27.1",
+    note = "Cooldowns belong in gameplay logic, not input conditions"
+)]
 #[derive(Component, Debug, Clone)]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Clone, Component, Debug))]
 pub struct Cooldown {

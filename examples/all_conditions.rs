@@ -99,12 +99,6 @@ fn spawn(mut commands: Commands) {
                 Binding(TestBlockBy::KEY)
             ]
             --
-            Action::<TestCooldown>::new()
-            ~Cooldown::new(1.0)
-            Bindings [
-                Binding(TestCooldown::KEY)
-            ]
-            --
             #combo_step
             Action::<ComboStep>::new()
             Bindings [
@@ -218,14 +212,6 @@ struct TestBlockBy;
 
 impl TestBlockBy {
     const KEY: KeyCode = KeyCode::Minus;
-}
-
-#[derive(InputAction)]
-#[action_output(bool)]
-struct TestCooldown;
-
-impl TestCooldown {
-    const KEY: KeyCode = KeyCode::Equal;
 }
 
 #[derive(InputAction)]

@@ -60,6 +60,7 @@ world.spawn_scene(bsn! {
 pub mod block_by;
 pub mod chord;
 pub mod combo;
+#[allow(deprecated)]
 pub mod cooldown;
 pub mod down;
 pub mod flick;
