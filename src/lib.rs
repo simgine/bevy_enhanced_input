@@ -73,7 +73,7 @@ evaluated during [`PreUpdate`], but you can customize this by using [`InputConte
 
 Let's summarize how contexts, actions, and bindings relate to each other in the ECS world.
 
-You start with an entity that has a context component, such as `Player` with `OnFoot` context.
+You start with an entity that has a context component, such as `OnFoot` context component.
 This context is an ordinary component, registered as an input context using
 [`App::add_input_context`](InputContextAppExt::add_input_context).
 
@@ -98,6 +98,9 @@ use bevy_enhanced_input::prelude::*;
 #[derive(Component, Default, Clone)]
 struct Player;
 
+#[derive(Component, Default, Clone)]
+struct OnFoot;
+
 #[derive(InputAction)]
 #[action_output(bool)]
 struct Jump;
@@ -109,12 +112,13 @@ struct Fire;
 let mut app = App::new();
 # app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
 app.add_plugins(EnhancedInputPlugin)
-    .add_input_context::<Player>()
+    .add_input_context::<OnFoot>()
     .finish();
 
 app.world_mut().spawn_scene(bsn! {
     Player
-    Actions<Player> [
+    OnFoot
+    Actions<OnFoot> [
         Action::<Jump>::new()
         Bindings [
             Binding(KeyCode::Space)
@@ -139,6 +143,9 @@ such as `Accelerate` and `Brake`, and associate them with the `InVehicle` contex
 If we wanted to add another action to the `OnFoot` context, such as `Crouch`, we would define a new action type `Crouch`
 and associate it with the `OnFoot` context for our player entity.
 
+If you don't need context switching, you can make your `Player` itself can serve as the context: register it with
+`.add_input_context::<Player>()` and associate its actions using `Actions<Player>`, without a separate `OnFoot` component.
+
 And if we wanted to add a new key binding for the `Jump` action, such as the "J" key,
 we would simply add a new binding to the existing `Jump` action on our player entity.
 
@@ -155,10 +162,10 @@ or when a joystick is moved beyond a certain threshold.
 There are two main ways to achieve this: using input conditions and input modifiers:
 
 - Input conditions define when an action is considered to be triggered based on the state of its bindings.
-    - For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
+    - For example, the [`Hold`] condition can be used to trigger an action only when a button is held down for a specified duration.
     - When no input conditions are attached to an action or its bindings, the action behaves as if it has a [`Down`] condition with a zero actuation threshold.
 - Input modifiers transform the raw input values from bindings before they are processed by the action.
-    - For example, the [`Hold`] condition can be used to trigger an action only when a button is held down for a specified duration.
+    - For example, the [`DeadZone`] modifier can be used to ignore small movements of a joystick.
     - When no input modifiers are attached, the raw input value is passed through unchanged.
 
 See the module docs for [input conditions](crate::condition) and [input modifiers](crate::modifier) for more details.
