@@ -434,17 +434,18 @@ pub struct EnhancedInputPlugin;
 
 impl Plugin for EnhancedInputPlugin {
     fn build(&self, app: &mut App) {
-        #[allow(deprecated)]
-        app.add_input_condition::<Cooldown>();
-
         app.init_resource::<ContextRegistry>()
             .init_resource::<ConsumedInputs>()
             .init_resource::<PendingBindings>()
             .init_resource::<ActionSources>()
             .init_resource::<CustomInputs>()
             .init_resource::<ConditionRegistry>()
-            .init_resource::<ModifierRegistry>()
-            .add_input_condition::<BlockBy>()
+            .init_resource::<ModifierRegistry>();
+
+        #[allow(deprecated)]
+        app.add_input_condition::<Cooldown>();
+
+        app.add_input_condition::<BlockBy>()
             .add_input_condition::<Chord>()
             .add_input_condition::<Combo>()
             .add_input_condition::<Down>()
