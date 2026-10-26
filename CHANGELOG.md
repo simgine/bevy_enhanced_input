@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.2] - 2026-10-26
+
+### Fixed
+
+- Panic during `EnhancedInputPlugin` initialization.
+
 ## [0.27.1] - 2026-10-25
 
 ### Deprecated
@@ -656,7 +662,8 @@ This update features a big rewrite into a component-based API. The core concepts
 
 Initial release.
 
-[unreleased]: https://github.com/simgine/bevy_enhanced_input/compare/v0.27.1...HEAD
+[unreleased]: https://github.com/simgine/bevy_enhanced_input/compare/v0.27.2...HEAD
+[0.27.2]: https://github.com/simgine/bevy_enhanced_input/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/simgine/bevy_enhanced_input/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/simgine/bevy_replicon/compare/v0.26.0...v0.27.0
 [0.25.0]: https://github.com/simgine/bevy_replicon/compare/v0.25.0...v0.26.0
